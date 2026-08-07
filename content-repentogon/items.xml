@@ -1,5 +1,8 @@
 <items gfxroot="gfx/items/" version="1">
     <active name="Underhands" description="Bound to this world" gfx="Collectibles_016_RawLiver.png" maxcharges="6" />
+
+	<trinket name="Toy Metronome" description="click!" gfx="trinket_001_swallowedpenny.png"  />
+
     <null name="Percy Revive" customtags="revive" persistent="true" />
     <null name="Dead Cat Revive" customtags="revive" persistent="true" />
 </items>

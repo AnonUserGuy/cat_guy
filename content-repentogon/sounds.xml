@@ -1,0 +1,5 @@
+<sounds root="sfx_cat_guy/">
+    <sound name="Rimshot">
+        <sample weight="1" path="rimshot.wav" />
+    </sound>
+</sounds>

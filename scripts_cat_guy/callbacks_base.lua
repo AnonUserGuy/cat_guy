@@ -1,0 +1,4 @@
+---@class Callbacks
+---@field PostNewRoom? fun()
+---@field PostGameStarted? fun(continued: boolean)
+---@field PreTriggerPlayerDeath? fun(player: EntityPlayer)
