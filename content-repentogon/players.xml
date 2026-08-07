@@ -1,0 +1,12 @@
+<players root="gfx/characters/costumes/" portraitroot="gfx/ui/stage/" nameimageroot="gfx/ui/boss/">
+    <player name="Percy" skin="Character_012_TheLost.png" hp="0" healthtype="2" coins="1"
+        nameimage="PlayerName_12_TheLost.png" 
+        portrait="PlayerPortrait_TheLost.png" skinColor="0"
+        birthright="More lives per life +2 lives" 
+    />
+    <player name="Percy" bSkinParent="Percy" skin="Character_012_TheLost.png" hp="0" healthtype="2" coins="1"
+        nameimage="PlayerName_12_TheLost.png" 
+        portrait="PlayerPortrait_TheLost.png" skinColor="0"
+        birthright="More lives per life +2 lives" 
+    />
+</players>
