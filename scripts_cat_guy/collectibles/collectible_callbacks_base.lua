@@ -1,0 +1,3 @@
+---@class CollectibleCallbacks
+---@field PostAddCollectible? fun(type: CollectibleType, charge: integer, firstTime: boolean, slot: integer, varData: integer, player: EntityPlayer)
+---@field UseItem? fun(itemId: CollectibleType, rng: RNG, player: EntityPlayer, flags: integer, slot: ActiveSlot, custonVarData: integer): boolean?
