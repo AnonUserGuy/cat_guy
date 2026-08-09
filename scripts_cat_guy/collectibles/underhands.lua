@@ -3,18 +3,17 @@ local ITEM_ID_UNDERHANDS = Isaac.GetItemIdByName("Underhands")
 local PERCY_LIVES_INIT = 3
 local BOOK_OF_SHADOWS_DURATION = 90
 
----@type PlayerUtils
-local util = include("scripts_cat_guy.players.player_utils")
-
 ---@type CollectibleCallbacks
 local underhands = {}
 
 function underhands.PostNewRoom()
+    local util = CatGuy.PlayerUtils
     util.AnimatePercies()
-    util.RevivePercies(true)
+    util.RevivePercies()
 end
 
 function underhands.PreTriggerPlayerDeath(player)
+    local util = CatGuy.PlayerUtils
     if util.GetExtraLivesEX(player) > 0 then
         if player:GetEffects():HasCollectibleEffect(ITEM_ID_UNDERHANDS) then
             player:AddCollectibleEffect(CollectibleType.COLLECTIBLE_BOOK_OF_SHADOWS, true, BOOK_OF_SHADOWS_DURATION)
@@ -27,13 +26,14 @@ function underhands.PreTriggerPlayerDeath(player)
     end
 end
 
-function underhands.PostAddCollectible(_, _, firstTime, _, _, player)
+function underhands.PostAddCollectible_item(_, _, firstTime, _, _, player)
+    local util = CatGuy.PlayerUtils
     if firstTime then
         util.AddPercyLives(player, PERCY_LIVES_INIT)
     end
 end
 
-function underhands.UseItem(_, _, player, _, _, _)
+function underhands.UseItem_item(_, _, player, _, _, _)
     player:AddCollectibleEffect(CollectibleType.COLLECTIBLE_BOOK_OF_SHADOWS, true, BOOK_OF_SHADOWS_DURATION)
     return true
 end

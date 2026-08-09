@@ -1,20 +1,111 @@
 ---@class TempoDef
----@field offset? integer offset of music playback in milliseconds
----@field bpm number initial tempo in bpm 
----@field timeSig? integer initial time signature of song in beats per bar 
----@field timeSigs? table<integer, integer>
+---@field offset? integer offset of music playback in milliseconds. Defaults to 0 ms.
+---@field bpm number initial tempo in BPM.
+---@field bpms? table<integer, integer> time indices (in milliseconds) of tempo changes (in BPM)
+---@field bpmIndices? table<integer, integer>
+---@field timeSig? integer initial time signature in beats per bar. Defaults to 4. -1 disables time signature stuff.
+---@field timeSigs? table<integer, integer> beat indices of time signature changes (in beats per bar)
 
 ---@type table<Music, TempoDef>
 local tempoDefs = {
-    [Music.MUSIC_BASEMENT]              = {bpm = 140},
-    [Music.MUSIC_CAVES]                 = {bpm = 120},
-    [Music.MUSIC_DEPTHS]                = {bpm = 95},
-    [Music.MUSIC_CELLAR]                = {bpm = 140},
-    [Music.MUSIC_CATACOMBS]             = {bpm = 120},
-    [Music.MUSIC_NECROPOLIS]            = {bpm = 120},
-    [Music.MUSIC_WOMB_UTERO]            = {bpm = 90},
-    [Music.MUSIC_GAME_OVER]             = {bpm = 85, timeSig = 3},
-    [Music.MUSIC_BURNING_BASEMENT]      = {bpm = 140, timeSigs = {[2] = 4}},
+    [Music.MUSIC_BASEMENT]                      = {bpm = 140},
+    [Music.MUSIC_CAVES]                         = {bpm = 120}, -- needs offset?
+    [Music.MUSIC_DEPTHS]                        = {bpm = 95},
+    [Music.MUSIC_CELLAR]                        = {bpm = 140, offset = 64},
+    [Music.MUSIC_CATACOMBS]                     = {bpm = 120},
+    [Music.MUSIC_NECROPOLIS]                    = {bpm = 120},
+    [Music.MUSIC_WOMB_UTERO]                    = {bpm = 90},
+    [Music.MUSIC_GAME_OVER]                     = {bpm = 85, timeSig = 3}, --seems to naturally vary, needs precise measurement
+    [Music.MUSIC_BOSS]                          = {bpm = 150},
+    [Music.MUSIC_CATHEDRAL]                     = {bpm = 100},
+    [Music.MUSIC_SHEOL]                         = {bpm = 110, offset = 269},
+    [Music.MUSIC_DARK_ROOM]                     = {bpm = 90, offset = 82},
+    [Music.MUSIC_CHEST]                         = {bpm = 110, offset = 3},
+    [Music.MUSIC_BURNING_BASEMENT]              = {bpm = 140, timeSigs = {[2] = 4}},
+    [Music.MUSIC_FLOODED_CAVES]                 = {bpm = 120, offset = 100},
+    [Music.MUSIC_DANK_DEPTHS]                   = {bpm = 95},
+    --[Music.MUSIC_SCARRED_WOMB]                  = {bpm = 0},
+    --[Music.MUSIC_BLUE_WOMB]                     = {bpm = 0},
+    --[Music.MUSIC_UTERO]                         = {bpm = 0},
+    --[Music.MUSIC_MOM_BOSS]                      = {bpm = 0},
+    --[Music.MUSIC_MOMS_HEART_BOSS]               = {bpm = 0},
+    --[Music.MUSIC_ISAAC_BOSS]                    = {bpm = 0},
+    --[Music.MUSIC_SATAN_BOSS]                    = {bpm = 0},
+    --[Music.MUSIC_DARKROOM_BOSS]                 = {bpm = 0},
+    --[Music.MUSIC_BLUEBABY_BOSS]                 = {bpm = 0},
+    --[Music.MUSIC_BOSS2]                         = {bpm = 0},
+    --[Music.MUSIC_HUSH_BOSS]                     = {bpm = 0},
+    --[Music.MUSIC_ULTRAGREED_BOSS]               = {bpm = 0},
+    [Music.MUSIC_LIBRARY_ROOM]                  = {bpm = 110, offset = 57},
+    [Music.MUSIC_SECRET_ROOM]                   = {bpm = 120, timeSig = 3},
+    [Music.MUSIC_SECRET_ROOM2]                  = {bpm = 120, timeSig = 3},
+    ----[Music.MUSIC_DEVIL_ROOM]                    = {bpm = 0}, -- arrhythmic
+    [Music.MUSIC_ANGEL_ROOM]                    = {bpm = 100},
+    [Music.MUSIC_SHOP_ROOM]                     = {bpm = 80, bpms = {[7580] = 89.418, [8250] = 80}, offset = 81},
+    [Music.MUSIC_ARCADE_ROOM]                   = {bpm = 130},
+    [Music.MUSIC_BOSS_OVER]                     = {bpm = 85, timeSig = 3}, -- needs offset?
+    [Music.MUSIC_CHALLENGE_FIGHT]               = {bpm = 150}, -- needs offset?
+    [Music.MUSIC_BOSS_RUSH]                     = {bpm = 180, timeSig = 7},
+    ----[Music.MUSIC_JINGLE_BOSS_RUSH_OUTRO]        = {bpm = 0},
+    --[Music.MUSIC_BOSS3]                         = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_BOSS_OVER3]             = {bpm = 0},
+    --[Music.MUSIC_MOTHER_BOSS]                   = {bpm = 0},
+    --[Music.MUSIC_DOGMA_BOSS]                    = {bpm = 0},
+    --[Music.MUSIC_BEAST_BOSS]                    = {bpm = 0}, -- this one might work but it'll need hardcoded logic
+    ----[Music.MUSIC_JINGLE_MOTHER_OVER]            = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_DOGMA_OVER]             = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_BEAST_OVER]             = {bpm = 0},
+    --[Music.MUSIC_PLANETARIUM]                   = {bpm = 0},
+    --[Music.MUSIC_SECRET_ROOM_ALT_ALT]           = {bpm = 0},
+    --[Music.MUSIC_BOSS_OVER_TWISTED]             = {bpm = 0},
+    ----[Music.MUSIC_CREDITS]                       = {bpm = 0},
+    ----[Music.MUSIC_TITLE]                         = {bpm = 0},
+    ----[Music.MUSIC_TITLE_AFTERBIRTH]              = {bpm = 0},
+    ----[Music.MUSIC_TITLE_REPENTANCE]              = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_GAME_START_ALT]         = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_NIGHTMARE_ALT]          = {bpm = 0},
+    ----[Music.MUSIC_MOTHERS_SHADOW_INTRO]          = {bpm = 0},
+    ----[Music.MUSIC_DOGMA_INTRO]                   = {bpm = 0},
+    ----[Music.MUSIC_STRANGE_DOOR_JINGLE]           = {bpm = 0},
+    ----[Music.MUSIC_DARK_CLOSET]                   = {bpm = 0},
+    ----[Music.MUSIC_CREDITS_ALT]                   = {bpm = 0},
+    ----[Music.MUSIC_CREDITS_ALT_FINAL]             = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_BOSS]                   = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_BOSS_OVER]              = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_HOLYROOM_FIND]          = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_SECRETROOM_FIND]        = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_TREASUREROOM_ENTRY_0]   = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_TREASUREROOM_ENTRY_1]   = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_TREASUREROOM_ENTRY_2]   = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_TREASUREROOM_ENTRY_3]   = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_CHALLENGE_ENTRY]        = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_CHALLENGE_OUTRO]        = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_GAME_OVER]              = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_DEVILROOM_FIND]         = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_GAME_START]             = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_NIGHTMARE]              = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_BOSS_OVER2]             = {bpm = 0},
+    ----[Music.MUSIC_JINGLE_HUSH_OVER]              = {bpm = 0},
+    ----[Music.MUSIC_INTRO_VOICEOVER]               = {bpm = 0},
+    ----[Music.MUSIC_EPILOGUE_VOICEOVER]            = {bpm = 0},
+    --[Music.MUSIC_VOID]                          = {bpm = 0},
+    --[Music.MUSIC_VOID_BOSS]                     = {bpm = 0},
+    --[Music.MUSIC_DOWNPOUR]                      = {bpm = 0},
+    --[Music.MUSIC_MINES]                         = {bpm = 0},
+    --[Music.MUSIC_MAUSOLEUM]                     = {bpm = 0},
+    --[Music.MUSIC_CORPSE]                        = {bpm = 0},
+    --[Music.MUSIC_DROSS]                         = {bpm = 0},
+    --[Music.MUSIC_ASHPIT]                        = {bpm = 0},
+    --[Music.MUSIC_GEHENNA]                       = {bpm = 0},
+    ----[Music.MUSIC_MORTIS]                        = {bpm = 0},
+    --[Music.MUSIC_ISAACS_HOUSE]                  = {bpm = 0},
+    ----[Music.MUSIC_FINAL_VOICEOVER]               = {bpm = 0},
+    --[Music.MUSIC_DOWNPOUR_REVERSE]              = {bpm = 0},
+    --[Music.MUSIC_DROSS_REVERSE]                 = {bpm = 0},
+    ----[Music.MUSIC_MINESHAFT_AMBIENT]             = {bpm = 0},
+    --[Music.MUSIC_MINESHAFT_ESCAPE]              = {bpm = 0},
+    --[Music.MUSIC_REVERSE_GENESIS]               = {bpm = 0},
+    --[Music.MUSIC_DEATHMATCH]                    = {bpm = 0}
 }
 
 return tempoDefs

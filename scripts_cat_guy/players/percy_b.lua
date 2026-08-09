@@ -1,8 +1,5 @@
 local ITEM_ID_UNDERHANDS = Isaac.GetItemIdByName("Underhands")
 
----@type PlayerUtils
-local util = include("scripts_cat_guy.players.player_utils")
-
 ---@type PlayerCallbacks
 local percyB = {}
 
@@ -27,6 +24,7 @@ function percyB.PostAddBirthright_player(_, _, _, _, _, player)
 end
 
 function percyB.PrePlayerAddMaxHearts_player(player, amount)
+    local util = CatGuy.PlayerUtils
     if player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) and amount > 0 then
         util.AddPercyLives(player, amount)
     else

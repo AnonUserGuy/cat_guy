@@ -2,3 +2,5 @@
 ---@field PostNewRoom? fun()
 ---@field PostGameStarted? fun(continued: boolean)
 ---@field PreTriggerPlayerDeath? fun(player: EntityPlayer)
+---@field UseItem? fun(itemId: CollectibleType, rng: RNG, player: EntityPlayer, flags: integer, slot: ActiveSlot, custonVarData: integer): boolean?
+---@field Tick? fun(measure?: boolean)

@@ -1,0 +1,2 @@
+---@class TrinketCallbacks: Callbacks
+---@field PrePlayerHUDTrinketRender_trinket? fun(slot: integer, position: Vector, scale: number, player: EntityPlayer, cropOffset: Vector): table|boolean?

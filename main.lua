@@ -2,72 +2,94 @@ if not REPENTOGON then
     return
 end
 
----@type table<PlayerType, PlayerCallbacks>
-local playerCallbacks = {}
-playerCallbacks[Isaac.GetPlayerTypeByName("Percy")]         = include("scripts_cat_guy.players.percy")
-playerCallbacks[Isaac.GetPlayerTypeByName("Percy", true)]   = include("scripts_cat_guy.players.percy_b")
+---@class CatGuyMod: ModReference
+CatGuy = RegisterMod("cat_guy", 1)
 
----@type table<CollectibleType, CollectibleCallbacks>
-local collectibleCallbacks = {}
-collectibleCallbacks[Isaac.GetItemIdByName("Underhands")]   = include("scripts_cat_guy.collectibles.underhands")
-
+---@type PlayerUtils
+CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils")
 
 ---@type TempoManager
-local tempoManager = include("scripts_cat_guy.tempo.tempo_manager")
+local TempoManager = include("scripts_cat_guy.tempo.tempo_manager")
+---@type table<Music, TempoDef>
+local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs")
+CatGuy.TempoManager = TempoManager:New(tempoDefs)
 
+---@type table<PlayerType, PlayerCallbacks>
+CatGuy.PlayerCallbacks = {}
+CatGuy.PlayerCallbacks[Isaac.GetPlayerTypeByName("Percy")]         = include("scripts_cat_guy.players.percy")
+CatGuy.PlayerCallbacks[Isaac.GetPlayerTypeByName("Percy", true)]   = include("scripts_cat_guy.players.percy_b")
 
----@class ModCatGuy: ModReference
-local mod = RegisterMod("cat_guy", 1)
+---@type table<CollectibleType, CollectibleCallbacks>
+CatGuy.CollectibleCallbacks = {}
+CatGuy.CollectibleCallbacks[Isaac.GetItemIdByName("Underhands")]   = include("scripts_cat_guy.collectibles.underhands")
+
+---@type table<TrinketType, TrinketCallbacks>
+CatGuy.TrinketCallbacks = {}
+CatGuy.TrinketCallbacks[Isaac.GetTrinketIdByName("Toy Metronome")] = include("scripts_cat_guy.trinkets.toy_metronome")
+
 
 ---@param player EntityPlayer
-function mod:PostPlayerInit(player)
-    local callbacks = playerCallbacks[player:GetPlayerType()]
+function CatGuy:PostPlayerInit(player)
+    local callbacks = self.PlayerCallbacks[player:GetPlayerType()]
     if callbacks and callbacks.PostPlayerInit_player then
         return callbacks.PostPlayerInit_player(player)
     end
 end
 
 ---@param player EntityPlayer
-function mod:PostPlayerUpdate(player)
-    local callbacks = playerCallbacks[player:GetPlayerType()]
+function CatGuy:PostPlayerUpdate(player)
+    local callbacks = self.PlayerCallbacks[player:GetPlayerType()]
     if callbacks and callbacks.PostPlayerUpdate_player then
         return callbacks.PostPlayerUpdate_player(player)
     end
 end
 
 ---@param player EntityPlayer
-function mod:PostAddBirthright(ype, charge, firstTime, slot, varData, player)
-    local callbacks = playerCallbacks[player:GetPlayerType()]
+function CatGuy:PostAddBirthright(type, charge, firstTime, slot, varData, player)
+    local callbacks = self.PlayerCallbacks[player:GetPlayerType()]
     if callbacks and callbacks.PostAddBirthright_player then
-        return callbacks.PostAddBirthright_player(ype, charge, firstTime, slot, varData, player)
+        return callbacks.PostAddBirthright_player(type, charge, firstTime, slot, varData, player)
     end
 end
 
 ---@param player EntityPlayer
-function mod:PreTriggerPlayerDeath(player)
-    local callbacks = playerCallbacks[player:GetPlayerType()]
+function CatGuy:PreTriggerPlayerDeath(player)
+    local callbacks = self.PlayerCallbacks[player:GetPlayerType()]
     if callbacks and callbacks.PreTriggerPlayerDeath_player then
-        callbacks.PreTriggerPlayerDeath_player(player)
+        return callbacks.PreTriggerPlayerDeath_player(player)
     end
 end
 
 ---@param player EntityPlayer
 ---@param amount integer
-function mod:PrePlayerAddMaxHearts(player, amount)
-    local callbacks = playerCallbacks[player:GetPlayerType()]
+function CatGuy:PrePlayerAddMaxHearts(player, amount)
+    local callbacks = self.PlayerCallbacks[player:GetPlayerType()]
     if callbacks and callbacks.PrePlayerAddMaxHearts_player then
         return callbacks.PrePlayerAddMaxHearts_player(player, amount)
     end
 end
 
-mod:AddCallback(ModCallbacks.MC_POST_PLAYER_INIT, mod.PostPlayerInit, PlayerVariant.PLAYER)
-mod:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, mod.PostPlayerUpdate, PlayerVariant.PLAYER)
-mod:AddCallback(ModCallbacks.MC_PRE_TRIGGER_PLAYER_DEATH, mod.PreTriggerPlayerDeath)
-mod:AddCallback(ModCallbacks.MC_PRE_PLAYER_ADD_HEARTS, mod.PrePlayerAddMaxHearts, AddHealthType.MAX)
-mod:AddCallback(ModCallbacks.MC_POST_ADD_COLLECTIBLE, mod.PostAddBirthright, CollectibleType.COLLECTIBLE_BIRTHRIGHT)
+---@param slot integer
+---@param position Vector
+---@param scale number
+---@param player EntityPlayer
+---@param cropOffset Vector
+function CatGuy:PrePlayerHUDTrinketRender(slot, position, scale, player, cropOffset)
+    local callbacks = self.TrinketCallbacks[player:GetTrinket(slot)]
+    if callbacks and callbacks.PrePlayerHUDTrinketRender_trinket then
+        return callbacks.PrePlayerHUDTrinketRender_trinket(slot, position, scale, player, cropOffset)
+    end
+end
+
+CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_INIT, CatGuy.PostPlayerInit, PlayerVariant.PLAYER)
+CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, CatGuy.PostPlayerUpdate, PlayerVariant.PLAYER)
+CatGuy:AddCallback(ModCallbacks.MC_PRE_TRIGGER_PLAYER_DEATH, CatGuy.PreTriggerPlayerDeath)
+CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYER_ADD_HEARTS, CatGuy.PrePlayerAddMaxHearts, AddHealthType.MAX)
+CatGuy:AddCallback(ModCallbacks.MC_POST_ADD_COLLECTIBLE, CatGuy.PostAddBirthright, CollectibleType.COLLECTIBLE_BIRTHRIGHT)
+CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYERHUD_TRINKET_RENDER, CatGuy.PrePlayerHUDTrinketRender)
 
 ---@param callbacks Callbacks
-function mod:AddCallbacks(callbacks)
+function CatGuy:AddCallbacks(callbacks)
     if callbacks.PostNewRoom then
         self:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, function(_)
             return callbacks.PostNewRoom()
@@ -83,38 +105,52 @@ function mod:AddCallbacks(callbacks)
             return callbacks.PreTriggerPlayerDeath(player)
         end)
     end
+    if callbacks.UseItem then
+        self:AddCallback(ModCallbacks.MC_USE_ITEM, function(_, itemId, rng, player, flags, slot, custonVarData)
+            return callbacks.UseItem(itemId, rng, player, flags, slot, custonVarData)
+        end)
+    end
+    if callbacks.Tick then
+        self:AddCallback("CAT_GUY_TICK", function(_, measure)
+            return callbacks.Tick(measure)
+        end)
+    end
 end
 
 ---@param itemId CollectibleType
 ---@param callbacks CollectibleCallbacks
-function mod:AddCollectibleCallbacks(itemId, callbacks)
+function CatGuy:AddCollectibleCallbacks(itemId, callbacks)
     self:AddCallbacks(callbacks)
-    if callbacks.PostAddCollectible then
+    if callbacks.PostAddCollectible_item then
         self:AddCallback(ModCallbacks.MC_POST_ADD_COLLECTIBLE, function(_, type, charge, firstTime, slot, varData, player)
-            return callbacks.PostAddCollectible(type, charge, firstTime, slot, varData, player)
+            return callbacks.PostAddCollectible_item(type, charge, firstTime, slot, varData, player)
         end, itemId)
     end
-    if callbacks.UseItem then
+    if callbacks.UseItem_item then
         self:AddCallback(ModCallbacks.MC_USE_ITEM, function(_, itemId, rng, player, flags, slot, custonVarData)
-            return callbacks.UseItem(itemId, rng, player, flags, slot, custonVarData)
+            return callbacks.UseItem_item(itemId, rng, player, flags, slot, custonVarData)
         end, itemId)
     end
 end
 
-for itemId, callbacks in pairs(collectibleCallbacks) do
-    mod:AddCollectibleCallbacks(itemId, callbacks)
+for itemId, callbacks in pairs(CatGuy.CollectibleCallbacks) do
+    CatGuy:AddCollectibleCallbacks(itemId, callbacks)
 end
 
-for _, callbacks in pairs(playerCallbacks) do
-    mod:AddCallbacks(callbacks)
+for _, callbacks in pairs(CatGuy.PlayerCallbacks) do
+    CatGuy:AddCallbacks(callbacks)
+end
+
+for _, callbacks in pairs(CatGuy.TrinketCallbacks) do
+    CatGuy:AddCallbacks(callbacks)
 end
 
 
 
-mod:AddCallback(ModCallbacks.MC_PRE_MUSIC_PLAY, function(_, music, volume, isFade)
-    tempoManager.PreMusicPlay(music, volume, isFade)
+CatGuy:AddCallback(ModCallbacks.MC_PRE_MUSIC_PLAY, function(_, music, _, _)
+    CatGuy.TempoManager:PreMusicPlay(music)
 end)
 
-mod:AddCallback(ModCallbacks.MC_POST_RENDER, function(_)
-    tempoManager.PostRender()
+CatGuy:AddCallback(ModCallbacks.MC_POST_RENDER, function(_)
+    CatGuy.TempoManager:PostRender()
 end)
