@@ -33,4 +33,20 @@ function percy.PostPlayerUpdate_player(player)
     end
 end
 
+local function ApplyShader(player)
+    local shader = "shaders/coloroffset_percy"
+
+    -- Base player sprite
+    player:GetSprite():SetCustomShader(shader)
+
+    -- Costume sprites
+    for _, costume in ipairs(player:GetCostumeSpriteDescs()) do
+        costume:GetSprite():SetCustomShader(shader)
+    end
+end
+
+function percy.PostPlayerRender_player(player)
+    ApplyShader(player)
+end
+
 return percy

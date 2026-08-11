@@ -6,6 +6,8 @@
 	],
 	"settings": {
 		"files.associations": {
+			"*.anm2": "xml",
+			"*.fs": "glsl",
 			".anm2": "xml"
 		},
 		"xml.downloadExternalResources.enabled": true

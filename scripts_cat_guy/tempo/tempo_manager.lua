@@ -107,4 +107,12 @@ function TempoManager:PrepareTempoDef(tempoDef)
     end
 end
 
+function TempoManager:RestartMusic()
+    local room = Game():GetRoom()
+    if room then
+        MusicManager():Play(Music.MUSIC_TITLE, 1)
+        room:PlayMusic()
+    end
+end
+
 return TempoManager

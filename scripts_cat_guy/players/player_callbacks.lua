@@ -1,6 +1,7 @@
 ---@class PlayerCallbacks: Callbacks
 ---@field PostPlayerInit_player? fun(player: EntityPlayer)
 ---@field PostPlayerUpdate_player? fun(player: EntityPlayer)
+---@field PostPlayerRender_player? fun(player: EntityPlayer, renderOffset: Vector)
 ---@field PreTriggerPlayerDeath_player? fun(player: EntityPlayer)
 ---@field PostAddBirthright_player? fun(type: CollectibleType, charge: integer, firstTime: boolean, slot: integer, varData: integer, player: EntityPlayer)
 ---@field PrePlayerAddMaxHearts_player? fun(player: EntityPlayer, amount: integer)

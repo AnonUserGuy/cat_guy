@@ -9,7 +9,7 @@
 ---@type table<Music, TempoDef>
 local tempoDefs = {
     [Music.MUSIC_BASEMENT]                      = {bpm = 140},
-    [Music.MUSIC_CAVES]                         = {bpm = 120}, -- needs offset?
+    [Music.MUSIC_CAVES]                         = {bpm = 120, bpms = {[3853] = 131.578, [4309] = 120}, offset = 83},
     [Music.MUSIC_DEPTHS]                        = {bpm = 95},
     [Music.MUSIC_CELLAR]                        = {bpm = 140, offset = 64},
     [Music.MUSIC_CATACOMBS]                     = {bpm = 120},

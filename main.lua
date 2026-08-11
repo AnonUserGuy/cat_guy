@@ -1,9 +1,9 @@
+---@class CatGuyMod: ModReference
+CatGuy = RegisterMod("cat_guy", 1)
+
 if not REPENTOGON then
     return
 end
-
----@class CatGuyMod: ModReference
-CatGuy = RegisterMod("cat_guy", 1)
 
 ---@type PlayerUtils
 CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils")
@@ -41,6 +41,15 @@ function CatGuy:PostPlayerUpdate(player)
     local callbacks = self.PlayerCallbacks[player:GetPlayerType()]
     if callbacks and callbacks.PostPlayerUpdate_player then
         return callbacks.PostPlayerUpdate_player(player)
+    end
+end
+
+---@param player EntityPlayer
+---@param renderOffset Vector
+function CatGuy:PostPlayerRender(player, renderOffset)
+    local callbacks = self.PlayerCallbacks[player:GetPlayerType()]
+    if callbacks and callbacks.PostPlayerRender_player then
+        return callbacks.PostPlayerRender_player(player, renderOffset)
     end
 end
 
@@ -83,6 +92,7 @@ end
 
 CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_INIT, CatGuy.PostPlayerInit, PlayerVariant.PLAYER)
 CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, CatGuy.PostPlayerUpdate, PlayerVariant.PLAYER)
+CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, CatGuy.PostPlayerRender, PlayerVariant.PLAYER)
 CatGuy:AddCallback(ModCallbacks.MC_PRE_TRIGGER_PLAYER_DEATH, CatGuy.PreTriggerPlayerDeath)
 CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYER_ADD_HEARTS, CatGuy.PrePlayerAddMaxHearts, AddHealthType.MAX)
 CatGuy:AddCallback(ModCallbacks.MC_POST_ADD_COLLECTIBLE, CatGuy.PostAddBirthright, CollectibleType.COLLECTIBLE_BIRTHRIGHT)
@@ -154,3 +164,5 @@ end)
 CatGuy:AddCallback(ModCallbacks.MC_POST_RENDER, function(_)
     CatGuy.TempoManager:PostRender()
 end)
+
+CatGuy.TempoManager:RestartMusic()
