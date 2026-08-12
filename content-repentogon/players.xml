@@ -1,12 +1,14 @@
 <players root="gfx/characters/costumes/" portraitroot="gfx/ui/stage/" nameimageroot="gfx/ui/boss/">
-    <player name="Percy" skin="percy.png" hp="4"
+    <player name="Percy" skin="character_percy.png" hp="4" 
+        speedmodifier="0.3" rangemodifier="-2.0" luckmodifier="1.0"
         nameimage="PlayerName_01_Isaac.png" 
         portrait="PlayerPortrait_Isaac.png" skinColor="-1" costumeSuffix="percy" modcostume="1"
         birthright="Meow" 
     />
-    <player name="Percy" bSkinParent="Percy" skin="Character_012_TheLost.png" hp="0" healthtype="2" coins="1"
+    <player name="Percy" bSkinParent="Percy" skin="character_percy_b.png" hp="0" healthtype="2" coins="1" 
+        speedmodifier="0.3" rangemodifier="-2.0" luckmodifier="-1.0"
         nameimage="PlayerName_12_TheLost.png" 
-        portrait="PlayerPortrait_TheLost.png" skinColor="0" modcostume="1"
+        portrait="PlayerPortrait_TheLost.png" skinColor="0" costumeSuffix="percy" modcostume="2"
         birthright="More lives per life +2 lives" 
     />
 </players>

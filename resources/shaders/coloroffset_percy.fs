@@ -38,6 +38,9 @@ const vec3 PercyShade0 = vec3(1.000, 0.937, 0.549);
 const vec3 PercyShade1 = vec3(0.808, 0.678, 0.420);
 const vec3 PercyShade2 = vec3(0.459, 0.286, 0.173);
 
+const vec3 UniqueShade = vec3(0.718, 0.718, 0.729);
+const vec3 White = vec3(1.0, 1.0, 1.0);
+
 void main(void)
 {
 	// Clip
@@ -55,7 +58,8 @@ void main(void)
 	vec3 PercyColor = IsaacColor
 		+ (PercyShade0 - IsaacColor) * step(distance(IsaacColor, IsaacShade0), 0.001)
 		+ (PercyShade1 - IsaacColor) * step(distance(IsaacColor, IsaacShade1), 0.001)
-		+ (PercyShade2 - IsaacColor) * step(distance(IsaacColor, IsaacShade2), 0.001);
+		+ (PercyShade2 - IsaacColor) * step(distance(IsaacColor, IsaacShade2), 0.001)
+		+ (White - IsaacColor) * step(distance(IsaacColor, UniqueShade), 0.001);
 	Color = Color0 * vec4(PercyColor, Color.a);
 	
 	vec3 Colorized = mix(Color.rgb, dot(Color.rgb, _lum) * ColorizeOut.rgb, ColorizeOut.a);

@@ -9,7 +9,7 @@ local CROP_INVALID = 128
 
 local function getCropOffset()
     local tempoManager = CatGuy.TempoManager
-    if not (tempoManager.tempoDef and tempoManager.tempoDef.bpm) then
+    if not (tempoManager and tempoManager.tempoDef and tempoManager.tempoDef.bpm) then
         return CROP_INVALID
     elseif tempoManager.beat % 1 < 0.5 then
         return CROP_CENTER

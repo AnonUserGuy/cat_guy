@@ -16,16 +16,17 @@ CatGuy.TempoManager = TempoManager:New(tempoDefs)
 
 ---@type table<PlayerType, PlayerCallbacks>
 CatGuy.PlayerCallbacks = {}
-CatGuy.PlayerCallbacks[Isaac.GetPlayerTypeByName("Percy")]         = include("scripts_cat_guy.players.percy")
-CatGuy.PlayerCallbacks[Isaac.GetPlayerTypeByName("Percy", true)]   = include("scripts_cat_guy.players.percy_b")
+CatGuy.PlayerCallbacks[Isaac.GetPlayerTypeByName("Percy")]              = include("scripts_cat_guy.players.percy")
+CatGuy.PlayerCallbacks[Isaac.GetPlayerTypeByName("Percy", true)]        = include("scripts_cat_guy.players.percy_b")
 
 ---@type table<CollectibleType, CollectibleCallbacks>
 CatGuy.CollectibleCallbacks = {}
-CatGuy.CollectibleCallbacks[Isaac.GetItemIdByName("Underhands")]   = include("scripts_cat_guy.collectibles.underhands")
+CatGuy.CollectibleCallbacks[Isaac.GetItemIdByName("Mom's Headphones")]  = include("scripts_cat_guy.collectibles.moms_headphones")
+CatGuy.CollectibleCallbacks[Isaac.GetItemIdByName("Underhands")]        = include("scripts_cat_guy.collectibles.underhands")
 
 ---@type table<TrinketType, TrinketCallbacks>
 CatGuy.TrinketCallbacks = {}
-CatGuy.TrinketCallbacks[Isaac.GetTrinketIdByName("Toy Metronome")] = include("scripts_cat_guy.trinkets.toy_metronome")
+CatGuy.TrinketCallbacks[Isaac.GetTrinketIdByName("Toy Metronome")]      = include("scripts_cat_guy.trinkets.toy_metronome")
 
 
 ---@param player EntityPlayer
@@ -110,9 +111,24 @@ function CatGuy:AddCallbacks(callbacks)
             return callbacks.PostGameStarted(continued)
         end)
     end
+    if callbacks.PostPlayerUpdate then
+        self:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, function(_, player)
+            return callbacks.PostPlayerUpdate(player)
+        end)
+    end
+    if callbacks.PostPlayerRender then
+        self:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, function(_, player)
+            return callbacks.PostPlayerRender(player)
+        end)
+    end
     if callbacks.PreTriggerPlayerDeath then
         self:AddCallback(ModCallbacks.MC_PRE_TRIGGER_PLAYER_DEATH, function(_, player)
             return callbacks.PreTriggerPlayerDeath(player)
+        end)
+    end
+    if callbacks.PostFireTear then
+        self:AddCallback(ModCallbacks.MC_POST_FIRE_TEAR, function(_, tear)
+            return callbacks.PostFireTear(tear)
         end)
     end
     if callbacks.UseItem then
@@ -124,6 +140,19 @@ function CatGuy:AddCallbacks(callbacks)
         self:AddCallback("CAT_GUY_TICK", function(_, measure)
             return callbacks.Tick(measure)
         end)
+    end
+    if callbacks.EvaluateCache then
+        for flag, func in pairs(callbacks.EvaluateCache) do
+            if flag == CacheFlag.CACHE_ALL then
+                self:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, function(_, player, flag0)
+                    return func(player, flag0)
+                end)
+            else
+                self:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, function(_, player, flag0)
+                    return func(player, flag0)
+                end, flag)
+            end
+        end
     end
 end
 

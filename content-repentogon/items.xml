@@ -1,4 +1,5 @@
 <items gfxroot="gfx/items/" version="1">
+    <passive name="Mom's Headphones" description="What are we listening to?" gfx="Collectibles_016_RawLiver.png" />
     <active name="Underhands" description="Bound to this world" gfx="Collectibles_016_RawLiver.png" maxcharges="6" />
 
 	<trinket name="Toy Metronome" description="Tick tock!" gfx="trinket_toymetronome.png"  />

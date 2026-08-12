@@ -277,4 +277,16 @@ function util.AnimatePercies()
     end
 end
 
+---@param player EntityPlayer
+---@param shader string
+function util.ApplyShader(player, shader)
+    -- Base player sprite
+    player:GetSprite():SetCustomShader(shader)
+
+    -- Costume sprites
+    for _, costume in ipairs(player:GetCostumeSpriteDescs()) do
+        costume:GetSprite():SetCustomShader(shader)
+    end
+end
+
 return util

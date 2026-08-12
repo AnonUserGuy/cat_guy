@@ -1,6 +1,10 @@
 ---@class Callbacks
 ---@field PostNewRoom? fun()
 ---@field PostGameStarted? fun(continued: boolean)
+---@field PostPlayerUpdate? fun(player: EntityPlayer)
+---@field PostPlayerRender? fun(player: EntityPlayer)
 ---@field PreTriggerPlayerDeath? fun(player: EntityPlayer)
+---@field PostFireTear? fun(tear: EntityTear)
 ---@field UseItem? fun(itemId: CollectibleType, rng: RNG, player: EntityPlayer, flags: integer, slot: ActiveSlot, custonVarData: integer): boolean?
 ---@field Tick? fun(measure?: boolean)
+---@field EvaluateCache? table<CacheFlag, fun(player: EntityPlayer, flag: CacheFlag)>
