@@ -24,8 +24,9 @@ end
 
 ---@param music MusicManager
 function TempoManager:PreMusicPlay(music)
-    self.tempoDef = self.tempoDefs[music] ---@type TempoDef?
-    if self.tempoDef and self.tempoDef.bpm then
+    local tempoDef = self.tempoDefs[music] ---@type TempoDef?
+    if tempoDef and tempoDef.bpm then
+        self.tempoDef = tempoDef
         self:PrepareTempoDef(self.tempoDef)
         self.time = 0
         self.beat = -(self.tempoDef.offset and (self.tempoDef.offset * self.tempoDef.bpm / MILLISECONDS_PER_MINUTE) or 0.000001)
@@ -33,6 +34,8 @@ function TempoManager:PreMusicPlay(music)
         self.timeSigCurrent = self.tempoDef.timeSig or (self.tempoDef.timeSigs and (self.tempoDef.timeSigs[0] or -1)) or 4
         self.timeSigCount = (self.tempoDef.timeSigs and not self.tempoDef.timeSigs[0] and -1) or 0
         self.lastSysTime = Isaac.GetTime()
+    else
+        self.tempoDef = nil
     end
 end
 
@@ -80,6 +83,14 @@ function TempoManager:Update(timeDelta)
             Isaac.RunCallback("CAT_GUY_TICK", false)
         end
         self.timeSigCount = self.timeSigCount - 1
+    end
+end
+
+function TempoManager:GetCurrentBPM()
+    if self.tempoDef.bpmIndices then
+        return self.tempoDef.bpms[self.tempoDef.bpmIndices[self.bpmIndex]] or self.tempoDef.bpm
+    else
+        return self.tempoDef.bpm
     end
 end
 

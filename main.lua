@@ -142,9 +142,34 @@ function CatGuy:AddCallbacks(callbacks)
             return callbacks.PostFireBrimstone(laser)
         end)
     end
+    if callbacks.PostFireTechLaser then
+        self:AddCallback(ModCallbacks.MC_POST_FIRE_TECH_LASER, function(_, laser)
+            return callbacks.PostFireTechLaser(laser)
+        end)
+    end
+    if callbacks.PostFireTechXLaser then
+        self:AddCallback(ModCallbacks.MC_POST_FIRE_TECH_X_LASER, function(_, laser)
+            return callbacks.PostFireTechXLaser(laser)
+        end)
+    end
+    if callbacks.PostFireKnife then
+        self:AddCallback(ModCallbacks.MC_POST_FIRE_TECH_X_LASER, function(_, knife)
+            return callbacks.PostFireKnife(knife)
+        end)
+    end
     if callbacks.UseItem then
         self:AddCallback(ModCallbacks.MC_USE_ITEM, function(_, itemId, rng, player, flags, slot, custonVarData)
             return callbacks.UseItem(itemId, rng, player, flags, slot, custonVarData)
+        end)
+    end
+    if callbacks.PreFamiliarUpdate then
+        self:AddCallback(ModCallbacks.MC_PRE_FAMILIAR_UPDATE, function(_, familiar)
+            return callbacks.PreFamiliarUpdate(familiar)
+        end)
+    end
+    if callbacks.PostFamiliarFireTechLaser then
+        self:AddCallback(ModCallbacks.MC_POST_FAMILIAR_FIRE_TECH_LASER, function(_, laser)
+            return callbacks.PostFamiliarFireTechLaser(laser)
         end)
     end
     if callbacks.Tick then

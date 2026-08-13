@@ -36,7 +36,7 @@ local tempoDefs = {
     --[Music.MUSIC_BOSS2]                         = {bpm = 0},
     --[Music.MUSIC_HUSH_BOSS]                     = {bpm = 0},
     --[Music.MUSIC_ULTRAGREED_BOSS]               = {bpm = 0},
-    [Music.MUSIC_LIBRARY_ROOM]                  = {bpm = 110, offset = 57},
+    [Music.MUSIC_LIBRARY_ROOM]                  = {bpm = 110, offset = 57}, -- 110 wrong
     [Music.MUSIC_SECRET_ROOM]                   = {bpm = 120, timeSig = 3},
     [Music.MUSIC_SECRET_ROOM2]                  = {bpm = 120, timeSig = 3},
     ----[Music.MUSIC_DEVIL_ROOM]                    = {bpm = 0}, -- arrhythmic
