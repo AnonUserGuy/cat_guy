@@ -12,7 +12,7 @@ local tempoDefs = {
     [Music.MUSIC_CAVES]                         = {bpm = 120, bpms = {[3853] = 131.578, [4309] = 120}, offset = 83},
     [Music.MUSIC_DEPTHS]                        = {bpm = 95},
     [Music.MUSIC_CELLAR]                        = {bpm = 140, offset = 64},
-    [Music.MUSIC_CATACOMBS]                     = {bpm = 120},
+    [Music.MUSIC_CATACOMBS]                     = {bpm = 120}, -- needs offset
     [Music.MUSIC_NECROPOLIS]                    = {bpm = 120},
     [Music.MUSIC_WOMB_UTERO]                    = {bpm = 90},
     [Music.MUSIC_GAME_OVER]                     = {bpm = 85, timeSig = 3}, --seems to naturally vary, needs precise measurement
@@ -44,7 +44,7 @@ local tempoDefs = {
     [Music.MUSIC_SHOP_ROOM]                     = {bpm = 80, bpms = {[7580] = 89.418, [8250] = 80}, offset = 81},
     [Music.MUSIC_ARCADE_ROOM]                   = {bpm = 130},
     [Music.MUSIC_BOSS_OVER]                     = {bpm = 85, timeSig = 3}, -- needs offset?
-    [Music.MUSIC_CHALLENGE_FIGHT]               = {bpm = 150}, -- needs offset?
+    [Music.MUSIC_CHALLENGE_FIGHT]               = {bpm = 150}, -- needs offset bad
     [Music.MUSIC_BOSS_RUSH]                     = {bpm = 180, timeSig = 7},
     ----[Music.MUSIC_JINGLE_BOSS_RUSH_OUTRO]        = {bpm = 0},
     --[Music.MUSIC_BOSS3]                         = {bpm = 0},

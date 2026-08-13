@@ -4,7 +4,9 @@
 ---@field PostPlayerUpdate? fun(player: EntityPlayer)
 ---@field PostPlayerRender? fun(player: EntityPlayer)
 ---@field PreTriggerPlayerDeath? fun(player: EntityPlayer)
+---@field EvaluateTearHitParams? fun(player: EntityPlayer, params: TearParams, weaponType: WeaponType, damageScale: number, tearDisplacement: integer, source: Entity)
 ---@field PostFireTear? fun(tear: EntityTear)
+---@field PostFireBrimstone? fun(laser: EntityLaser)
 ---@field UseItem? fun(itemId: CollectibleType, rng: RNG, player: EntityPlayer, flags: integer, slot: ActiveSlot, custonVarData: integer): boolean?
 ---@field Tick? fun(measure?: boolean)
 ---@field EvaluateCache? table<CacheFlag, fun(player: EntityPlayer, flag: CacheFlag)>

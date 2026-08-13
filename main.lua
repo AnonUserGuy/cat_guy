@@ -126,9 +126,20 @@ function CatGuy:AddCallbacks(callbacks)
             return callbacks.PreTriggerPlayerDeath(player)
         end)
     end
+    if callbacks.EvaluateTearHitParams then
+        self:AddCallback(ModCallbacks.MC_EVALUATE_TEAR_HIT_PARAMS, function(_, player, params, weaponType, damageScale, tearDisplacement, source)
+            --Isaac.DebugString(params.TearDamage..", "..params.TearScale)
+            return callbacks.EvaluateTearHitParams(player, params, weaponType, damageScale, tearDisplacement, source)
+        end)
+    end
     if callbacks.PostFireTear then
         self:AddCallback(ModCallbacks.MC_POST_FIRE_TEAR, function(_, tear)
             return callbacks.PostFireTear(tear)
+        end)
+    end
+    if callbacks.PostFireBrimstone then
+        self:AddCallback(ModCallbacks.MC_POST_FIRE_BRIMSTONE, function(_, laser)
+            return callbacks.PostFireBrimstone(laser)
         end)
     end
     if callbacks.UseItem then
