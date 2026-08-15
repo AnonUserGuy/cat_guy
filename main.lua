@@ -167,6 +167,11 @@ function CatGuy:AddCallbacks(callbacks)
             return callbacks.PreFamiliarUpdate(familiar)
         end)
     end
+    if callbacks.PostFamiliarUpdate then
+        self:AddCallback(ModCallbacks.MC_FAMILIAR_UPDATE, function(_, familiar)
+            return callbacks.PostFamiliarUpdate(familiar)
+        end)
+    end
     if callbacks.PostFamiliarFireTechLaser then
         self:AddCallback(ModCallbacks.MC_POST_FAMILIAR_FIRE_TECH_LASER, function(_, laser)
             return callbacks.PostFamiliarFireTechLaser(laser)

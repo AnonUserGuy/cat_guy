@@ -6,6 +6,7 @@ local CROP_LEFT    = 64
 local CROP_RIGHT   = 96
 local CROP_INVALID = 128
 
+local preventTrigger = false
 
 local function getCropOffset()
     local tempoManager = CatGuy.TempoManager
@@ -23,9 +24,14 @@ end
 ---@type TrinketCallbacks
 local toyMetronome = {}
 
-function toyMetronome.UseItem(_, _, player, _, _, _)
-    if player:HasTrinket(TRINKET_ID_TOY_METRONOME) and player:GetTrinketRNG(TRINKET_ID_TOY_METRONOME):RandomFloat() < 0.01 then
-        player:UseActiveItem(CollectibleType.COLLECTIBLE_METRONOME, UseFlag.USE_NOANIM)
+function toyMetronome.UseItem(itemId, _, player, _, _, _)
+    if player:HasTrinket(TRINKET_ID_TOY_METRONOME) and not preventTrigger then
+        local item = Isaac.GetItemConfig():GetCollectible(itemId)
+        if item and item.ChargeType == 0 and player:GetTrinketRNG(TRINKET_ID_TOY_METRONOME):RandomFloat() < (item.MaxCharges * 0.01) then
+            preventTrigger = true
+            player:UseActiveItem(CollectibleType.COLLECTIBLE_METRONOME, UseFlag.USE_NOANIM)
+            preventTrigger = false
+        end
     end
 end
 

@@ -15,6 +15,7 @@
 ---@field UseItem? fun(itemId: CollectibleType, rng: RNG, player: EntityPlayer, flags: integer, slot: ActiveSlot, custonVarData: integer): boolean?
 ---
 ---@field PreFamiliarUpdate? fun(familiar: EntityFamiliar): boolean?
+---@field PostFamiliarUpdate? fun(familiar: EntityFamiliar)
 ---@field PostFamiliarFireTechLaser? fun(laser: EntityLaser)
 ---
 ---@field Tick? fun(measure?: boolean)

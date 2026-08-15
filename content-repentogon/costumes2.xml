@@ -2,5 +2,6 @@
 	<costume id="1" anm2path="costume_moms_headphones.anm2" type="passive" />
 	
 	<costume id="1" anm2path="costume_percy.anm2" type="none" />
+	<costume id="1" anm2path="costume_percy_tail.anm2" type="none" />
 	<costume id="2" anm2path="costume_percy_b.anm2" type="none" />
 </costumes>
