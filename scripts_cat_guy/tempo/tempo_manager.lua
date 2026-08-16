@@ -1,4 +1,5 @@
 local MILLISECONDS_PER_MINUTE = 60000
+local TWO_THIRDS = 2/3
 
 ---@class TempoManager
 ---@field tempoDefs table<Music, TempoDef>
@@ -125,6 +126,12 @@ function TempoManager:Update(timeDelta)
     end
 end
 
+function TempoManager:PostRender()
+    local sysTime = Isaac.GetTime()
+    self:Update(sysTime - self.lastSysTime)
+    self.lastSysTime = sysTime
+end
+
 function TempoManager:GetCurrentBPM()
     if self.tempoDef.bpmIndices then
         return (self.tempoDef.bpms[self.tempoDef.bpmIndices[self.bpmIndex]] or self.tempoDef.bpm) * MusicManager():GetCurrentPitch()
@@ -133,10 +140,38 @@ function TempoManager:GetCurrentBPM()
     end
 end
 
-function TempoManager:PostRender()
-    local sysTime = Isaac.GetTime()
-    self:Update(sysTime - self.lastSysTime)
-    self.lastSysTime = sysTime
+local function rhythmicFireDelayEqn(delay, gameTicksPerBeat)
+    return 2 ^ math.floor(math.log((delay + 1) / gameTicksPerBeat, 2) + 0.25)
+end
+
+---@param delay number
+function TempoManager:GetRhythmicFireDelayFactor(delay)
+    if self.tempoDef then
+        local gameTicksPerBeat = 30 * 60 / self:GetCurrentBPM()
+        local j = rhythmicFireDelayEqn(delay, gameTicksPerBeat)
+        if self.triplet and j < 1 then
+            return TWO_THIRDS * rhythmicFireDelayEqn(delay, gameTicksPerBeat * TWO_THIRDS)
+        else
+            return j
+        end
+    else
+        return 1.0
+    end
+end
+
+---@param delay number
+function TempoManager:GetRhythmicFireDelay(delay)
+    if self.tempoDef then
+        local gameTicksPerBeat = 30 * 60 / self:GetCurrentBPM()
+        local j = rhythmicFireDelayEqn(delay, gameTicksPerBeat)
+        if self.triplet and j < 1 then
+            return TWO_THIRDS * rhythmicFireDelayEqn(delay, gameTicksPerBeat * TWO_THIRDS) * gameTicksPerBeat - 1
+        else
+            return j * gameTicksPerBeat - 1
+        end
+    else
+        return delay
+    end
 end
 
 ---@generic T

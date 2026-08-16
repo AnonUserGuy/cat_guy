@@ -1,4 +1,4 @@
---local PLAYER_TYPE_PERCY_B = Isaac.GetPlayerTypeByName("Percy", true)
+local PLAYER_TYPE_PERCY_B = Isaac.GetPlayerTypeByName("Percy", true)
 local ITEM_ID_UNDERHANDS = Isaac.GetItemIdByName("Underhands")
 local ITEM_ID_MOMS_HEADPHONES = Isaac.GetItemIdByName("Mom's Headphones")
 
@@ -6,10 +6,23 @@ local ITEM_ID_MOMS_HEADPHONES = Isaac.GetItemIdByName("Mom's Headphones")
 local percyB = {}
 
 function percyB.PostPlayerInit_player(player)
-    player:AddInnateCollectible(CollectibleType.COLLECTIBLE_OUIJA_BOARD, 1, "percyB", -1, false)
-    player:AddInnateCollectible(CollectibleType.COLLECTIBLE_TRANSCENDENCE, 1, "percyB", -1, false)
     player:SetPocketActiveItem(ITEM_ID_UNDERHANDS, ActiveSlot.SLOT_POCKET, false)
     player:AddCollectible(ITEM_ID_MOMS_HEADPHONES)
+end
+
+---@param player EntityPlayer
+function percyB.PostPlayerUpdate(player)
+    if player:GetPlayerType() == PLAYER_TYPE_PERCY_B then
+        if player:GetInnateCollectibleCount(CollectibleType.COLLECTIBLE_OUIJA_BOARD, "percy_b") == 0 then
+            player:AddInnateCollectible(CollectibleType.COLLECTIBLE_OUIJA_BOARD, 1, "percy_b", 0, false)
+            player:AddInnateCollectible(CollectibleType.COLLECTIBLE_TRANSCENDENCE, 1, "percy_b", 0, false)
+        end
+    else
+        if player:GetInnateCollectibleCount(CollectibleType.COLLECTIBLE_OUIJA_BOARD, "percy_b") ~= 0 then
+            player:RemoveInnateCollectible(CollectibleType.COLLECTIBLE_OUIJA_BOARD, 99, "percy_b")
+            player:RemoveInnateCollectible(CollectibleType.COLLECTIBLE_TRANSCENDENCE, 99, "percy_b")
+        end
+    end
 end
 
 function percyB.PostPlayerUpdate_player(player)

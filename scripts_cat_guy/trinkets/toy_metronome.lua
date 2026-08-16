@@ -8,16 +8,37 @@ local CROP_INVALID = 128
 
 local preventTrigger = false
 
+local lastBeatValid = true
+local lastBeat = 0.0
+local ticked = false
+local left = true
+
 local function getCropOffset()
-    local tempoManager = CatGuy.TempoManager
-    if not (tempoManager and tempoManager.tempoDef and tempoManager.tempoDef.bpm) then
+    if not Game():IsPauseMenuOpen() then
+        local tempoManager = CatGuy.TempoManager
+        if not (tempoManager and tempoManager.tempoDef and tempoManager.tempoDef.bpm) then
+            lastBeatValid = false
+        else
+            lastBeatValid = true
+            lastBeat = tempoManager.beat
+        end
+    end
+
+    if not lastBeatValid then
         return CROP_INVALID
-    elseif tempoManager.beat % 1 < 0.5 then
+    elseif lastBeat % 1 < 0.5 then
+        ticked = true
         return CROP_CENTER
-    elseif tempoManager.beat % 2 < 1 then
-        return CROP_LEFT
     else
-        return CROP_RIGHT
+        if ticked then
+            left = not left
+            ticked = false
+        end
+        if left then
+            return CROP_LEFT
+        else
+            return CROP_RIGHT
+        end
     end
 end
 
@@ -36,6 +57,9 @@ function toyMetronome.UseItem(itemId, _, player, _, _, _)
 end
 
 function toyMetronome.Tick(measure)
+    if Game():IsPauseMenuOpen() then
+        return
+    end
     local util = CatGuy.PlayerUtils
     if Options.SFXVolume > 0.0001 and util.AnyPlayer(function(player) return player:HasTrinket(TRINKET_ID_TOY_METRONOME) end) then
         SFXManager():Play(SFX_ID_RIMSHOT,

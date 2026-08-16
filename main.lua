@@ -99,117 +99,135 @@ CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYER_ADD_HEARTS, CatGuy.PrePlayerAddMax
 CatGuy:AddCallback(ModCallbacks.MC_POST_ADD_COLLECTIBLE, CatGuy.PostAddBirthright, CollectibleType.COLLECTIBLE_BIRTHRIGHT)
 CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYERHUD_TRINKET_RENDER, CatGuy.PrePlayerHUDTrinketRender)
 
+
 ---@param callbacks Callbacks
-function CatGuy:AddCallbacks(callbacks)
+---@param priority? CallbackPriority
+function CatGuy:AddCallbacks(callbacks, priority)
+    priority = priority or CallbackPriority.DEFAULT
+
     if callbacks.PostNewRoom then
-        self:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, function(_)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_NEW_ROOM, priority, function(_)
             return callbacks.PostNewRoom()
         end)
     end
     if callbacks.PostGameStarted then
-        self:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function(_, continued)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_GAME_STARTED, priority, function(_, continued)
             return callbacks.PostGameStarted(continued)
         end)
     end
     if callbacks.PostPlayerUpdate then
-        self:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, function(_, player)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, priority, function(_, player)
             return callbacks.PostPlayerUpdate(player)
-        end)
+        end, PlayerVariant.PLAYER)
     end
     if callbacks.PostPlayerRender then
-        self:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, function(_, player)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_PLAYER_RENDER, priority, function(_, player)
             return callbacks.PostPlayerRender(player)
-        end)
+        end, PlayerVariant.PLAYER)
     end
     if callbacks.PreTriggerPlayerDeath then
-        self:AddCallback(ModCallbacks.MC_PRE_TRIGGER_PLAYER_DEATH, function(_, player)
+        self:AddPriorityCallback(ModCallbacks.MC_PRE_TRIGGER_PLAYER_DEATH, priority, function(_, player)
             return callbacks.PreTriggerPlayerDeath(player)
         end)
     end
     if callbacks.EvaluateTearHitParams then
-        self:AddCallback(ModCallbacks.MC_EVALUATE_TEAR_HIT_PARAMS, function(_, player, params, weaponType, damageScale, tearDisplacement, source)
-            --Isaac.DebugString(params.TearDamage..", "..params.TearScale)
+        self:AddPriorityCallback(ModCallbacks.MC_EVALUATE_TEAR_HIT_PARAMS, priority, function(_, player, params, weaponType, damageScale, tearDisplacement, source)
             return callbacks.EvaluateTearHitParams(player, params, weaponType, damageScale, tearDisplacement, source)
         end)
     end
     if callbacks.PostFireTear then
-        self:AddCallback(ModCallbacks.MC_POST_FIRE_TEAR, function(_, tear)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_FIRE_TEAR, priority, function(_, tear)
             return callbacks.PostFireTear(tear)
         end)
     end
     if callbacks.PostFireBrimstone then
-        self:AddCallback(ModCallbacks.MC_POST_FIRE_BRIMSTONE, function(_, laser)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_FIRE_BRIMSTONE, priority, function(_, laser)
             return callbacks.PostFireBrimstone(laser)
         end)
     end
     if callbacks.PostFireTechLaser then
-        self:AddCallback(ModCallbacks.MC_POST_FIRE_TECH_LASER, function(_, laser)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_FIRE_TECH_LASER, priority, function(_, laser)
             return callbacks.PostFireTechLaser(laser)
         end)
     end
     if callbacks.PostFireTechXLaser then
-        self:AddCallback(ModCallbacks.MC_POST_FIRE_TECH_X_LASER, function(_, laser)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_FIRE_TECH_X_LASER, priority, function(_, laser)
             return callbacks.PostFireTechXLaser(laser)
         end)
     end
     if callbacks.PostFireKnife then
-        self:AddCallback(ModCallbacks.MC_POST_FIRE_TECH_X_LASER, function(_, knife)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_FIRE_TECH_X_LASER, priority, function(_, knife)
             return callbacks.PostFireKnife(knife)
         end)
     end
     if callbacks.UseItem then
-        self:AddCallback(ModCallbacks.MC_USE_ITEM, function(_, itemId, rng, player, flags, slot, custonVarData)
+        self:AddPriorityCallback(ModCallbacks.MC_USE_ITEM, priority, function(_, itemId, rng, player, flags, slot, custonVarData)
             return callbacks.UseItem(itemId, rng, player, flags, slot, custonVarData)
         end)
     end
     if callbacks.PreFamiliarUpdate then
-        self:AddCallback(ModCallbacks.MC_PRE_FAMILIAR_UPDATE, function(_, familiar)
+        self:AddPriorityCallback(ModCallbacks.MC_PRE_FAMILIAR_UPDATE, priority, function(_, familiar)
             return callbacks.PreFamiliarUpdate(familiar)
         end)
     end
     if callbacks.PostFamiliarUpdate then
-        self:AddCallback(ModCallbacks.MC_FAMILIAR_UPDATE, function(_, familiar)
+        self:AddPriorityCallback(ModCallbacks.MC_FAMILIAR_UPDATE, priority, function(_, familiar)
             return callbacks.PostFamiliarUpdate(familiar)
         end)
     end
     if callbacks.PostFamiliarFireTechLaser then
-        self:AddCallback(ModCallbacks.MC_POST_FAMILIAR_FIRE_TECH_LASER, function(_, laser)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_FAMILIAR_FIRE_TECH_LASER, priority, function(_, laser)
             return callbacks.PostFamiliarFireTechLaser(laser)
         end)
     end
     if callbacks.Tick then
-        self:AddCallback("CAT_GUY_TICK", function(_, measure)
+        self:AddPriorityCallback("CAT_GUY_TICK", priority, function(_, measure)
             return callbacks.Tick(measure)
         end)
     end
     if callbacks.EvaluateCache then
         for flag, func in pairs(callbacks.EvaluateCache) do
             if flag == CacheFlag.CACHE_ALL then
-                self:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, function(_, player, flag0)
+                self:AddPriorityCallback(ModCallbacks.MC_EVALUATE_CACHE, priority, function(_, player, flag0)
                     return func(player, flag0)
                 end)
             else
-                self:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, function(_, player, flag0)
+                self:AddPriorityCallback(ModCallbacks.MC_EVALUATE_CACHE, priority, function(_, player, flag0)
                     return func(player, flag0)
                 end, flag)
             end
+        end
+    end
+
+    if callbacks.Priority then
+        for priority0, callbacks0 in pairs(callbacks.Priority) do
+            self:AddCallbacks(callbacks0, priority0)
         end
     end
 end
 
 ---@param itemId CollectibleType
 ---@param callbacks CollectibleCallbacks
-function CatGuy:AddCollectibleCallbacks(itemId, callbacks)
-    self:AddCallbacks(callbacks)
+---@param priority? CallbackPriority
+function CatGuy:AddCollectibleCallbacks(itemId, callbacks, priority)
+    priority = priority or CallbackPriority.DEFAULT
+
+    self:AddCallbacks(callbacks, priority)
     if callbacks.PostAddCollectible_item then
-        self:AddCallback(ModCallbacks.MC_POST_ADD_COLLECTIBLE, function(_, type, charge, firstTime, slot, varData, player)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_ADD_COLLECTIBLE, priority, function(_, type, charge, firstTime, slot, varData, player)
             return callbacks.PostAddCollectible_item(type, charge, firstTime, slot, varData, player)
         end, itemId)
     end
     if callbacks.UseItem_item then
-        self:AddCallback(ModCallbacks.MC_USE_ITEM, function(_, itemId, rng, player, flags, slot, custonVarData)
+        self:AddPriorityCallback(ModCallbacks.MC_USE_ITEM, priority, function(_, itemId, rng, player, flags, slot, custonVarData)
             return callbacks.UseItem_item(itemId, rng, player, flags, slot, custonVarData)
         end, itemId)
+    end
+
+    if callbacks.Priority_item then
+        for priority0, callbacks0 in pairs(callbacks.Priority_item) do
+            self:AddCollectibleCallbacks(itemId, callbacks0, priority0)
+        end
     end
 end
 
@@ -227,7 +245,7 @@ end
 
 
 
-CatGuy:AddCallback(ModCallbacks.MC_PRE_MUSIC_PLAY, function(_, music, _, _)
+CatGuy:AddPriorityCallback(ModCallbacks.MC_PRE_MUSIC_PLAY, CallbackPriority.LATE, function(_, music, _, _)
     CatGuy.TempoManager:PreMusicPlay(music)
 end)
 

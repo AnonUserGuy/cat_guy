@@ -109,8 +109,6 @@ local DAMAGE_MULT_MAX = 2.0
 local DAMAGE_MULT_MIN = 0.75
 local DAMAGE_MULT_EXP = 4.0
 
-local TWO_THIRDS = 2/3
-
 local lastBeat = 0.0
 
 local debugstring = ""
@@ -203,7 +201,7 @@ end
 
 ---@param player EntityPlayer
 ---@param onlyPostPlayerUpdate? boolean
----@param ignoreModifiers? integer|WeaponModifier
+---@param ignoreModifiers? WeaponModifier
 local function doFireDelay(player, onlyPostPlayerUpdate, ignoreModifiers)
     ignoreModifiers = ignoreModifiers or 0
     local weapon = player:GetWeapon(1)
@@ -223,42 +221,6 @@ local function doFireDelay(player, onlyPostPlayerUpdate, ignoreModifiers)
         and weapon:GetWeaponType() ~= WeaponType.WEAPON_BONE
         and (not player:GetWeapon(0) or player:GetWeapon(0):GetWeaponType() ~= WeaponType.WEAPON_NOTCHED_AXE)
         and not player:HasCollectible(CollectibleType.COLLECTIBLE_MARKED)
-end
-
-local function rhythmicFireDelayEqn(delay, gameTicksPerBeat)
-    return 2 ^ math.floor(math.log((delay + 1) / gameTicksPerBeat, 2) + 0.25)
-end
-
----@param delay number
-local function getRhythmicFireDelayFactor(delay)
-    local tempoManager = CatGuy.TempoManager
-    if tempoManager and tempoManager.tempoDef then
-        local gameTicksPerBeat = 30 * 60 / tempoManager:GetCurrentBPM()
-        local j = rhythmicFireDelayEqn(delay, gameTicksPerBeat)
-        if tempoManager.triplet and j < 1 then
-            return TWO_THIRDS * rhythmicFireDelayEqn(delay, gameTicksPerBeat * TWO_THIRDS)
-        else
-            return j
-        end
-    else
-        return 1.0
-    end
-end
-
----@param delay number
-local function getRhythmicFireDelay(delay)
-    local tempoManager = CatGuy.TempoManager
-    if tempoManager and tempoManager.tempoDef then
-        local gameTicksPerBeat = 30 * 60 / tempoManager:GetCurrentBPM()
-        local j = rhythmicFireDelayEqn(delay, gameTicksPerBeat)
-        if tempoManager.triplet and j < 1 then
-            return TWO_THIRDS * rhythmicFireDelayEqn(delay, gameTicksPerBeat * TWO_THIRDS) * gameTicksPerBeat - 1
-        else
-            return j * gameTicksPerBeat - 1
-        end
-    else
-        return delay
-    end
 end
 
 local function getFetalDelay()
@@ -327,7 +289,7 @@ local function updateFetus(player, weapon)
             return
         end
         lastBeat = beat
-        local q = getRhythmicFireDelayFactor(player.MaxFireDelay * 3)
+        local q = CatGuy.TempoManager:GetRhythmicFireDelayFactor(player.MaxFireDelay * 3)
         weapon:SetCharge((beat - iWantToHaveABaby[p]) / q * weapon:GetMaxCharge())
     end
 end
@@ -674,7 +636,7 @@ local function evaluateTearHitParamsFamiliar(familiar, params, weaponType)
     or weaponType == WeaponType.WEAPON_FETUS then
         if doFireDelay(player) then
             weapon:SetFireDelay(999)
-            if not player:CanShoot() then
+            if not player:CanShoot() or player:GetPlayerType() == PlayerType.PLAYER_LILITH_B then
                 player.FireDelay = 999
             end
         end
@@ -752,15 +714,17 @@ function headphones.EvaluateTearHitParams(player, params, weaponType, _, _, sour
     end
 end
 
-headphones.EvaluateCache = {}
-headphones.EvaluateCache[CacheFlag.CACHE_FIREDELAY] = function(player)
+headphones.Priority = {}
+headphones.Priority[CallbackPriority.LATE] = {}
+headphones.Priority[CallbackPriority.LATE].EvaluateCache = {}
+headphones.Priority[CallbackPriority.LATE].EvaluateCache[CacheFlag.CACHE_FIREDELAY] = function(player)
     if not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
         return
     end
-    player.MaxFireDelay = getRhythmicFireDelay(player.MaxFireDelay)
+    player.MaxFireDelay = CatGuy.TempoManager:GetRhythmicFireDelay(player.MaxFireDelay)
 end
 
-function headphones.PostPlayerRender(player)
+--[[ function headphones.PostPlayerRender(player)
     if not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
         return
     end
@@ -771,6 +735,6 @@ function headphones.PostPlayerRender(player)
             1, 1, 1)
     end
     Isaac.RenderText(tostring(CatGuy.TempoManager.beat.."\n"..CatGuy.TempoManager.beatMusic - CatGuy.TempoManager.beat.."\n"..CatGuy.TempoManager.time.."\n"..tostring(CatGuy.TempoManager.triplet)), 140, 20, 1, 1, 1, 1)
-end
+end ]]
 
 return headphones

@@ -1,5 +1,5 @@
 ---@class Callbacks
----
+---@field Priority? table<CallbackPriority, Callbacks>
 ---@field PostNewRoom? fun()
 ---@field PostGameStarted? fun(continued: boolean)
 ---
