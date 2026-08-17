@@ -90,9 +90,6 @@
 ---     - Make turn to stone every 1 to 2 measures
 --- - Epiphoria?
 
-local TRINKET_ID_TOY_METRONOME = Isaac.GetTrinketIdByName("Toy Metronome")
-local ITEM_ID_MOMS_HEADPHONES = Isaac.GetItemIdByName("Mom's Headphones")
-
 local FAMILIAR_DAMAGE_MULTIPLIER = {
     [FamiliarVariant.INCUBUS] = 0.75,
     [FamiliarVariant.TWISTED_BABY] = 0.375,
@@ -201,7 +198,7 @@ end
 
 ---@param player EntityPlayer
 ---@param onlyPostPlayerUpdate? boolean
----@param ignoreModifiers? WeaponModifier
+---@param ignoreModifiers? WeaponModifier|integer
 local function doFireDelay(player, onlyPostPlayerUpdate, ignoreModifiers)
     ignoreModifiers = ignoreModifiers or 0
     local weapon = player:GetWeapon(1)
@@ -260,7 +257,7 @@ local headphones = {}
 function headphones.PostGameStarted(continued)
     if continued then
         CatGuy.PlayerUtils.ForEachPlayer(function(player)
-            if player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+            if player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
                 needsTrinket[GetPtrHash(player)] = 0
             end
         end)
@@ -268,7 +265,7 @@ function headphones.PostGameStarted(continued)
 end
 
 function headphones.PostAddCollectible_item(_, _, firstTime, _, _, player)
-    if firstTime and not player:HasTrinket(TRINKET_ID_TOY_METRONOME) then
+    if firstTime and not player:HasTrinket(CatGuy.TrinketType.TOY_METRONOME) then
         needsTrinket[GetPtrHash(player)] = 2
     end
 end
@@ -363,11 +360,11 @@ function headphones.PostPlayerUpdate(player)
         if needsTrinket[p] == 1 then
             local spawnPos = Game():GetRoom():FindFreePickupSpawnPosition(player.Position, 40, true)
             Game():Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_TRINKET, spawnPos, Vector(0, 0), nil,
-                TRINKET_ID_TOY_METRONOME, Game():GetRoom():GetSpawnSeed())
+                CatGuy.TrinketType.TOY_METRONOME, Game():GetRoom():GetSpawnSeed())
         end
         needsTrinket[p] = needsTrinket[p] - 1
     end
-    if not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+    if not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
 
@@ -436,7 +433,7 @@ end
 
 function headphones.PostFamiliarUpdate(familiar)
     local player = familiar.Player
-    if not player or not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+    if not player or not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
 
@@ -511,7 +508,7 @@ end
 -- Note: only fires for player, NOT incubuses
 function headphones.PostFireTechLaser(laser)
     local player = GetSpawnerPlayer(laser)
-    if not player or not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+    if not player or not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
 
@@ -539,7 +536,7 @@ end
 --- only fires for robobabies??
 --[[ function headphones.PostFamiliarFireTechLaser(laser)
     local familiar = laser.SpawnerEntity:ToFamiliar()
-    if not familiar or not familiar.Player or not familiar.Player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+    if not familiar or not familiar.Player or not familiar.Player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
 
@@ -574,7 +571,7 @@ end ]]
 -- Note: fires for both player AND incubuses
 function headphones.PostFireBrimstone(laser)
     local player = GetSpawnerPlayer(laser)
-    if not player or not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+    if not player or not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
 
@@ -589,7 +586,7 @@ end
 
 function headphones.PostFireTechXLaser(laser)
     local player = GetSpawnerPlayer(laser)
-    if not player or not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+    if not player or not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
 
@@ -604,7 +601,7 @@ end
 
 function headphones.PostFireKnife(knife)
     local player = GetSpawnerPlayer(knife)
-    if not player or not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+    if not player or not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
     updateTempoDamageMultiplier(player)
@@ -666,12 +663,15 @@ local function evaluateTearHitParamsFamiliar(familiar, params, weaponType)
 end
 
 function headphones.EvaluateTearHitParams(player, params, weaponType, _, _, source)
-    if not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+    if not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
 
     local p = GetPtrHash(player)
-    if source and p ~= GetPtrHash(source) then
+    if not source then
+        --- sprinkler
+        return
+    elseif p ~= GetPtrHash(source) then
         local familiar = source:ToFamiliar()
         if familiar then
             evaluateTearHitParamsFamiliar(familiar, params, weaponType)
@@ -718,14 +718,14 @@ headphones.Priority = {}
 headphones.Priority[CallbackPriority.LATE] = {}
 headphones.Priority[CallbackPriority.LATE].EvaluateCache = {}
 headphones.Priority[CallbackPriority.LATE].EvaluateCache[CacheFlag.CACHE_FIREDELAY] = function(player)
-    if not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+    if not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
     player.MaxFireDelay = CatGuy.TempoManager:GetRhythmicFireDelay(player.MaxFireDelay)
 end
 
 --[[ function headphones.PostPlayerRender(player)
-    if not player:HasCollectible(ITEM_ID_MOMS_HEADPHONES) then
+    if not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
 

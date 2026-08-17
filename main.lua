@@ -5,28 +5,36 @@ if not REPENTOGON then
     return
 end
 
----@type PlayerUtils
-CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils")
+CatGuy.PlayerType = {
+    PERCY           = Isaac.GetPlayerTypeByName("Percy"),
+    PERCY_B         = Isaac.GetPlayerTypeByName("Percy", true)
+}
 
----@type TempoManager
-local TempoManager = include("scripts_cat_guy.tempo.tempo_manager")
----@type table<Music, TempoDef>
-local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs")
+CatGuy.CollectibleType = {
+    MOMS_HEADPHONES = Isaac.GetItemIdByName("Mom's Headphones"),
+    UNDERHANDS      = Isaac.GetItemIdByName("Underhands")
+}
+
+CatGuy.TrinketType = {
+    TOY_METRONOME   = Isaac.GetTrinketIdByName("Toy Metronome")
+}
+
+CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type PlayerUtils
+
+local TempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
+local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
 CatGuy.TempoManager = TempoManager:New(tempoDefs)
 
----@type table<PlayerType, PlayerCallbacks>
-CatGuy.PlayerCallbacks = {}
-CatGuy.PlayerCallbacks[Isaac.GetPlayerTypeByName("Percy")]              = include("scripts_cat_guy.players.percy")
-CatGuy.PlayerCallbacks[Isaac.GetPlayerTypeByName("Percy", true)]        = include("scripts_cat_guy.players.percy_b")
+CatGuy.PlayerCallbacks = {} ---@type table<PlayerType, PlayerCallbacks>
+CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY]                         = include("scripts_cat_guy.players.percy")
+CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY_B]                       = include("scripts_cat_guy.players.percy_b")
 
----@type table<CollectibleType, CollectibleCallbacks>
-CatGuy.CollectibleCallbacks = {}
-CatGuy.CollectibleCallbacks[Isaac.GetItemIdByName("Mom's Headphones")]  = include("scripts_cat_guy.collectibles.moms_headphones")
-CatGuy.CollectibleCallbacks[Isaac.GetItemIdByName("Underhands")]        = include("scripts_cat_guy.collectibles.underhands")
+CatGuy.CollectibleCallbacks = {} ---@type table<CollectibleType, CollectibleCallbacks>
+CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.MOMS_HEADPHONES]     = include("scripts_cat_guy.collectibles.moms_headphones")
+CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.UNDERHANDS]          = include("scripts_cat_guy.collectibles.underhands")
 
----@type table<TrinketType, TrinketCallbacks>
-CatGuy.TrinketCallbacks = {}
-CatGuy.TrinketCallbacks[Isaac.GetTrinketIdByName("Toy Metronome")]      = include("scripts_cat_guy.trinkets.toy_metronome")
+CatGuy.TrinketCallbacks = {} ---@type table<TrinketType, TrinketCallbacks>
+CatGuy.TrinketCallbacks[CatGuy.TrinketType.TOY_METRONOME]               = include("scripts_cat_guy.trinkets.toy_metronome")
 
 
 ---@param player EntityPlayer
@@ -156,7 +164,7 @@ function CatGuy:AddCallbacks(callbacks, priority)
         end)
     end
     if callbacks.PostFireKnife then
-        self:AddPriorityCallback(ModCallbacks.MC_POST_FIRE_TECH_X_LASER, priority, function(_, knife)
+        self:AddPriorityCallback(ModCallbacks.MC_POST_FIRE_KNIFE, priority, function(_, knife)
             return callbacks.PostFireKnife(knife)
         end)
     end
@@ -254,3 +262,20 @@ CatGuy:AddCallback(ModCallbacks.MC_POST_RENDER, function(_)
 end)
 
 CatGuy.TempoManager:RestartMusic()
+
+
+CatGuy.Compat = {}
+CatGuy.Compat.EID       = include("scripts_cat_guy.compat.eid") ---@type EIDCompat
+CatGuy.Compat.EIDDefs   = include("scripts_cat_guy.compat.eid_defs") ---@type EIDDefs
+
+function CatGuy:TryAddEID()
+    if EID then
+        CatGuy.Compat.EID:Init(EID, CatGuy.Compat.EIDDefs)
+    end
+end
+
+if EID then
+    CatGuy:TryAddEID()
+else
+    CatGuy:AddCallback("EID_POST_LOAD", CatGuy.TryAddEID)
+end

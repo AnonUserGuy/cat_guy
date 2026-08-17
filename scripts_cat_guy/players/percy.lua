@@ -1,6 +1,3 @@
-local PLAYER_TYPE_PERCY = Isaac.GetPlayerTypeByName("Percy")
-local ITEM_ID_MOMS_HEADPHONES = Isaac.GetItemIdByName("Mom's Headphones")
-
 ---@type table<integer, integer>
 local baseFireDelay = {}
 
@@ -8,7 +5,7 @@ local baseFireDelay = {}
 local percy = {}
 
 function percy.PostPlayerInit_player(player)
-    player:AddCollectible(ITEM_ID_MOMS_HEADPHONES)
+    player:AddCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES)
 end
 
 function percy.PostPlayerRender_player(player)
@@ -16,13 +13,13 @@ function percy.PostPlayerRender_player(player)
 end
 
 function percy.PostPlayerUpdate(player)
-    if player:GetPlayerType() == PLAYER_TYPE_PERCY and player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) then
-        if player:GetInnateCollectibleCount(ITEM_ID_MOMS_HEADPHONES, "percybr") == 0 then
-            player:AddInnateCollectible(ITEM_ID_MOMS_HEADPHONES, 1, "percybr")
+    if player:GetPlayerType() == CatGuy.PlayerType.PERCY and player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) then
+        if player:GetInnateCollectibleCount(CatGuy.CollectibleType.MOMS_HEADPHONES, "percybr") == 0 then
+            player:AddInnateCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES, 1, "percybr")
         end
     else
-        if player:GetInnateCollectibleCount(ITEM_ID_MOMS_HEADPHONES, "percybr") ~= 0 then
-            player:RemoveInnateCollectible(ITEM_ID_MOMS_HEADPHONES, 99, "percybr")
+        if player:GetInnateCollectibleCount(CatGuy.CollectibleType.MOMS_HEADPHONES, "percybr") ~= 0 then
+            player:RemoveInnateCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES, 99, "percybr")
         end
     end
 end
@@ -42,20 +39,20 @@ end
 
 percy.EvaluateCache = {}
 percy.EvaluateCache[CacheFlag.CACHE_DAMAGE] = function(player)
-    if player:GetPlayerType() ~= PLAYER_TYPE_PERCY or not player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) then
+    if player:GetPlayerType() ~= CatGuy.PlayerType.PERCY or not player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) then
         return
     end
 
     local p = GetPtrHash(player)
     if baseFireDelay[p] then
-        local diff = BirthrightFireRate() - baseFireDelay[p]
-        if diff > 0.0 then
-            player.Damage = player.Damage + diff
+        local diff = BirthrightFireRate() / baseFireDelay[p]
+        if diff > 1.0 then
+            player.Damage = player.Damage * diff
         end
     end
 end
 percy.EvaluateCache[CacheFlag.CACHE_FIREDELAY] = function(player)
-    if player:GetPlayerType() ~= PLAYER_TYPE_PERCY or not player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) then
+    if player:GetPlayerType() ~= CatGuy.PlayerType.PERCY or not player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) then
         return
     end
     

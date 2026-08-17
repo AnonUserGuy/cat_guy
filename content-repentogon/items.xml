@@ -1,8 +1,10 @@
 <items gfxroot="gfx/items/" version="1">
-    <passive id="1" name="Mom's Headphones" description="What are we listening to?" gfx="Collectibles_016_RawLiver.png" />
-    <active name="Underhands" description="Bound to this world" gfx="Collectibles_016_RawLiver.png" maxcharges="6" />
+    <passive id="1" name="Mom's Headphones" description="I'm listening" gfx="Collectibles_016_RawLiver.png" 
+        quality="3" tags="summonable offensive mom" />
+    <active name="Underhands" description="Bound to this world" gfx="Collectibles_016_RawLiver.png" maxcharges="6" 
+        quality="2" />
 
-	<trinket name="Toy Metronome" description="Tick tock!" gfx="trinket_toymetronome.png"  />
+	<trinket name="Toy Metronome" description="Tick tock!" gfx="trinket_toymetronome.png" />
 
     <null name="Percy Revive" customtags="revive" persistent="true" />
     <null name="Dead Cat Revive" customtags="revive" persistent="true" />

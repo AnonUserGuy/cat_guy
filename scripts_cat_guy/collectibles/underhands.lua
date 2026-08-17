@@ -1,5 +1,3 @@
-local ITEM_ID_UNDERHANDS = Isaac.GetItemIdByName("Underhands")
-
 local PERCY_LIVES_INIT = 3
 local BOOK_OF_SHADOWS_DURATION = 90
 
@@ -15,7 +13,7 @@ end
 function underhands.PreTriggerPlayerDeath(player)
     local util = CatGuy.PlayerUtils
     if util.GetExtraLivesEX(player) > 0 then
-        if player:GetEffects():HasCollectibleEffect(ITEM_ID_UNDERHANDS) then
+        if player:GetEffects():HasCollectibleEffect(CatGuy.CollectibleType.UNDERHANDS) then
             player:AddCollectibleEffect(CollectibleType.COLLECTIBLE_BOOK_OF_SHADOWS, true, BOOK_OF_SHADOWS_DURATION)
             util.ReviveInRoom(player)
         else

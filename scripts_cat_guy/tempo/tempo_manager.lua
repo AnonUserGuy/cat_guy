@@ -31,7 +31,7 @@ function TempoManager:New(tempoDefs)
     return instance
 end
 
----@param music MusicManager
+---@param music Music
 function TempoManager:PreMusicPlay(music)
     local def = self.tempoDefs[music] ---@type TempoDef?
     if def and def.bpm then

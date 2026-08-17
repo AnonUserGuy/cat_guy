@@ -1,0 +1,23 @@
+<ItemPools>
+    <Pool Name="treasure">
+        <Item Name="Mom's Headphones" />
+    </Pool>
+    <Pool Name="devil">
+        <Item Name="Underhands" />
+    </Pool>
+    <Pool Name="curse">
+        <Item Name="Underhands" DecreaseBy="0.5" />
+    </Pool>
+    <Pool Name="momsChest">
+        <Item Name="Mom's Headphones" DecreaseBy="0.5" />
+    </Pool>
+    <Pool Name="greedTreasure">
+        <Item Name="Mom's Headphones" />
+    </Pool>
+    <Pool Name="greedDevil">
+        <Item Name="Underhands" />
+    </Pool>
+    <Pool Name="greedCurse">
+        <Item Name="Underhands" DecreaseBy="0.5" />
+    </Pool>
+</ItemPools>

@@ -1,18 +1,14 @@
-local PLAYER_TYPE_PERCY_B = Isaac.GetPlayerTypeByName("Percy", true)
-local ITEM_ID_UNDERHANDS = Isaac.GetItemIdByName("Underhands")
-local ITEM_ID_MOMS_HEADPHONES = Isaac.GetItemIdByName("Mom's Headphones")
-
 ---@type PlayerCallbacks
 local percyB = {}
 
 function percyB.PostPlayerInit_player(player)
-    player:SetPocketActiveItem(ITEM_ID_UNDERHANDS, ActiveSlot.SLOT_POCKET, false)
-    player:AddCollectible(ITEM_ID_MOMS_HEADPHONES)
+    player:SetPocketActiveItem(CatGuy.CollectibleType.UNDERHANDS, ActiveSlot.SLOT_POCKET, false)
+    player:AddCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES)
 end
 
 ---@param player EntityPlayer
 function percyB.PostPlayerUpdate(player)
-    if player:GetPlayerType() == PLAYER_TYPE_PERCY_B then
+    if player:GetPlayerType() == CatGuy.PlayerType.PERCY_B then
         if player:GetInnateCollectibleCount(CollectibleType.COLLECTIBLE_DEAD_DOVE, "percy_b") == 0 then
             player:AddInnateCollectible(CollectibleType.COLLECTIBLE_DEAD_DOVE, 1, "percy_b", 0, false)
         end
