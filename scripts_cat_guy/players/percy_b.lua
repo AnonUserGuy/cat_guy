@@ -13,14 +13,12 @@ end
 ---@param player EntityPlayer
 function percyB.PostPlayerUpdate(player)
     if player:GetPlayerType() == PLAYER_TYPE_PERCY_B then
-        if player:GetInnateCollectibleCount(CollectibleType.COLLECTIBLE_OUIJA_BOARD, "percy_b") == 0 then
-            player:AddInnateCollectible(CollectibleType.COLLECTIBLE_OUIJA_BOARD, 1, "percy_b", 0, false)
-            player:AddInnateCollectible(CollectibleType.COLLECTIBLE_TRANSCENDENCE, 1, "percy_b", 0, false)
+        if player:GetInnateCollectibleCount(CollectibleType.COLLECTIBLE_DEAD_DOVE, "percy_b") == 0 then
+            player:AddInnateCollectible(CollectibleType.COLLECTIBLE_DEAD_DOVE, 1, "percy_b", 0, false)
         end
     else
-        if player:GetInnateCollectibleCount(CollectibleType.COLLECTIBLE_OUIJA_BOARD, "percy_b") ~= 0 then
-            player:RemoveInnateCollectible(CollectibleType.COLLECTIBLE_OUIJA_BOARD, 99, "percy_b")
-            player:RemoveInnateCollectible(CollectibleType.COLLECTIBLE_TRANSCENDENCE, 99, "percy_b")
+        if player:GetInnateCollectibleCount(CollectibleType.COLLECTIBLE_DEAD_DOVE, "percy_b") ~= 0 then
+            player:RemoveInnateCollectible(CollectibleType.COLLECTIBLE_DEAD_DOVE, 99, "percy_b")
         end
     end
 end
@@ -51,12 +49,5 @@ end
 function percyB.PostPlayerRender_player(player)
     CatGuy.PlayerUtils.ApplyShader(player, "shaders/coloroffset_percy_b")
 end
-
---[[ percyB.EvaluateCache = {}
-percyB.EvaluateCache[CacheFlag.CACHE_DAMAGE] = function(player)
-    if player:GetPlayerType() == PLAYER_TYPE_PERCY_B then
-        player.Damage = player.Damage * 0.75
-    end
-end ]]
 
 return percyB
