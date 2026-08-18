@@ -264,6 +264,12 @@ end)
 
 CatGuy.TempoManager:RestartMusic()
 
+---@param modId string
+---@return boolean
+function CatGuy:HasMod(modId)
+    local metadata = XMLData.GetModById(modId)
+    return metadata ~= nil and metadata.enabled
+end
 
 CatGuy.Compat = {}
 CatGuy.Compat.EID       = include("scripts_cat_guy.compat.eid") ---@type EIDCompat

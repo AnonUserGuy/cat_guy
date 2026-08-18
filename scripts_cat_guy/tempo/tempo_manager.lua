@@ -66,10 +66,7 @@ function TempoManager:ValidateTempoDefs(tempoDefs, vanillaMusicXML)
         if vanillaMusicXMLNode and musicXMLNode then
             if musicXMLNode.path == vanillaMusicXMLNode.path
             and musicXMLNode.intro == vanillaMusicXMLNode.intro then
-                print(music.." valid!")
                 out[music] = tempoDef
-            else
-                print(music.." replaced!")
             end
         else
             out[music] = tempoDef
