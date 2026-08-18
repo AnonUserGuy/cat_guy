@@ -12,7 +12,7 @@ local EIDDefs = {}
 ---@field ModName? string
 ---@field Quality? integer
 ---@field Icon? any
----@field Entity Entity
+---@field Entity? Entity
 ---@field ShowWhenUnidentified? boolean
 
 ---@alias langStrings table<string, string>
@@ -77,9 +77,15 @@ EIDDefs.collectibles = {
                 "#{{Tears}} Tear Rate set to closest one that matches tempo of song x2^N"..
                 "#{{Damage}} Firing faster than fire rate deals significantly less damage"..
                 "#↑ {{Damage}} Shots do x2.0 damage if shot perfectly onbeat"..
-                "#↓ {{Damage}} Shots do x0.75 damage if shot perfectly offbeat"..
-                "#{{Trinket"..CatGuy.TrinketType.TOY_METRONOME.."}} Spawns a Toy Metronome"
+                "#↓ {{Damage}} Shots do x0.75 damage if shot perfectly offbeat"
         },
+        modifier = function(eid, descObj, player)
+            local pickup = descObj.Entity and descObj.Entity:ToPickup()
+            if pickup and not pickup.Touched and not player:HasTrinket(CatGuy.TrinketType.TOY_METRONOME) then
+                eid:appendToDescription(descObj, "#{{Trinket"..CatGuy.TrinketType.TOY_METRONOME.."}} Spawns a Toy Metronome")
+            end
+            return descObj
+        end,
         synergies = {
             [CollectibleType.COLLECTIBLE_SOY_MILK] = MOMS_HEADPHONES_CONTINUOUS,
             [CollectibleType.COLLECTIBLE_MARKED] = MOMS_HEADPHONES_CONTINUOUS,

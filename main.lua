@@ -23,7 +23,8 @@ CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type Pl
 
 local TempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
 local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
-CatGuy.TempoManager = TempoManager:New(tempoDefs)
+local vanillaMusicXML = include("scripts_cat_guy.tempo.vanilla_music_xml") ---@type table<Music, MusicXMLNode>
+CatGuy.TempoManager = TempoManager:New(tempoDefs, vanillaMusicXML)
 
 CatGuy.PlayerCallbacks = {} ---@type table<PlayerType, PlayerCallbacks>
 CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY]                         = include("scripts_cat_guy.players.percy")
@@ -279,3 +280,5 @@ if EID then
 else
     CatGuy:AddCallback("EID_POST_LOAD", CatGuy.TryAddEID)
 end
+
+Isaac.RunCallback("CAT_GUY_POST_LOAD")

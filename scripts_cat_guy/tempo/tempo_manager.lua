@@ -7,13 +7,20 @@ local TWO_THIRDS = 2/3
 ---@field beatMusic number beat number relative to music
 local TempoManager = {}
 
----@param tempoDefs table<Music, TempoDef>
+---@param tempoDefs? table<Music, TempoDef>
+---@param vanillaMusicXML? table<Music, MusicXMLNode>
 ---@return TempoManager
-function TempoManager:New(tempoDefs)
+function TempoManager:New(tempoDefs, vanillaMusicXML)
     local instance = setmetatable({}, self)
     self.__index = self
 
-    instance.tempoDefs = tempoDefs
+    instance.tempoDefs = {}
+    if tempoDefs then
+        if vanillaMusicXML then
+            tempoDefs = instance:ValidateTempoDefs(tempoDefs, vanillaMusicXML)
+        end
+        instance:RegisterTempoDefs(tempoDefs)
+    end
 
     instance.tempoDef = nil
 
@@ -29,6 +36,46 @@ function TempoManager:New(tempoDefs)
     instance.lastSysTime = Isaac.GetTime()
 
     return instance
+end
+
+---@param music Music
+---@param tempoDef TempoDef
+function TempoManager:RegisterTempoDef(music, tempoDef)
+    if not self.tempoDefs[music] or (self.tempoDefs[music].priority or 0.0) <= (tempoDef.priority or 0.0) then
+        self.tempoDefs[music] = tempoDef
+    end
+end
+
+---@param tempoDefs table<Music, TempoDef>
+function TempoManager:RegisterTempoDefs(tempoDefs)
+    for music, tempoDef in pairs(tempoDefs) do
+        self:RegisterTempoDef(music, tempoDef)
+    end
+end
+
+--- TODO: add various music mods compatibility (probably stuff like OG isaac music or antibirth music)
+--- 
+--- Creates a new tempoDefs table, does not modify original tempoDefs table
+---@param tempoDefs table<Music, TempoDef>
+---@param vanillaMusicXML table<Music, MusicXMLNode>
+function TempoManager:ValidateTempoDefs(tempoDefs, vanillaMusicXML)
+    local out = {} ---@type table<Music, TempoDef>
+    for music, tempoDef in pairs(tempoDefs) do
+        local vanillaMusicXMLNode = vanillaMusicXML[music]
+        local musicXMLNode = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
+        if vanillaMusicXMLNode and musicXMLNode then
+            if musicXMLNode.path == vanillaMusicXMLNode.path
+            and musicXMLNode.intro == vanillaMusicXMLNode.intro then
+                print(music.." valid!")
+                out[music] = tempoDef
+            else
+                print(music.." replaced!")
+            end
+        else
+            out[music] = tempoDef
+        end
+    end
+    return out
 end
 
 ---@param music Music
