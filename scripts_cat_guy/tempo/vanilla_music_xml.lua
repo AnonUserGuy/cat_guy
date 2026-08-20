@@ -1,4 +1,5 @@
 ---@class MusicXMLNode 
+---@field name string
 ---@field intro? string
 ---@field path? string
 

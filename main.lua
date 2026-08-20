@@ -5,6 +5,8 @@ if not REPENTOGON then
     return
 end
 
+local json = require("json")
+
 CatGuy.PlayerType = {
     PERCY           = Isaac.GetPlayerTypeByName("Percy"),
     PERCY_B         = Isaac.GetPlayerTypeByName("Percy", true)
@@ -18,6 +20,127 @@ CatGuy.CollectibleType = {
 CatGuy.TrinketType = {
     TOY_METRONOME   = Isaac.GetTrinketIdByName("Toy Metronome")
 }
+
+---@param input table<string|number, any>
+function CatGuy:PreEncodeJSON(input)
+    local output = {}
+    for key, value in pairs(input) do
+        if type(key) == "number" then
+            key = tostring(key)
+        end
+        if type(value) == "table" then
+            value = CatGuy:PreEncodeJSON(value)
+        end
+        output[key] = value
+    end
+    return output
+end
+
+---@param input table<string|number, any>
+function CatGuy:PostDecodeJSON(input)
+    local output = {}
+    for key, value in pairs(input) do
+        local num = tonumber(key)
+        if num then
+            key = num
+        end
+        if type(value) == "table" then
+            value = CatGuy:PostDecodeJSON(value)
+        end
+        output[key] = value
+    end
+    return output
+end
+
+function CatGuy:CatGuySave()
+    CatGuy:SaveData(json.encode(CatGuy:PreEncodeJSON(CatGuy.Save)))
+end
+
+function CatGuy:CatGuyLoad()
+    if not CatGuy:HasData() then
+        CatGuy.Save = {}
+    else
+        CatGuy.Save = CatGuy:PostDecodeJSON(json.decode(CatGuy:LoadData()))
+    end
+    CatGuy.Save.Config = CatGuy.Save.Config or {}
+    CatGuy.Save.ConfigDefault = CatGuy.Save.ConfigDefault or {}
+    if CatGuy:CheckConfig(CatGuy.Config, CatGuy.Save.Config, CatGuy.Save.ConfigDefault) then
+        print("Configs have been changed in cat_guy_config.lua, which have overwritten ones made in-game")
+        CatGuy:CatGuySave()
+    end
+end
+
+---@param tableConfig table<string, any>
+---@param tableSave table<string, any>
+---@param tableSaveDefault table<string, any>
+function CatGuy:CheckConfig(tableConfig, tableSave, tableSaveDefault)
+    local changed = false
+    for key, val in pairs(tableSaveDefault) do
+        if val == nil then
+        elseif type(val) ~= "table" then
+            if tableConfig[key] ~= val then
+                tableSave[key] = nil
+                tableSaveDefault[key] = nil
+                changed = true
+            end
+        elseif type(tableConfig[key]) == "table" and type(tableSave[key]) == "table" then
+            if self:CheckConfig(tableConfig[key], tableSave[key], val) then
+                changed = true
+            end
+        end
+    end
+    return changed
+end
+
+---@param configName string
+---@param value any
+function CatGuy:SetConfig(configName, value)
+    CatGuy.Save.Config[configName] = value
+    CatGuy.Save.ConfigDefault[configName] = CatGuy.Config[configName]
+    CatGuy:CatGuySave()
+end
+
+---@param configName string
+---@return any
+function CatGuy:GetConfig(configName)
+    return CatGuy.Save and CatGuy.Save.Config and CatGuy.Save.Config[configName] or CatGuy.Config[configName]
+end
+
+---@param music Music|string
+---@param value boolean
+function CatGuy:SetTempoEnabled(music, value)
+    if type(music) == "number" and music >= Music.NUM_MUSIC then
+        local node = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
+        if node then
+            music = node.name
+        end
+    end
+    CatGuy.Save.Config.TempoEnabled = CatGuy.Save.Config.TempoEnabled or {}
+    CatGuy.Save.Config.TempoEnabled[music] = value
+    CatGuy.Save.ConfigDefault.TempoEnabled = CatGuy.Save.ConfigDefault.TempoEnabled or {}
+    CatGuy.Save.ConfigDefault.TempoEnabled[music] = CatGuy.Config.TempoEnabled[music]
+    CatGuy:CatGuySave()
+end
+
+---@param music Music|string
+---@return boolean?
+function CatGuy:GetTempoEnabled(music)
+    if CatGuy.Save and CatGuy.Save.Config and CatGuy.Save.Config.TempoEnabled and CatGuy.Save.Config.TempoEnabled[music] ~= nil then
+        return CatGuy.Save.Config.TempoEnabled[music]
+    end
+    if CatGuy.Config.TempoEnabled[music] ~= nil then
+        return CatGuy.Config.TempoEnabled[music]
+    end
+    if type(music) == "number" then
+        local node = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
+        if node then
+            return self:GetTempoEnabled(node.name)
+        end
+    end
+    return true
+end
+
+CatGuy.Config = include("cat_guy_config") ---@type CatGuyConfig
 
 CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type PlayerUtils
 
@@ -252,7 +375,9 @@ for _, callbacks in pairs(CatGuy.TrinketCallbacks) do
     CatGuy:AddCallbacks(callbacks)
 end
 
-
+CatGuy:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function(_)
+    CatGuy:CatGuyLoad()
+end)
 
 CatGuy:AddPriorityCallback(ModCallbacks.MC_PRE_MUSIC_PLAY, CallbackPriority.LATE, function(_, music, _, _)
     CatGuy.TempoManager:PreMusicPlay(music)
@@ -262,7 +387,10 @@ CatGuy:AddCallback(ModCallbacks.MC_POST_RENDER, function(_)
     CatGuy.TempoManager:PostRender()
 end)
 
-CatGuy.TempoManager:RestartMusic()
+if Isaac.IsInGame() then
+    CatGuy:CatGuyLoad()
+    CatGuy.TempoManager:RestartMusic()
+end
 
 ---@param modId string
 ---@return boolean
@@ -272,8 +400,9 @@ function CatGuy:HasMod(modId)
 end
 
 CatGuy.Compat = {}
-CatGuy.Compat.EID       = include("scripts_cat_guy.compat.eid") ---@type EIDCompat
-CatGuy.Compat.EIDDefs   = include("scripts_cat_guy.compat.eid_defs") ---@type EIDDefs
+CatGuy.Compat.EID               = include("scripts_cat_guy.compat.eid") ---@type EIDCompat
+CatGuy.Compat.EIDDefs           = include("scripts_cat_guy.compat.eid_defs") ---@type EIDDefs
+CatGuy.Compat.ModConfigMenu     = include("scripts_cat_guy.compat.mcm") ---@type MCMCompat
 
 function CatGuy:TryAddEID()
     if EID then
@@ -285,6 +414,10 @@ if EID then
     CatGuy:TryAddEID()
 else
     CatGuy:AddCallback("EID_POST_LOAD", CatGuy.TryAddEID)
+end
+
+if ModConfigMenu then
+    CatGuy.Compat.ModConfigMenu:Init(ModConfigMenu, InputHelper, tempoDefs)
 end
 
 Isaac.RunCallback("CAT_GUY_POST_LOAD")

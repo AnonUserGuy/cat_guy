@@ -1,0 +1,11 @@
+---@class CatGuyConfig
+---@field OffsetTrigger integer
+---@field OffsetRelease nil|integer
+---@field OffsetCSection nil|integer
+---@field ControlsLatencyTestEnter Keyboard
+---@field ControlsLatencyTest Keyboard
+---@field NudgeEnabled boolean
+---@field NudgeAmount integer
+---@field ControlsNudgeForward Keyboard
+---@field ControlsNudgeBackward Keyboard
+---@field TempoEnabled table<Music|string, boolean>

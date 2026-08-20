@@ -1,4 +1,4 @@
----@type table<integer, integer>
+---@type table<Pointer, integer>
 local baseFireDelay = {}
 
 ---@type PlayerCallbacks

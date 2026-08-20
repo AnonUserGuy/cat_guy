@@ -2,7 +2,7 @@ local NULL_ID_DEAD_CAT_REVIVE = Isaac.GetNullItemIdByName("Dead Cat Revive")
 local NULL_ID_PERCY_REVIVE = Isaac.GetNullItemIdByName("Percy Revive")
 local PERCY_LIVES_MAX = 9
 
----@type table<integer, EntityPlayer>
+---@type EntityPlayer[]
 local animatePercy = {}
 
 ---@type EntityPlayer?

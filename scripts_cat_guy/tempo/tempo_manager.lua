@@ -1,3 +1,5 @@
+local MAX_OFFSET_SAMPLES = 10
+
 local MILLISECONDS_PER_MINUTE = 60000
 local TWO_THIRDS = 2/3
 
@@ -5,6 +7,12 @@ local TWO_THIRDS = 2/3
 ---@field tempoDefs table<Music, TempoDef>
 ---@field beat number strictly increasing beat number
 ---@field beatMusic number beat number relative to music
+---@field latencyTestEnabled boolean
+---@field buttonPressed boolean
+---@field offsetsTriggerIndex integer
+---@field offsetsTrigger integer[]
+---@field offsetsReleaseIndex integer
+---@field offsetsRelease integer[]
 local TempoManager = {}
 
 ---@param tempoDefs? table<Music, TempoDef>
@@ -35,21 +43,37 @@ function TempoManager:New(tempoDefs, vanillaMusicXML)
 
     instance.lastSysTime = Isaac.GetTime()
 
+    instance.latencyTestEnabled = false
+
     return instance
 end
 
 ---@param music Music
 ---@param tempoDef TempoDef
-function TempoManager:RegisterTempoDef(music, tempoDef)
+function TempoManager:RegisterTempoDef_internal(music, tempoDef)
     if not self.tempoDefs[music] or (self.tempoDefs[music].priority or 0.0) <= (tempoDef.priority or 0.0) then
         self.tempoDefs[music] = tempoDef
     end
 end
 
+---@param music Music
+---@param tempoDef TempoDef
+function TempoManager:RegisterTempoDef(music, tempoDef)
+    self:RegisterTempoDef_internal(music, tempoDef)
+    self:UpdateConfig()
+end
+
 ---@param tempoDefs table<Music, TempoDef>
 function TempoManager:RegisterTempoDefs(tempoDefs)
     for music, tempoDef in pairs(tempoDefs) do
-        self:RegisterTempoDef(music, tempoDef)
+        self:RegisterTempoDef_internal(music, tempoDef)
+    end
+    self:UpdateConfig()
+end
+
+function TempoManager:UpdateConfig()
+    if CatGuy.Compat and CatGuy.Compat.ModConfigMenu and ModConfigMenu then
+        CatGuy.Compat.ModConfigMenu:UpdateTempos(ModConfigMenu, self.tempoDefs)
     end
 end
 
@@ -78,7 +102,7 @@ end
 ---@param music Music
 function TempoManager:PreMusicPlay(music)
     local def = self.tempoDefs[music] ---@type TempoDef?
-    if def and def.bpm then
+    if def and def.bpm and CatGuy:GetTempoEnabled(music) ~= false then
         self.tempoDef = def
         self:PrepareTempoDef(def)
         self.time = 0
@@ -172,8 +196,77 @@ end
 
 function TempoManager:PostRender()
     local sysTime = Isaac.GetTime()
-    self:Update(sysTime - self.lastSysTime)
+    self:Update(sysTime - self.lastSysTime + self:GetNudge())
     self.lastSysTime = sysTime
+    self:LatencyTest()
+end
+
+function TempoManager:GetNudge()
+    if not CatGuy:GetConfig("NudgeEnabled") then
+        return 0
+    elseif Input.IsButtonTriggered(CatGuy:GetConfig("ControlsNudgeForward"), 0) then
+        return CatGuy:GetConfig("NudgeAmount")
+    elseif Input.IsButtonTriggered(CatGuy:GetConfig("ControlsNudgeBackward"), 0) then
+        return -CatGuy:GetConfig("NudgeAmount")
+    else
+        return 0
+    end
+end
+
+---@param arr number[]
+---@return number
+local function averageValues(arr)
+    local sum = 0.0
+    local div = 0
+    for _, val in ipairs(arr) do
+        sum = sum + val
+        div = div + 1
+    end
+    return div ~= 0 and (sum / div) or sum
+end
+
+function TempoManager:ResetLatencyTest()
+    self.buttonPressed = false
+    self.offsetsTriggerIndex = 1
+    self.offsetsTrigger = {}
+    self.offsetsReleaseIndex = 1
+    self.offsetsRelease = {}
+end
+
+function TempoManager:LatencyTest()
+    if Input.IsButtonTriggered(CatGuy:GetConfig("ControlsLatencyTestEnter"), 0) then
+        self.latencyTestEnabled = not self.latencyTestEnabled
+        self:ResetLatencyTest()
+    end
+    if not self.latencyTestEnabled then
+        return
+    end
+
+    local buttonPressed = Input.IsButtonPressed(CatGuy:GetConfig("ControlsLatencyTest"), 0)
+    if buttonPressed ~= self.buttonPressed then
+        self:RecordSample(buttonPressed)
+        self.buttonPressed = buttonPressed
+    end
+
+    Isaac.RenderText("You are now testing your latency."
+        .."\nPress \"B\" to the beat of the current music,"
+        .."\nand use these values in your configs:"
+        .."\nOffsetTrigger: "..math.floor(averageValues(self.offsetsTrigger)).." ms"
+        .."\nOffsetRelease: "..math.floor(averageValues(self.offsetsRelease)).." ms", 140, 20, 1, 1, 1, 1)
+
+    Isaac.RenderText(buttonPressed and ":O" or ":|", 30, 230, 1, 1, 1, 1)
+end
+
+---@param triggered boolean
+function TempoManager:RecordSample(triggered)
+    local offset = ((self.beat + 0.5) % 1.0 - 0.5) / self:GetCurrentBPM() * MILLISECONDS_PER_MINUTE
+    if triggered then
+        self.offsetsTrigger[self.offsetsTriggerIndex] = offset
+        self.offsetsTriggerIndex = self.offsetsTriggerIndex % MAX_OFFSET_SAMPLES + 1
+    else
+        self.offsetsRelease[self.offsetsReleaseIndex] = offset
+        self.offsetsReleaseIndex = self.offsetsReleaseIndex % MAX_OFFSET_SAMPLES + 1
+    end
 end
 
 function TempoManager:GetCurrentBPM()
@@ -182,6 +275,21 @@ function TempoManager:GetCurrentBPM()
     else
         return self.tempoDef.bpm * MusicManager():GetCurrentPitch()
     end
+end
+
+---@param release? boolean
+function TempoManager:GetLatencyAdjustedBeat(release)
+    if release and CatGuy:GetConfig("OffsetRelease") ~= nil then
+        return self.beat - CatGuy:GetConfig("OffsetRelease") * self:GetCurrentBPM() / MILLISECONDS_PER_MINUTE
+    end
+    return self.beat - CatGuy:GetConfig("OffsetTrigger") * self:GetCurrentBPM() / MILLISECONDS_PER_MINUTE
+end
+
+function TempoManager:GetLatencyAdjustedBeatCSection()
+    if CatGuy:GetConfig("OffsetCSection") ~= nil then
+        return self.beat - CatGuy:GetConfig("OffsetCSection") * self:GetCurrentBPM() / MILLISECONDS_PER_MINUTE
+    end
+    return self.beat - CatGuy:GetConfig("OffsetTrigger") * self:GetCurrentBPM() / MILLISECONDS_PER_MINUTE
 end
 
 local function rhythmicFireDelayEqn(delay, gameTicksPerBeat)
@@ -220,7 +328,7 @@ end
 
 ---@generic T
 ---@param tab table<T, any>
----@return table<integer, T>
+---@return T[]
 local function getTableKeys(tab)
     local keys = {}
     for key, _ in pairs(tab) do
@@ -281,19 +389,19 @@ function TempoManager:PrepareTempoDef(tempoDef)
     end
 
     if tempoDef.intro and not tempoDef.beatIntro then
-        tempoDef.beatIntro = TempoManager:GetArbitraryBeatNumber(tempoDef, tempoDef.intro)
+        tempoDef.beatIntro = self:GetArbitraryBeatNumber(tempoDef, tempoDef.intro)
     end
 
     if tempoDef.offset and not tempoDef.beatOffset then
-        tempoDef.beatOffset = TempoManager:GetArbitraryBeatNumber(tempoDef, tempoDef.offset)
+        tempoDef.beatOffset = self:GetArbitraryBeatNumber(tempoDef, tempoDef.offset)
     end
 end
 
 function TempoManager:RestartMusic()
-    local room = Game():GetRoom()
-    if room then
-        MusicManager():Play(Music.MUSIC_TITLE, 1)
-        room:PlayMusic()
+    local id = MusicManager():GetCurrentMusicID()
+    if id then
+        MusicManager():Play(id, 0)
+        MusicManager():UpdateVolume()
     end
 end
 

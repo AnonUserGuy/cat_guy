@@ -21,3 +21,5 @@
 ---@field Tick? fun(measure?: boolean)
 ---
 ---@field EvaluateCache? table<CacheFlag, fun(player: EntityPlayer, flag: CacheFlag)>
+
+---@alias Pointer integer pointers to entities obtained through GetPtrHash(Entity)

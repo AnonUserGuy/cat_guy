@@ -110,46 +110,37 @@ local lastBeat = 0.0
 
 local debugstring = ""
 
----@type table<integer, number>
-local needsTrinket = {}
+local needsTrinket = {} ---@type table<Pointer, number>
+local lastFireDirection = {} ---@type table<Pointer, Direction>
+local lastTimeFired = {} ---@type table<Pointer, integer>
+local iWantToHaveABaby = {} ---@type table<Pointer, number>
+local tempoDamageMultiplier = {} ---@type table<Pointer, number>
+local fireDelayDamageMultiplier = {} ---@type table<Pointer, number>
+local technology2Laser = {} ---@type table<Pointer, EntityLaser>
 
----@type table<integer, Direction>
-local lastFireDirection = {}
-
----@type table<integer, integer>
-local lastTimeFired = {}
-
----@type table<integer, number>
-local iWantToHaveABaby = {}
-
----@type table<integer, number>
-local tempoDamageMultiplier = {}
-
----@type table<integer, number>
-local fireDelayDamageMultiplier = {}
-
----@type table<integer, EntityLaser>
-local technology2Laser = {}
-
----@param time number
-local function getTempoDamageEqn(time)
-    return (2 ^ DAMAGE_MULT_EXP) * (DAMAGE_MULT_MAX - DAMAGE_MULT_MIN) * ((time - 0.5) ^ DAMAGE_MULT_EXP) +
+---@param beat number
+local function getTempoDamageEqn(beat)
+    return (2 ^ DAMAGE_MULT_EXP) * (DAMAGE_MULT_MAX - DAMAGE_MULT_MIN) * ((beat - 0.5) ^ DAMAGE_MULT_EXP) +
         DAMAGE_MULT_MIN
 end
 
-local function getTempoDamageMultiplier()
+---@param latencyAdjusted? boolean
+---@param release? boolean
+local function getTempoDamageMultiplier(latencyAdjusted, release)
     local tempoManager = CatGuy.TempoManager
-    if tempoManager and tempoManager.tempoDef and tempoManager.tempoDef.bpm then
-        return getTempoDamageEqn(tempoManager.beat % 1.0)
+    if tempoManager and tempoManager.tempoDef then
+        return getTempoDamageEqn((latencyAdjusted and tempoManager:GetLatencyAdjustedBeat(release) or tempoManager.beat) % 1.0)
     else
         return 1.0
     end
 end
 
 ---@param player EntityPlayer
-local function updateTempoDamageMultiplier(player)
+---@param latencyAdjusted? boolean
+---@param release? boolean
+local function updateTempoDamageMultiplier(player, latencyAdjusted, release)
     local p = GetPtrHash(player)
-    tempoDamageMultiplier[p] = getTempoDamageMultiplier()
+    tempoDamageMultiplier[p] = getTempoDamageMultiplier(latencyAdjusted, release)
 end
 
 ---@param player EntityPlayer
@@ -223,8 +214,9 @@ end
 local function getFetalDelay()
     local tempoManager = CatGuy.TempoManager
     if tempoManager and tempoManager.tempoDef then
-        lastBeat = tempoManager.beat
-        return tempoManager.beat
+        local beat = tempoManager:GetLatencyAdjustedBeatCSection()
+        lastBeat = beat
+        return beat
     else
         return 1.0
     end
@@ -240,7 +232,7 @@ local function updateFire(player)
             player.FireDelay = -1
         end
         if dir ~= Direction.NO_DIRECTION then
-            updateTempoDamageMultiplier(player)
+            updateTempoDamageMultiplier(player, true)
             if lastFireDirection[p] == Direction.NO_DIRECTION then
                 iWantToHaveABaby[p] = getFetalDelay()
             end
@@ -575,7 +567,7 @@ function headphones.PostFireBrimstone(laser)
         return
     end
 
-    updateTempoDamageMultiplier(player)
+    updateTempoDamageMultiplier(player, true, true)
 
     local p = GetPtrHash(player)
     local multiplier = tempoDamageMultiplier[p] or 1.0
@@ -590,7 +582,7 @@ function headphones.PostFireTechXLaser(laser)
         return
     end
 
-    updateTempoDamageMultiplier(player)
+    updateTempoDamageMultiplier(player, true, true)
 
     local p = GetPtrHash(player)
     local multiplier = tempoDamageMultiplier[p] or 1.0
@@ -604,7 +596,7 @@ function headphones.PostFireKnife(knife)
     if not player or not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
         return
     end
-    updateTempoDamageMultiplier(player)
+    updateTempoDamageMultiplier(player, true, true)
 end
 
 ---@param familiar EntityFamiliar
@@ -655,7 +647,7 @@ local function evaluateTearHitParamsFamiliar(familiar, params, weaponType)
     elseif weaponType == WeaponType.WEAPON_BONE
     or weaponType == WeaponType.WEAPON_NOTCHED_AXE
     or weaponType == WeaponType.WEAPON_SPIRIT_SWORD then
-        local multiplier = getTempoDamageMultiplier()
+        local multiplier = getTempoDamageMultiplier(true)
         params.TearDamage = params.TearDamage * multiplier
         params.TearScale = params.TearScale * (multiplier ^ 0.5)
         --debugstring = tostring(params.TearDamage)
@@ -707,7 +699,7 @@ function headphones.EvaluateTearHitParams(player, params, weaponType, _, _, sour
     elseif weaponType == WeaponType.WEAPON_BONE
     or weaponType == WeaponType.WEAPON_NOTCHED_AXE
     or weaponType == WeaponType.WEAPON_SPIRIT_SWORD then
-        local multiplier = getTempoDamageMultiplier()
+        local multiplier = getTempoDamageMultiplier(true)
         params.TearDamage = params.TearDamage * multiplier
         params.TearScale = params.TearScale * (multiplier ^ 0.5)
         --debugstring = tostring(params.TearDamage)
