@@ -26,7 +26,7 @@ local tempoDefs = {
     [Music.MUSIC_CATACOMBS]                     = {bpm = 120, offset = 50},
     [Music.MUSIC_NECROPOLIS]                    = {bpm = 120},
     [Music.MUSIC_WOMB_UTERO]                    = {bpm = 90},
-    [Music.MUSIC_GAME_OVER]                     = {bpm = 85, timeSig = 3}, --seems to naturally vary, needs precise measurement
+    [Music.MUSIC_GAME_OVER]                     = {bpm = 85, timeSig = 3},
     [Music.MUSIC_BOSS]                          = {bpm = 150},
     [Music.MUSIC_CATHEDRAL]                     = {bpm = 100},
     [Music.MUSIC_SHEOL]                         = {bpm = 110, offset = 269},
@@ -54,11 +54,11 @@ local tempoDefs = {
     [Music.MUSIC_ANGEL_ROOM]                    = {bpm = 100},
     [Music.MUSIC_SHOP_ROOM]                     = {bpm = 80, bpms = {[7580] = 89.418, [8250] = 80}, offset = 81},
     [Music.MUSIC_ARCADE_ROOM]                   = {bpm = 130},
-    [Music.MUSIC_BOSS_OVER]                     = {bpm = 85, timeSig = 3}, -- might naturally vary
+    [Music.MUSIC_BOSS_OVER]                     = {bpm = 85, timeSig = 3},
     [Music.MUSIC_CHALLENGE_FIGHT]               = {bpm = 150, offset = -93},
     [Music.MUSIC_BOSS_RUSH]                     = {bpm = 180, timeSig = 7},
     ----[Music.MUSIC_JINGLE_BOSS_RUSH_OUTRO]        = {bpm = 0},
-    [Music.MUSIC_BOSS3]                         = {bpm = 160}, -- the bars seem out of sync at the beginning? idk
+    [Music.MUSIC_BOSS3]                         = {bpm = 160},
     ----[Music.MUSIC_JINGLE_BOSS_OVER3]             = {bpm = 0},
     [Music.MUSIC_MOTHER_BOSS]                   = {bpm = 130, triplet = true},
     [Music.MUSIC_DOGMA_BOSS]                    = {bpm = 180},
@@ -104,7 +104,7 @@ local tempoDefs = {
     [Music.MUSIC_DOWNPOUR]                      = {bpm = 144},
     [Music.MUSIC_MINES]                         = {bpm = 136},
     [Music.MUSIC_MAUSOLEUM]                     = {bpm = 119},
-    [Music.MUSIC_CORPSE]                        = {bpm = 110, offset = 23}, -- something off about this one
+    [Music.MUSIC_CORPSE]                        = {bpm = 110, bpms = {[104181] = 128.755}, length = 104647},
     [Music.MUSIC_DROSS]                         = {bpm = 120, offset = 237},
     [Music.MUSIC_ASHPIT]                        = {bpm = 106, timeSigs = {[3] = 4}},
     [Music.MUSIC_GEHENNA]                       = {bpm = 110},

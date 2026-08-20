@@ -1,10 +1,14 @@
 ---@class Callbacks
 ---@field Priority? table<CallbackPriority, Callbacks>
+---@field PostUpdate? fun()
+---@field PreRender? fun()
+---@field PostRender? fun()
 ---@field PostNewRoom? fun()
 ---@field PostGameStarted? fun(continued: boolean)
 ---
 ---@field PostPlayerUpdate? fun(player: EntityPlayer)
 ---@field PostPlayerRender? fun(player: EntityPlayer)
+---@field PlayerTakeDamage? fun(player: EntityPlayer, amount: number, damageFlags: DamageFlag, source: EntityRef, countdownFrames: integer): boolean?
 ---@field PreTriggerPlayerDeath? fun(player: EntityPlayer)
 ---@field EvaluateTearHitParams? fun(player: EntityPlayer, params: TearParams, weaponType: WeaponType, damageScale: number, tearDisplacement: integer, source: Entity)
 ---@field PostFireTear? fun(tear: EntityTear)

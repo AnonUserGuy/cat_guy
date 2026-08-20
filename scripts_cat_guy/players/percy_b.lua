@@ -3,12 +3,14 @@ local percyB = {}
 
 function percyB.PostPlayerInit_player(player)
     player:SetPocketActiveItem(CatGuy.CollectibleType.UNDERHANDS, ActiveSlot.SLOT_POCKET, false)
-    player:AddCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES)
+    if CatGuy:GetConfig("PercyBHasMomsHeadphones") ~= false then
+        player:AddCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES)
+    end
 end
 
 ---@param player EntityPlayer
 function percyB.PostPlayerUpdate(player)
-    if player:GetPlayerType() == CatGuy.PlayerType.PERCY_B then
+    if player:GetPlayerType() == CatGuy.PlayerType.PERCY_B and not player:HasCollectible(CollectibleType.COLLECTIBLE_DEAD_DOVE, false, true) then
         if player:GetInnateCollectibleCount(CollectibleType.COLLECTIBLE_DEAD_DOVE, "percy_b") == 0 then
             player:AddInnateCollectible(CollectibleType.COLLECTIBLE_DEAD_DOVE, 1, "percy_b", 0, false)
         end

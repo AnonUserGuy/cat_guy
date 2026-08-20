@@ -1,4 +1,6 @@
 ---@class CatGuyConfig
+---@field MomsHeadphonesHaveMetronome boolean
+---@field PercyBHasMomsHeadphones boolean
 ---@field OffsetTrigger integer
 ---@field OffsetRelease nil|integer
 ---@field OffsetCSection nil|integer

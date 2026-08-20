@@ -48,7 +48,7 @@ local toyMetronome = {}
 function toyMetronome.UseItem(itemId, _, player, _, _, _)
     if player:HasTrinket(CatGuy.TrinketType.TOY_METRONOME) and not preventTrigger then
         local item = Isaac.GetItemConfig():GetCollectible(itemId)
-        if item and item.ChargeType == 0 and player:GetTrinketRNG(CatGuy.TrinketType.TOY_METRONOME):RandomFloat() < (item.MaxCharges * 0.01) then
+        if item and item.ChargeType == 0 and player:GetTrinketRNG(CatGuy.TrinketType.TOY_METRONOME):RandomFloat() < (item.MaxCharges * 0.001) then
             preventTrigger = true
             player:UseActiveItem(CollectibleType.COLLECTIBLE_METRONOME)
             preventTrigger = false
@@ -61,7 +61,8 @@ function toyMetronome.Tick(measure)
         return
     end
     ticked = true
-    if Options.SFXVolume > 0.0001 and CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.TOY_METRONOME) end) then
+    if Options.SFXVolume > 0.0001 and (CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.TOY_METRONOME) end)
+    or (CatGuy:GetConfig("MomsHeadphonesHaveMetronome") and CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) end))) then
         SFXManager():Play(SFX_ID_RIMSHOT,
             math.max(Options.MusicVolume / Options.SFXVolume, 1), 2,
             false, measure and 1.25 or 1)

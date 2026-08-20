@@ -1,5 +1,3 @@
-local NULL_ID_DEAD_CAT_REVIVE = Isaac.GetNullItemIdByName("Dead Cat Revive")
-local NULL_ID_PERCY_REVIVE = Isaac.GetNullItemIdByName("Percy Revive")
 local PERCY_LIVES_MAX = 9
 
 ---@type EntityPlayer[]
@@ -61,7 +59,7 @@ end
 ---@param player EntityPlayer
 ---@return integer percyLifeCount
 function util.GetPercyLifeCount(player)
-    return player:GetEffects():GetNullEffectNum(NULL_ID_PERCY_REVIVE)
+    return player:GetEffects():GetNullEffectNum(CatGuy.NullItemID.PERCY_REVIVE)
 end
 
 
@@ -74,13 +72,13 @@ function util.AddPercyLives(player, count)
         local currCount = util.GetPercyLifeCount(player)
         if currCount + count > PERCY_LIVES_MAX then
             local x = PERCY_LIVES_MAX - currCount
-            effects:AddNullEffect(NULL_ID_PERCY_REVIVE, false, x)
+            effects:AddNullEffect(CatGuy.NullItemID.PERCY_REVIVE, false, x)
             return x
         else
-            effects:AddNullEffect(NULL_ID_PERCY_REVIVE, false, count)
+            effects:AddNullEffect(CatGuy.NullItemID.PERCY_REVIVE, false, count)
         end
     elseif count < 0 then
-        effects:RemoveNullEffect(NULL_ID_PERCY_REVIVE, count * -1)
+        effects:RemoveNullEffect(CatGuy.NullItemID.PERCY_REVIVE, -count)
     end
     return count
 end
@@ -133,13 +131,13 @@ function util.ReviveOutOfRoom(player)
     elseif (player:HasCollectible(CollectibleType.COLLECTIBLE_DEAD_CAT)) then
 
 
-    elseif (player:GetEffects():HasNullEffect(NULL_ID_DEAD_CAT_REVIVE)) then
+    elseif (player:GetEffects():HasNullEffect(CatGuy.NullItemID.DEAD_CAT_REVIVE)) then
         local level = Game():GetLevel()
         local previousRoom = level:GetPreviousRoomIndex()
         Game():StartRoomTransition(previousRoom, Direction.NO_DIRECTION, RoomTransitionAnim.WALK, player)
         animateDeadCat = player
 
-        player:GetEffects():RemoveNullEffect(NULL_ID_DEAD_CAT_REVIVE)
+        player:GetEffects():RemoveNullEffect(CatGuy.NullItemID.DEAD_CAT_REVIVE)
         player:Revive()
 
         if (player:GetHealthType() ~= HealthType.LOST) then
@@ -181,14 +179,14 @@ function util.ReviveInRoom(player)
         return true
     elseif (player:HasCollectible(CollectibleType.COLLECTIBLE_DEAD_CAT)) then
         util.ReviveConsumeCollectible(player, CollectibleType.COLLECTIBLE_DEAD_CAT)
-        player:GetEffects():AddNullEffect(NULL_ID_DEAD_CAT_REVIVE, false, 8)
+        player:GetEffects():AddNullEffect(CatGuy.NullItemID.DEAD_CAT_REVIVE, false, 8)
         if (player:GetHealthType() ~= HealthType.LOST) then
             player:AddMaxHearts(2 - player:GetMaxHearts())
             player:SetFullHearts()
         end
-    elseif (player:GetEffects():HasNullEffect(NULL_ID_DEAD_CAT_REVIVE)) then
+    elseif (player:GetEffects():HasNullEffect(CatGuy.NullItemID.DEAD_CAT_REVIVE)) then
         player:AnimateCollectible(CollectibleType.COLLECTIBLE_DEAD_CAT)
-        player:GetEffects():RemoveNullEffect(NULL_ID_DEAD_CAT_REVIVE)
+        player:GetEffects():RemoveNullEffect(CatGuy.NullItemID.DEAD_CAT_REVIVE)
         player:Revive()
         if (player:GetHealthType() ~= HealthType.LOST) then
             player:AddMaxHearts(2 - player:GetMaxHearts())

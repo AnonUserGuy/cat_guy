@@ -13,20 +13,18 @@ local TWO_THIRDS = 2/3
 ---@field offsetsTrigger integer[]
 ---@field offsetsReleaseIndex integer
 ---@field offsetsRelease integer[]
+---@field musicRestartBeat nil|number
 local TempoManager = {}
 
 ---@param tempoDefs? table<Music, TempoDef>
----@param vanillaMusicXML? table<Music, MusicXMLNode>
 ---@return TempoManager
-function TempoManager:New(tempoDefs, vanillaMusicXML)
+function TempoManager:New(tempoDefs)
     local instance = setmetatable({}, self)
     self.__index = self
 
     instance.tempoDefs = {}
     if tempoDefs then
-        if vanillaMusicXML then
-            tempoDefs = instance:ValidateTempoDefs(tempoDefs, vanillaMusicXML)
-        end
+        tempoDefs = instance:ValidateTempoDefs(tempoDefs)
         instance:RegisterTempoDefs(tempoDefs)
     end
 
@@ -40,6 +38,7 @@ function TempoManager:New(tempoDefs, vanillaMusicXML)
     instance.timeSigCount = 0
     instance.timeSigCurrent = 0
     instance.triplet = false
+    instance.musicRestartBeat = nil
 
     instance.lastSysTime = Isaac.GetTime()
 
@@ -77,22 +76,13 @@ function TempoManager:UpdateConfig()
     end
 end
 
---- TODO: add various music mods compatibility (probably stuff like OG isaac music or antibirth music)
---- 
 --- Creates a new tempoDefs table, does not modify original tempoDefs table
 ---@param tempoDefs table<Music, TempoDef>
----@param vanillaMusicXML table<Music, MusicXMLNode>
-function TempoManager:ValidateTempoDefs(tempoDefs, vanillaMusicXML)
+function TempoManager:ValidateTempoDefs(tempoDefs)
     local out = {} ---@type table<Music, TempoDef>
     for music, tempoDef in pairs(tempoDefs) do
-        local vanillaMusicXMLNode = vanillaMusicXML[music]
         local musicXMLNode = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
-        if vanillaMusicXMLNode and musicXMLNode then
-            if musicXMLNode.path == vanillaMusicXMLNode.path
-            and musicXMLNode.intro == vanillaMusicXMLNode.intro then
-                out[music] = tempoDef
-            end
-        else
+        if musicXMLNode.sourceid == "BaseGame" then
             out[music] = tempoDef
         end
     end
@@ -199,6 +189,10 @@ function TempoManager:PostRender()
     self:Update(sysTime - self.lastSysTime + self:GetNudge())
     self.lastSysTime = sysTime
     self:LatencyTest()
+    if self.musicRestartBeat and self.beat > self.musicRestartBeat then
+        self.musicRestartBeat = nil
+        self:RestartMusic()
+    end
 end
 
 function TempoManager:GetNudge()
@@ -403,6 +397,14 @@ function TempoManager:RestartMusic()
         MusicManager():Play(id, 0)
         MusicManager():UpdateVolume()
     end
+end
+
+function TempoManager:ScheduleRestartMusic()
+    if not self.tempoDef then
+        self:RestartMusic()
+    end
+    local beatOffset = self.tempoDef.beatOffset or 0
+    self.musicRestartBeat = math.floor(self.beat + beatOffset + 1) - beatOffset
 end
 
 return TempoManager

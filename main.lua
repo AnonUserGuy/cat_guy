@@ -8,18 +8,47 @@ end
 local json = require("json")
 
 CatGuy.PlayerType = {
-    PERCY           = Isaac.GetPlayerTypeByName("Percy"),
-    PERCY_B         = Isaac.GetPlayerTypeByName("Percy", true)
+    PERCY               = Isaac.GetPlayerTypeByName("Percy"),
+    PERCY_B             = Isaac.GetPlayerTypeByName("Percy", true)
 }
 
 CatGuy.CollectibleType = {
-    MOMS_HEADPHONES = Isaac.GetItemIdByName("Mom's Headphones"),
-    UNDERHANDS      = Isaac.GetItemIdByName("Underhands")
+    MOMS_HEADPHONES     = Isaac.GetItemIdByName("Mom's Headphones"),
+    TRIPLE_METRE        = Isaac.GetItemIdByName("Triple Metre"),
+    UNDERHANDS          = Isaac.GetItemIdByName("Underhands")
 }
 
 CatGuy.TrinketType = {
-    TOY_METRONOME   = Isaac.GetTrinketIdByName("Toy Metronome")
+    TOY_METRONOME       = Isaac.GetTrinketIdByName("Toy Metronome")
 }
+
+CatGuy.NullItemID = {
+    PERCY_REVIVE        = Isaac.GetNullItemIdByName("Percy Revive"),
+    DEAD_CAT_REVIVE     = Isaac.GetNullItemIdByName("Dead Cat Revive"),
+    TRIPLE_METRE_HURT   = Isaac.GetNullItemIdByName("Triple Metre Hurt")
+}
+
+CatGuy.XML = XMLData.GetModById(XMLData.GetEntryById(XMLNode.ITEM, CatGuy.CollectibleType.MOMS_HEADPHONES).sourceid)
+
+CatGuy.Config = include("cat_guy_config") ---@type CatGuyConfig
+
+CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type PlayerUtils
+
+local TempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
+local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
+CatGuy.TempoManager = TempoManager:New(tempoDefs)
+
+CatGuy.PlayerCallbacks = {} ---@type table<PlayerType, PlayerCallbacks>
+CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY]                         = include("scripts_cat_guy.players.percy")
+CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY_B]                       = include("scripts_cat_guy.players.percy_b")
+
+CatGuy.CollectibleCallbacks = {} ---@type table<CollectibleType, CollectibleCallbacks>
+CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.MOMS_HEADPHONES]     = include("scripts_cat_guy.collectibles.moms_headphones")
+CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.TRIPLE_METRE]        = include("scripts_cat_guy.collectibles.triple_metre")
+CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.UNDERHANDS]          = include("scripts_cat_guy.collectibles.underhands")
+
+CatGuy.TrinketCallbacks = {} ---@type table<TrinketType, TrinketCallbacks>
+CatGuy.TrinketCallbacks[CatGuy.TrinketType.TOY_METRONOME]               = include("scripts_cat_guy.trinkets.toy_metronome")
 
 ---@param input table<string|number, any>
 function CatGuy:PreEncodeJSON(input)
@@ -103,7 +132,10 @@ end
 ---@param configName string
 ---@return any
 function CatGuy:GetConfig(configName)
-    return CatGuy.Save and CatGuy.Save.Config and CatGuy.Save.Config[configName] or CatGuy.Config[configName]
+    if CatGuy.Save and CatGuy.Save.Config and CatGuy.Save.Config[configName] ~= nil then
+        return CatGuy.Save.Config[configName]
+    end
+    return CatGuy.Config[configName]
 end
 
 ---@param music Music|string
@@ -139,27 +171,6 @@ function CatGuy:GetTempoEnabled(music)
     end
     return true
 end
-
-CatGuy.Config = include("cat_guy_config") ---@type CatGuyConfig
-
-CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type PlayerUtils
-
-local TempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
-local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
-local vanillaMusicXML = include("scripts_cat_guy.tempo.vanilla_music_xml") ---@type table<Music, MusicXMLNode>
-CatGuy.TempoManager = TempoManager:New(tempoDefs, vanillaMusicXML)
-
-CatGuy.PlayerCallbacks = {} ---@type table<PlayerType, PlayerCallbacks>
-CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY]                         = include("scripts_cat_guy.players.percy")
-CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY_B]                       = include("scripts_cat_guy.players.percy_b")
-
-CatGuy.CollectibleCallbacks = {} ---@type table<CollectibleType, CollectibleCallbacks>
-CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.MOMS_HEADPHONES]     = include("scripts_cat_guy.collectibles.moms_headphones")
-CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.UNDERHANDS]          = include("scripts_cat_guy.collectibles.underhands")
-
-CatGuy.TrinketCallbacks = {} ---@type table<TrinketType, TrinketCallbacks>
-CatGuy.TrinketCallbacks[CatGuy.TrinketType.TOY_METRONOME]               = include("scripts_cat_guy.trinkets.toy_metronome")
-
 
 ---@param player EntityPlayer
 function CatGuy:PostPlayerInit(player)
@@ -237,6 +248,21 @@ CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYERHUD_TRINKET_RENDER, CatGuy.PrePlaye
 function CatGuy:AddCallbacks(callbacks, priority)
     priority = priority or CallbackPriority.DEFAULT
 
+    if callbacks.PostUpdate then
+        self:AddPriorityCallback(ModCallbacks.MC_POST_UPDATE, priority, function(_)
+            return callbacks.PostUpdate()
+        end)
+    end
+    if callbacks.PreRender then
+        self:AddPriorityCallback(ModCallbacks.MC_PRE_RENDER, priority, function(_)
+            return callbacks.PreRender()
+        end)
+    end
+    if callbacks.PostRender then
+        self:AddPriorityCallback(ModCallbacks.MC_POST_RENDER, priority, function(_)
+            return callbacks.PostRender()
+        end)
+    end
     if callbacks.PostNewRoom then
         self:AddPriorityCallback(ModCallbacks.MC_POST_NEW_ROOM, priority, function(_)
             return callbacks.PostNewRoom()
@@ -256,6 +282,14 @@ function CatGuy:AddCallbacks(callbacks, priority)
         self:AddPriorityCallback(ModCallbacks.MC_POST_PLAYER_RENDER, priority, function(_, player)
             return callbacks.PostPlayerRender(player)
         end, PlayerVariant.PLAYER)
+    end
+    if callbacks.PlayerTakeDamage then
+        self:AddPriorityCallback(ModCallbacks.MC_ENTITY_TAKE_DMG, priority, function(_, entity, amount, damageFlags, source, countdownFrames)
+            local player = entity:ToPlayer()
+            if player then
+                return callbacks.PlayerTakeDamage(player, amount, damageFlags, source, countdownFrames)
+            end
+        end)
     end
     if callbacks.PreTriggerPlayerDeath then
         self:AddPriorityCallback(ModCallbacks.MC_PRE_TRIGGER_PLAYER_DEATH, priority, function(_, player)
@@ -375,22 +409,21 @@ for _, callbacks in pairs(CatGuy.TrinketCallbacks) do
     CatGuy:AddCallbacks(callbacks)
 end
 
-CatGuy:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function(_)
-    CatGuy:CatGuyLoad()
-end)
-
 CatGuy:AddPriorityCallback(ModCallbacks.MC_PRE_MUSIC_PLAY, CallbackPriority.LATE, function(_, music, _, _)
     CatGuy.TempoManager:PreMusicPlay(music)
 end)
 
-CatGuy:AddCallback(ModCallbacks.MC_POST_RENDER, function(_)
+CatGuy:AddPriorityCallback(ModCallbacks.MC_POST_RENDER, CallbackPriority.LATE, function(_)
     CatGuy.TempoManager:PostRender()
 end)
 
-if Isaac.IsInGame() then
+function CatGuy:PostGameStarted()
     CatGuy:CatGuyLoad()
-    CatGuy.TempoManager:RestartMusic()
+    if ModConfigMenu then
+        CatGuy.Compat.ModConfigMenu:Init(ModConfigMenu, InputHelper, tempoDefs)
+    end
 end
+CatGuy:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, CatGuy.PostGameStarted)
 
 ---@param modId string
 ---@return boolean
@@ -404,20 +437,17 @@ CatGuy.Compat.EID               = include("scripts_cat_guy.compat.eid") ---@type
 CatGuy.Compat.EIDDefs           = include("scripts_cat_guy.compat.eid_defs") ---@type EIDDefs
 CatGuy.Compat.ModConfigMenu     = include("scripts_cat_guy.compat.mcm") ---@type MCMCompat
 
-function CatGuy:TryAddEID()
-    if EID then
-        CatGuy.Compat.EID:Init(EID, CatGuy.Compat.EIDDefs)
-    end
-end
-
 if EID then
-    CatGuy:TryAddEID()
+    CatGuy.Compat.EID:Init(EID, CatGuy.Compat.EIDDefs)
 else
-    CatGuy:AddCallback("EID_POST_LOAD", CatGuy.TryAddEID)
+    CatGuy:AddCallback("EID_POST_LOAD", function(_)
+        CatGuy.Compat.EID:Init(EID, CatGuy.Compat.EIDDefs)
+    end)
 end
 
-if ModConfigMenu then
-    CatGuy.Compat.ModConfigMenu:Init(ModConfigMenu, InputHelper, tempoDefs)
+if Isaac.IsInGame() then
+    CatGuy.TempoManager:RestartMusic()
+    CatGuy:PostGameStarted()
 end
 
 Isaac.RunCallback("CAT_GUY_POST_LOAD")

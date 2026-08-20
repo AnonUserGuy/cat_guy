@@ -4,6 +4,19 @@
 ---@type CatGuyConfig
 local catGuyConfig = {
 
+    ------------ GAMEPLAY ------------ 
+
+    -- Whether or not Mom's Headphones make a metronome play, even without the Toy Metronome trinket.
+    -- In case you don't want to waste a trinket slot.
+    -- Default: false
+    MomsHeadphonesHaveMetronome = false,
+
+    -- Whether or not Tainted Percy starts with Mom's Headphones. In case you want to try his gimmick
+    -- without also having to play with regular Percy's gimmick.
+    -- Default: true
+    PercyBHasMomsHeadphones = true,
+
+
     --------- INPUT LATENCY --------- 
 
     -- Offset of inputs to accommodate for audio/controls latency, in milliseconds.

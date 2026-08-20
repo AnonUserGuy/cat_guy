@@ -2,8 +2,10 @@
 ---@field name string
 ---@field intro? string
 ---@field path? string
+---@field sourceid? string
 
---- The game's vanilla music XML as an importable lua table. keyed by ids, layer subnodes in a list called "layers"
+--- Repentance (not Repentance+) music XML as an importable lua table. keyed by ids, layer subnodes in a list called "layers".
+--- Not used anymore.
 ---@type table<Music, MusicXMLNode>
 local vanillaMusicXML = {
 	[Music.MUSIC_BASEMENT]         				= {name="Basement", intro="Diptera Sonata Intro.ogg", path="Diptera Sonata(Basement).ogg", layerintro="Diptera Layer Intro.ogg", layer="Diptera Layer.ogg", loop="true"},

@@ -135,18 +135,23 @@ EIDDefs.trinkets = {
     [CatGuy.TrinketType.TOY_METRONOME] = {
         description = {
             ["en_us"] = "#Ticks to the beat of the music"..
-                "#{{Collectible"..CollectibleType.COLLECTIBLE_METRONOME.."}} On active use, chance to also use Metronome based on max charge"
+                "#{{Collectible"..CollectibleType.COLLECTIBLE_METRONOME.."}} On active use,tiny chance to also use Metronome"..
+                "#{{Collectible"..CollectibleType.COLLECTIBLE_METRONOME.."}} Chance depends on charge time of used active"
         },
         modifier = function(eid, descObj, player)
+            local added = {} ---@type table<CollectibleType, boolean>
             for i = 0, ActiveSlot.SLOT_POCKET2 do
                 local itemId = player:GetActiveItem(i)
-                if itemId ~= CollectibleType.COLLECTIBLE_NULL then
-                    local charge = 0
+                if not added[itemId] and itemId ~= CollectibleType.COLLECTIBLE_NULL then
+                    local charge
                     local item = Isaac.GetItemConfig():GetCollectible(itemId)
-                    if item and item.ChargeType then
+                    if item and item.ChargeType == ChargeType.NORMAL then
                         charge = item.MaxCharges
+                    else
+                        charge = 0
                     end
-                    eid:appendToDescription(descObj, "#{{Collectible"..itemId.."}} "..(charge).."% chance")
+                    eid:appendToDescription(descObj, "#{{Collectible"..itemId.."}} "..(charge * 0.1).."% chance")
+                    added[itemId] = true
                 end
             end
             return descObj

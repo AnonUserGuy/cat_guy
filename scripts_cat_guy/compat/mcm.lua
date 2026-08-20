@@ -1,26 +1,36 @@
-local MOD_NAME = "Cat Guy"
-local VERSION = "1.0.0"
+local MOD_NAME = CatGuy.XML.name
+local VERSION = CatGuy.XML.version
 
 ---@enum ConfigTab
 local configTab = {
     INFO = "Info",
+    GAMEPLAY = "Gameplay",
     INPUT_LATENCY = "Latency",
     NUDGING = "Nudging",
-    SONG_SPECIFIC_SETTINGS = "Per Song"
+    SONG_SPECIFIC_SETTINGS = "Songs"
 }
 ---@class MCMCompat
 local mcmCompat = {}
+
+mcmCompat.inited = false
 
 ---@param mcm any
 ---@param inputHelper any
 ---@param tempoDefs table<Music, TempoDef>
 function mcmCompat:Init(mcm, inputHelper, tempoDefs)
+    if mcmCompat.inited then
+        return
+    end
+    mcmCompat.inited = true
     mcm.RemoveCategory(MOD_NAME)
 
     mcm.AddSpace(MOD_NAME, configTab.INFO)
     mcm.AddText(MOD_NAME, configTab.INFO, function() return MOD_NAME end)
     mcm.AddSpace(MOD_NAME, configTab.INFO)
     mcm.AddText(MOD_NAME, configTab.INFO, function() return "Version " .. VERSION end)
+
+    self:AddBoolean(mcm, "MomsHeadphonesHaveMetronome", configTab.GAMEPLAY, "Mom's Headphones have Metronome", {"Whether or not Mom's Headphones make a metronome play, even without the Toy Metronome trinket.", "In case you don't want to waste a trinket slot."})
+    self:AddBoolean(mcm, "PercyBHasMomsHeadphones", configTab.GAMEPLAY, "Tainted Percy has Mom's Headphones", {"Whether or not Tainted Percy starts with Mom's Headphones.", "In case you want to try his gimmick without also having to play with regular Percy's gimmick."})
 
     self:AddInteger(mcm, "OffsetTrigger", configTab.INPUT_LATENCY, "Offset (Trigger)", "ms", {"Offset of inputs to accommodate for audio/controls latency, in milliseconds."})
     self:AddIntegerWithDefault(mcm, "OffsetRelease", "OffsetTrigger", configTab.INPUT_LATENCY, "Offset (Release)", "Offset (Trigger)", "ms", {"Offset of released inputs to accommodate for audio/controls latency, in milliseconds."})
@@ -43,7 +53,7 @@ function mcmCompat:UpdateTempos(mcm, tempoDefs)
     mcm.AddText(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS, function() return "Enable rhythm-related features per song" end)
     mcm.AddText(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS, function() return "(for if a song gets replaced by another mod)" end)
 
-    
+    local CurrentInfo = {"Enable/Disable for specifically the playing track."}
     mcm.AddSetting(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS, {
         Type = mcm.OptionType.BOOLEAN,
         Attribute = "Current Track",
@@ -57,16 +67,32 @@ function mcmCompat:UpdateTempos(mcm, tempoDefs)
         Display = function()
             local music = MusicManager():GetCurrentMusicID()
             if music then
-                local name = "Unknown Track"
+                local name
                 local node = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
                 if node then
                     name = node.name
+                    if node.intro then
+                        CurrentInfo[2] = "Intro: \""..node.intro.."\""
+                        CurrentInfo[3] = "Path: \""..node.path.."\""
+                    else
+                        CurrentInfo[2] = "Path: \""..node.path.."\""
+                        CurrentInfo[3] = nil
+                    end
+                else
+                    name = "Unknown Track"
+                    CurrentInfo[2] = nil
+                    CurrentInfo[3] = nil
                 end
-                local current = (CatGuy:GetTempoEnabled(music) and "on" or "off")
+                local current
                 if not tempoDefs[music] then
                     current = "N/A"
+                else
+                    current = (CatGuy:GetTempoEnabled(music) and "on" or "off")
                 end
                 return "**"..music.." - "..name..": "..current.."**"
+            else
+                CurrentInfo[2] = nil
+                CurrentInfo[3] = nil
             end
             return "**None**"
         end,
@@ -79,7 +105,7 @@ function mcmCompat:UpdateTempos(mcm, tempoDefs)
             MusicManager():Play(music, 0)
             MusicManager():UpdateVolume()
         end,
-        Info = {"Enable/Disable for specifically the playing track."}
+        Info = CurrentInfo
     })
 
     for music, _ in pairs(tempoDefs) do
