@@ -1,5 +1,6 @@
 ---@class Callbacks
 ---@field Priority? table<CallbackPriority, Callbacks>
+---@field InputAction? fun(entity: Entity, inputHook: InputHook, buttonAction: ButtonAction): boolean|number?
 ---@field PostUpdate? fun()
 ---@field PreRender? fun()
 ---@field PostRender? fun()

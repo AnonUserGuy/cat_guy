@@ -248,6 +248,11 @@ CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYERHUD_TRINKET_RENDER, CatGuy.PrePlaye
 function CatGuy:AddCallbacks(callbacks, priority)
     priority = priority or CallbackPriority.DEFAULT
 
+    if callbacks.InputAction then
+        self:AddPriorityCallback(ModCallbacks.MC_INPUT_ACTION, priority, function(_, entity, inputHook, buttonAction)
+            return callbacks.InputAction(entity, inputHook, buttonAction)
+        end)
+    end
     if callbacks.PostUpdate then
         self:AddPriorityCallback(ModCallbacks.MC_POST_UPDATE, priority, function(_)
             return callbacks.PostUpdate()

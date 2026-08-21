@@ -3,4 +3,6 @@
 	
 	<costume id="1" anm2path="costume_percy.anm2" type="none" hasSkinAlt="true" />
 	<costume id="2" anm2path="costume_percy_b.anm2" type="none" />
+
+	<costume id="101" anm2path="costume_029_theinnereye_dizzy.anm2" type="none" priority="1"/>
 </costumes>

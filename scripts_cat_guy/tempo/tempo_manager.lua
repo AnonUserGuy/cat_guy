@@ -4,6 +4,7 @@ local MILLISECONDS_PER_MINUTE = 60000
 local TWO_THIRDS = 2/3
 
 ---@class TempoManager
+---@field lastPitch number
 ---@field tempoDefs table<Music, TempoDef>
 ---@field beat number strictly increasing beat number
 ---@field beatMusic number beat number relative to music
@@ -28,6 +29,7 @@ function TempoManager:New(tempoDefs)
         instance:RegisterTempoDefs(tempoDefs)
     end
 
+    instance.lastPitch = 1.0
     instance.tempoDef = nil
 
     instance.time = 0
@@ -116,7 +118,7 @@ function TempoManager:Update(timeDelta)
     if not (self.tempoDef and self.tempoDef.bpm) then
         return
     end
-    timeDelta = timeDelta * MusicManager():GetCurrentPitch()
+    timeDelta = timeDelta * self.lastPitch
 
     local lastBeat = self.beat
 
@@ -187,6 +189,7 @@ end
 function TempoManager:PostRender()
     local sysTime = Isaac.GetTime()
     self:Update(sysTime - self.lastSysTime + self:GetNudge())
+    self.lastPitch = MusicManager():GetCurrentPitch() or 1.0
     self.lastSysTime = sysTime
     self:LatencyTest()
     if self.musicRestartBeat and self.beat > self.musicRestartBeat then
@@ -402,6 +405,7 @@ end
 function TempoManager:ScheduleRestartMusic()
     if not self.tempoDef then
         self:RestartMusic()
+        return
     end
     local beatOffset = self.tempoDef.beatOffset or 0
     self.musicRestartBeat = math.floor(self.beat + beatOffset + 1) - beatOffset

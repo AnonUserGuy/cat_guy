@@ -3,6 +3,9 @@ local triple = {}
 
 local HURT_TIME_MAX = 60
 local hurtTime = -1
+local needsCancel = false
+
+local basePitch = nil ---@type number?
 
 ---@param x number
 local function getSwingRatio(x)
@@ -15,8 +18,9 @@ end
 
 ---@param player EntityPlayer
 local function resetHurtTimer(player)
-    if anybodyHurt() and CatGuy.TempoManager.tempoDef then
-        CatGuy.TempoManager:ScheduleRestartMusic()
+    local tempoManager = CatGuy.TempoManager
+    if anybodyHurt() and tempoManager.tempoDef and not tempoManager.triplet then
+        tempoManager:ScheduleRestartMusic()
     end
     player:AddNullItemEffect(CatGuy.NullItemID.TRIPLE_METRE_HURT, true, 240, false)
 end
@@ -27,30 +31,67 @@ function triple.PostAddCollectible_item(_, _, firstTime, _, _, player)
     end
 end
 
-function triple.PostRender()
+function triple.PostUpdate()
+    if not anybodyHurt() then
+        if needsCancel then
+            needsCancel = false
+            Game():GetRoom():SetBrokenWatchState(0)
+        end
+        return
+    end
+    needsCancel = true
+
+    if not basePitch then
+        basePitch = MusicManager():GetCurrentPitch()
+    end
+
+    local tempoManager = CatGuy.TempoManager
+    if not tempoManager.tempoDef or tempoManager.triplet then
+        Game():GetRoom():SetBrokenWatchState(0)
+    else
+        if (tempoManager.beat % 1) < 0.5 then
+            Game():GetRoom():SetBrokenWatchState(1)
+        else
+            Game():GetRoom():SetBrokenWatchState(2)
+        end
+    end
+end
+
+function triple.PreRender()
     if anybodyHurt() then
         hurtTime = HURT_TIME_MAX
     elseif hurtTime < 0 then
         return
     elseif hurtTime == 0 then
-        CatGuy.TempoManager:ScheduleRestartMusic()
+        local tempoManager = CatGuy.TempoManager
+        if tempoManager.tempoDef and not tempoManager.triplet then
+            CatGuy.TempoManager:ScheduleRestartMusic()
+            MusicManager():ResetPitch()
+        end
+        basePitch = nil
         hurtTime = -1
         return
     else
         hurtTime = hurtTime - 1
     end
-    
-    local tempoManager = CatGuy.TempoManager
-    if not tempoManager.tempoDef or tempoManager.triplet then
-        return
+
+    if not basePitch then
+        basePitch = MusicManager():GetCurrentPitch()
     end
 
-    local swingRatio = getSwingRatio(hurtTime)
-    if (tempoManager.beat % 1) < 0.5 then
-        MusicManager():SetCurrentPitch(1 / (2 * (1 - swingRatio)))
+    local pitch
+    local tempoManager = CatGuy.TempoManager
+    if not tempoManager.tempoDef or tempoManager.triplet then
+        pitch = 1.0000001
     else
-        MusicManager():SetCurrentPitch(1 / (2 * swingRatio))
+        local swingRatio = getSwingRatio(hurtTime)
+        if (tempoManager.beat % 1) < 0.5 then
+            pitch = 1 / (2 * swingRatio)
+        else
+            pitch = 1 / (2 * (1 - swingRatio))
+        end
     end
+    MusicManager():SetCurrentPitch(pitch * (basePitch or 1.0))
 end
 
 function triple.PostPlayerUpdate(player)
@@ -64,8 +105,8 @@ function triple.PostPlayerUpdate(player)
     end
 end
 
-function triple.PlayerTakeDamage(player)
-    if not player:HasCollectible(CatGuy.CollectibleType.TRIPLE_METRE) then
+function triple.PlayerTakeDamage(player, _, flags)
+    if (flags & DamageFlag.DAMAGE_NO_PENALTIES) ~= 0 or not player:HasCollectible(CatGuy.CollectibleType.TRIPLE_METRE) then
         return
     end
     resetHurtTimer(player)
