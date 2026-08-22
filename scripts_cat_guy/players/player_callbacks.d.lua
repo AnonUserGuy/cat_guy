@@ -4,4 +4,6 @@
 ---@field PostPlayerRender_player? fun(player: EntityPlayer, renderOffset: Vector)
 ---@field PreTriggerPlayerDeath_player? fun(player: EntityPlayer)
 ---@field PostAddBirthright_player? fun(type: CollectibleType, charge: integer, firstTime: boolean, slot: integer, varData: integer, player: EntityPlayer)
----@field PrePlayerAddMaxHearts_player? fun(player: EntityPlayer, amount: integer)
+---@field PrePlayerAddMaxHearts_player? fun(player: EntityPlayer, amount: integer): integer?
+---@field PrePlayerAddEternalHearts_player? fun(player: EntityPlayer, amount: integer): integer?
+---@field PostPlayerHUDRenderHearts_player? fun(offset: Vector, heartsSprite: Sprite, position: Vector, spriteScale: number, player: EntityPlayer): boolean?

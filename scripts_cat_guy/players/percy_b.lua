@@ -1,3 +1,6 @@
+local livesFont = Font()
+livesFont:Load("font/pftempestasevencondensed.fnt")
+
 ---@type PlayerCallbacks
 local percyB = {}
 
@@ -22,9 +25,40 @@ function percyB.PostPlayerUpdate(player)
 end
 
 function percyB.PostPlayerUpdate_player(player)
-    if player:IsDead() and not player:GetEffects():HasNullEffect(NullItemID.ID_LOST_CURSE) then
-        player:AddNullItemEffect(NullItemID.ID_LOST_CURSE)
+    if player:IsDead() then
+        player:GetEffects():RemoveNullEffect(CatGuy.NullItemID.PERCY_ETERNAL_HEART, -1)
+        if not player:GetEffects():HasNullEffect(NullItemID.ID_LOST_CURSE) then
+            player:AddNullItemEffect(NullItemID.ID_LOST_CURSE)
+        end
     end
+end
+
+function percyB.PostNewRoom()
+    CatGuy.PlayerUtils.ForEachPlayer(function(player)
+        if player:GetPlayerType() == CatGuy.PlayerType.PERCY_B then
+            player:GetEffects():RemoveNullEffect(NullItemID.ID_LOST_CURSE, -1)
+        end
+    end)
+end
+
+---@param player EntityPlayer
+local function checkEternalHearts(player)
+    if player:GetEffects():HasNullEffect(CatGuy.NullItemID.PERCY_ETERNAL_HEART) then
+        player:GetEffects():RemoveNullEffect(CatGuy.NullItemID.PERCY_ETERNAL_HEART, -1)
+        ItemOverlay.Show(Giantbook.ETERNAL_HEART, 3, player)
+        player:AddMaxHearts(2)
+        return true
+    else
+        return false
+    end
+end
+
+function percyB.PostNewLevel()
+    CatGuy.PlayerUtils.ForEachPlayer(function(player)
+        if player:GetPlayerType() == CatGuy.PlayerType.PERCY_B then
+            checkEternalHearts(player)
+        end
+    end)
 end
 
 function percyB.PreTriggerPlayerDeath_player(player)
@@ -44,8 +78,32 @@ function percyB.PrePlayerAddMaxHearts_player(player, amount)
     end
 end
 
+function percyB.PrePlayerAddEternalHearts_player(player, amount)
+    if not checkEternalHearts(player) then
+        player:GetEffects():AddNullEffect(CatGuy.NullItemID.PERCY_ETERNAL_HEART)
+    end
+end
+
 function percyB.PostPlayerRender_player(player)
     CatGuy.PlayerUtils.ApplyShader(player, "shaders/coloroffset_percy_b")
+end
+
+function percyB.PostPlayerHUDRenderHearts_player(_, sprite, position, _, player)
+    if Game():GetLevel() and (Game():GetLevel():GetCurses() & LevelCurse.CURSE_OF_THE_UNKNOWN) ~= 0 then
+        return
+    end
+
+    if player:GetEffects():HasNullEffect(CatGuy.NullItemID.PERCY_ETERNAL_HEART) then
+        sprite:Play("WhiteHeartOverlay")
+        sprite:Render(Vector(position.X - 8, position.Y))
+    end
+
+    local lives = player:GetExtraLives()
+    if lives > 0 then
+        local width = math.ceil(math.log(lives + 1, 10)) + 1
+        local maxLives = lives - CatGuy.PlayerUtils.GetPercyLifeCount(player) + 9
+        livesFont:DrawString("/"..maxLives, position.X + 5 * width, position.Y - 8, KColor(0.718, 0.718, 0.718,1))
+    end
 end
 
 return percyB

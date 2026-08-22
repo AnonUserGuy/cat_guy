@@ -25,6 +25,7 @@ CatGuy.TrinketType = {
 CatGuy.NullItemID = {
     PERCY_REVIVE        = Isaac.GetNullItemIdByName("Percy Revive"),
     DEAD_CAT_REVIVE     = Isaac.GetNullItemIdByName("Dead Cat Revive"),
+    PERCY_ETERNAL_HEART = Isaac.GetNullItemIdByName("Percy Eternal Heart"),
     TRIPLE_METRE_HURT   = Isaac.GetNullItemIdByName("Triple Metre Hurt")
 }
 
@@ -34,6 +35,8 @@ function CatGuy:PreEncodeJSON(input)
     for key, value in pairs(input) do
         if type(key) == "number" then
             key = tostring(key)
+        elseif type(key) == "string" then
+            key = "_"..key
         end
         if type(value) == "table" then
             value = CatGuy:PreEncodeJSON(value)
@@ -50,6 +53,8 @@ function CatGuy:PostDecodeJSON(input)
         local num = tonumber(key)
         if num then
             key = num
+        else
+            key = key:sub(2)
         end
         if type(value) == "table" then
             value = CatGuy:PostDecodeJSON(value)
@@ -77,14 +82,25 @@ function CatGuy:CatGuyLoad()
     end
 end
 
+---@param src table<any, any>
+---@param dest table<any, any>
+function CatGuy:CopyConfig(src, dest)
+    for key, val in pairs(src) do
+        if type(val) ~= "table" then
+            dest[key] = val
+        else
+            self:CopyConfig(val, dest[key])
+        end
+    end
+end
+
 ---@param tableConfig table<string, any>
 ---@param tableSave table<string, any>
 ---@param tableSaveDefault table<string, any>
 function CatGuy:CheckConfig(tableConfig, tableSave, tableSaveDefault)
     local changed = false
     for key, val in pairs(tableSaveDefault) do
-        if val == nil then
-        elseif type(val) ~= "table" then
+        if type(val) ~= "table" then
             if tableConfig[key] ~= val then
                 tableSave[key] = nil
                 tableSaveDefault[key] = nil
@@ -153,6 +169,10 @@ end
 CatGuy.XML = XMLData.GetModById(XMLData.GetEntryById(XMLNode.ITEM, CatGuy.CollectibleType.MOMS_HEADPHONES).sourceid)
 
 CatGuy.Config = include("cat_guy_config") ---@type CatGuyConfig
+local userConfig = include("cat_guy_config_user")
+if type(userConfig) == "table" then
+    CatGuy:CopyConfig(userConfig, CatGuy.Config)
+end
 CatGuy:CatGuyLoad()
 
 CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type PlayerUtils
@@ -173,7 +193,7 @@ CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.UNDERHANDS]          = includ
 CatGuy.TrinketCallbacks = {} ---@type table<TrinketType, TrinketCallbacks>
 CatGuy.TrinketCallbacks[CatGuy.TrinketType.TOY_METRONOME]               = include("scripts_cat_guy.trinkets.toy_metronome")
 
-if Isaac.GetFrameCount() < 1 and CatGuy:GetConfig("ReworkToothAndNail") then
+if Isaac.GetFrameCount() < 60 and CatGuy:GetConfig("ReworkToothAndNail") then
     CAT_GUY_REWORKED_TOOTH_AND_NAIL = true
     Isaac.ReworkCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL)
 end
@@ -188,6 +208,7 @@ function CatGuy:PostPlayerInit(player)
         return callbacks.PostPlayerInit_player(player)
     end
 end
+CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_INIT, CatGuy.PostPlayerInit, PlayerVariant.PLAYER)
 
 ---@param player EntityPlayer
 function CatGuy:PostPlayerUpdate(player)
@@ -196,6 +217,7 @@ function CatGuy:PostPlayerUpdate(player)
         return callbacks.PostPlayerUpdate_player(player)
     end
 end
+CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, CatGuy.PostPlayerUpdate, PlayerVariant.PLAYER)
 
 ---@param player EntityPlayer
 ---@param renderOffset Vector
@@ -205,6 +227,7 @@ function CatGuy:PostPlayerRender(player, renderOffset)
         return callbacks.PostPlayerRender_player(player, renderOffset)
     end
 end
+CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, CatGuy.PostPlayerRender, PlayerVariant.PLAYER)
 
 ---@param player EntityPlayer
 function CatGuy:PostAddBirthright(type, charge, firstTime, slot, varData, player)
@@ -213,6 +236,7 @@ function CatGuy:PostAddBirthright(type, charge, firstTime, slot, varData, player
         return callbacks.PostAddBirthright_player(type, charge, firstTime, slot, varData, player)
     end
 end
+CatGuy:AddCallback(ModCallbacks.MC_POST_ADD_COLLECTIBLE, CatGuy.PostAddBirthright, CollectibleType.COLLECTIBLE_BIRTHRIGHT)
 
 ---@param player EntityPlayer
 function CatGuy:PreTriggerPlayerDeath(player)
@@ -221,6 +245,8 @@ function CatGuy:PreTriggerPlayerDeath(player)
         return callbacks.PreTriggerPlayerDeath_player(player)
     end
 end
+CatGuy:AddCallback(ModCallbacks.MC_PRE_TRIGGER_PLAYER_DEATH, CatGuy.PreTriggerPlayerDeath)
+
 
 ---@param player EntityPlayer
 ---@param amount integer
@@ -230,6 +256,26 @@ function CatGuy:PrePlayerAddMaxHearts(player, amount)
         return callbacks.PrePlayerAddMaxHearts_player(player, amount)
     end
 end
+CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYER_ADD_HEARTS, CatGuy.PrePlayerAddMaxHearts, AddHealthType.MAX)
+
+---@param player EntityPlayer
+---@param amount integer
+function CatGuy:PrePlayerAddEternalHearts(player, amount)
+    local callbacks = self.PlayerCallbacks[player:GetPlayerType()]
+    if callbacks and callbacks.PrePlayerAddEternalHearts_player then
+        return callbacks.PrePlayerAddEternalHearts_player(player, amount)
+    end
+end
+CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYER_ADD_HEARTS, CatGuy.PrePlayerAddEternalHearts, AddHealthType.ETERNAL)
+
+
+---@param this CatGuyMod
+CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYERHUD_RENDER_HEARTS, function(this, offset, heartsSprite, position, spriteScale, player)
+    local callbacks = this.PlayerCallbacks[player:GetPlayerType()]
+    if callbacks and callbacks.PostPlayerHUDRenderHearts_player then
+        return callbacks.PostPlayerHUDRenderHearts_player(offset, heartsSprite, position, spriteScale, player)
+    end
+end)
 
 ---@param slot integer
 ---@param position Vector
@@ -242,13 +288,6 @@ function CatGuy:PrePlayerHUDTrinketRender(slot, position, scale, player, cropOff
         return callbacks.PrePlayerHUDTrinketRender_trinket(slot, position, scale, player, cropOffset)
     end
 end
-
-CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_INIT, CatGuy.PostPlayerInit, PlayerVariant.PLAYER)
-CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, CatGuy.PostPlayerUpdate, PlayerVariant.PLAYER)
-CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, CatGuy.PostPlayerRender, PlayerVariant.PLAYER)
-CatGuy:AddCallback(ModCallbacks.MC_PRE_TRIGGER_PLAYER_DEATH, CatGuy.PreTriggerPlayerDeath)
-CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYER_ADD_HEARTS, CatGuy.PrePlayerAddMaxHearts, AddHealthType.MAX)
-CatGuy:AddCallback(ModCallbacks.MC_POST_ADD_COLLECTIBLE, CatGuy.PostAddBirthright, CollectibleType.COLLECTIBLE_BIRTHRIGHT)
 CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYERHUD_TRINKET_RENDER, CatGuy.PrePlayerHUDTrinketRender)
 
 
@@ -280,6 +319,11 @@ function CatGuy:AddCallbacks(callbacks, priority)
     if callbacks.PostNewRoom then
         self:AddPriorityCallback(ModCallbacks.MC_POST_NEW_ROOM, priority, function(_)
             return callbacks.PostNewRoom()
+        end)
+    end
+    if callbacks.PostNewLevel then
+        self:AddPriorityCallback(ModCallbacks.MC_POST_NEW_LEVEL, priority, function(_)
+            return callbacks.PostNewLevel()
         end)
     end
     if callbacks.PostGameStarted then

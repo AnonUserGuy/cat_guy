@@ -5,6 +5,7 @@
 ---@field PreRender? fun()
 ---@field PostRender? fun()
 ---@field PostNewRoom? fun()
+---@field PostNewLevel? fun()
 ---@field PostGameStarted? fun(continued: boolean)
 ---
 ---@field PostPlayerUpdate? fun(player: EntityPlayer)

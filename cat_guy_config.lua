@@ -1,3 +1,7 @@
+-- If you're having issues with Steam overriding changes made here,
+-- you can make a copy of this file named "cat_guy_config_user.lua"
+-- and put configs there instead.
+
 -- To reload without restarting the game, (with debug console enabled)
 -- press ` to open debug console and enter "luamod cat_guy".
 
@@ -7,18 +11,24 @@ local catGuyConfig = {
     ------------ GAMEPLAY ------------ 
 
     -- Whether or not Mom's Headphones make a metronome play, even without the Toy Metronome trinket.
-    -- In case you don't want to waste a trinket slot.
+    -- In case you need the metronome, but don't want to waste a trinket slot on the Toy Metronome.
+    -- true  = Enabled.
+    -- false = Disabled.
     -- Default: false
     MomsHeadphonesHaveMetronome = false,
 
     -- Whether or not Tainted Percy starts with Mom's Headphones. In case you want to try his gimmick
     -- without also having to play with regular Percy's gimmick.
+    -- true  = Enabled.
+    -- false = Disabled.
     -- Default: true
     PercyBHasMomsHeadphones = true,
 
-    -- Whether or not to rework Tooth and Nail to have its synergy with Mom's Headphones.
+    -- Whether or not to rework Tooth and Nail so it can have its synergy with Mom's Headphones.
     -- May be necessary to disable if another mod tries to rework Tooth and Nail.
-    -- Requires restarting the game to take effect.
+    -- NOTE: Requires restarting the game to take effect.
+    -- true  = Enabled.
+    -- false = Disabled.
     -- Default: true
     ReworkToothAndNail = true,
 
@@ -51,7 +61,7 @@ local catGuyConfig = {
 
 
     ------------ NUDGING ------------
-    
+
     -- Whether or not nudging is enabled.
     -- true  = Enabled.
     -- false = Disabled.

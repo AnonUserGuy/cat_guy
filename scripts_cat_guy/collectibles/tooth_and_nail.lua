@@ -138,6 +138,7 @@ function toothAndNail.Tick(tempoManager)
     if not CatGuy.PlayerUtils.AnyPlayer(function(player) return
     player:HasCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL)
     and player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) end) then
+        successfulTick = 0
         return
     end
 

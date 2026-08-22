@@ -34,7 +34,7 @@ function mcmCompat:Init(mcm, inputHelper, tempoDefs)
     mcm.AddSpace(MOD_NAME, configTab.GAMEPLAY)
     mcm.AddText(MOD_NAME, configTab.GAMEPLAY, function() return "The following only work on save file 1," end)
     mcm.AddText(MOD_NAME, configTab.GAMEPLAY, function() return "and require a restart to take effect!" end)
-    self:AddBoolean(mcm, "ReworkToothAndNail", configTab.GAMEPLAY, "Rework Tooth and Nail", {"Whether or not to rework Tooth and Nail to have its synergy with Mom's Headphones. May be necessary to disable if another mod tries to rework Tooth and Nail."})
+    self:AddBoolean(mcm, "ReworkToothAndNail", configTab.GAMEPLAY, "Rework Tooth and Nail", {"Whether or not to rework Tooth and Nail so it can have its synergy with Mom's Headphones. May be necessary to disable if another mod tries to rework Tooth and Nail."})
 
     self:AddInteger(mcm, "OffsetTrigger", configTab.INPUT_LATENCY, "Offset (Trigger)", "ms", {"Offset of inputs to accommodate for audio/controls latency, in milliseconds."})
     self:AddIntegerWithDefault(mcm, "OffsetRelease", "OffsetTrigger", configTab.INPUT_LATENCY, "Offset (Release)", "Offset (Trigger)", "ms", {"Offset of released inputs to accommodate for audio/controls latency, in milliseconds."})

@@ -10,5 +10,6 @@
 
     <null name="Percy Revive" customtags="revive" persistent="true" />
     <null name="Dead Cat Revive" customtags="revive" persistent="true" />
+    <null name="Percy Eternal Heart" persistent="true" />
     <null id="101" name="Triple Metre Hurt" cooldown="240" />
 </items>
