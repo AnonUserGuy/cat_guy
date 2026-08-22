@@ -23,7 +23,7 @@
 ---@field PostFamiliarUpdate? fun(familiar: EntityFamiliar)
 ---@field PostFamiliarFireTechLaser? fun(laser: EntityLaser)
 ---
----@field Tick? fun(measure?: boolean)
+---@field Tick? fun(tempoManager?: TempoManager)
 ---
 ---@field EvaluateCache? table<CacheFlag, fun(player: EntityPlayer, flag: CacheFlag)>
 

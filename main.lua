@@ -28,28 +28,6 @@ CatGuy.NullItemID = {
     TRIPLE_METRE_HURT   = Isaac.GetNullItemIdByName("Triple Metre Hurt")
 }
 
-CatGuy.XML = XMLData.GetModById(XMLData.GetEntryById(XMLNode.ITEM, CatGuy.CollectibleType.MOMS_HEADPHONES).sourceid)
-
-CatGuy.Config = include("cat_guy_config") ---@type CatGuyConfig
-
-CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type PlayerUtils
-
-local TempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
-local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
-CatGuy.TempoManager = TempoManager:New(tempoDefs)
-
-CatGuy.PlayerCallbacks = {} ---@type table<PlayerType, PlayerCallbacks>
-CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY]                         = include("scripts_cat_guy.players.percy")
-CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY_B]                       = include("scripts_cat_guy.players.percy_b")
-
-CatGuy.CollectibleCallbacks = {} ---@type table<CollectibleType, CollectibleCallbacks>
-CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.MOMS_HEADPHONES]     = include("scripts_cat_guy.collectibles.moms_headphones")
-CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.TRIPLE_METRE]        = include("scripts_cat_guy.collectibles.triple_metre")
-CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.UNDERHANDS]          = include("scripts_cat_guy.collectibles.underhands")
-
-CatGuy.TrinketCallbacks = {} ---@type table<TrinketType, TrinketCallbacks>
-CatGuy.TrinketCallbacks[CatGuy.TrinketType.TOY_METRONOME]               = include("scripts_cat_guy.trinkets.toy_metronome")
-
 ---@param input table<string|number, any>
 function CatGuy:PreEncodeJSON(input)
     local output = {}
@@ -170,6 +148,37 @@ function CatGuy:GetTempoEnabled(music)
         end
     end
     return true
+end
+
+CatGuy.XML = XMLData.GetModById(XMLData.GetEntryById(XMLNode.ITEM, CatGuy.CollectibleType.MOMS_HEADPHONES).sourceid)
+
+CatGuy.Config = include("cat_guy_config") ---@type CatGuyConfig
+CatGuy:CatGuyLoad()
+
+CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type PlayerUtils
+
+local TempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
+local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
+CatGuy.TempoManager = TempoManager:New(tempoDefs)
+
+CatGuy.PlayerCallbacks = {} ---@type table<PlayerType, PlayerCallbacks>
+CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY]                         = include("scripts_cat_guy.players.percy")
+CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY_B]                       = include("scripts_cat_guy.players.percy_b")
+
+CatGuy.CollectibleCallbacks = {} ---@type table<CollectibleType, CollectibleCallbacks>
+CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.MOMS_HEADPHONES]     = include("scripts_cat_guy.collectibles.moms_headphones")
+CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.TRIPLE_METRE]        = include("scripts_cat_guy.collectibles.triple_metre")
+CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.UNDERHANDS]          = include("scripts_cat_guy.collectibles.underhands")
+
+CatGuy.TrinketCallbacks = {} ---@type table<TrinketType, TrinketCallbacks>
+CatGuy.TrinketCallbacks[CatGuy.TrinketType.TOY_METRONOME]               = include("scripts_cat_guy.trinkets.toy_metronome")
+
+if Isaac.GetFrameCount() < 1 and CatGuy:GetConfig("ReworkToothAndNail") then
+    CAT_GUY_REWORKED_TOOTH_AND_NAIL = true
+    Isaac.ReworkCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL)
+end
+if CAT_GUY_REWORKED_TOOTH_AND_NAIL then
+    CatGuy.CollectibleCallbacks[CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL] = include("scripts_cat_guy.collectibles.tooth_and_nail")
 end
 
 ---@param player EntityPlayer
@@ -352,8 +361,8 @@ function CatGuy:AddCallbacks(callbacks, priority)
         end)
     end
     if callbacks.Tick then
-        self:AddPriorityCallback("CAT_GUY_TICK", priority, function(_, measure)
-            return callbacks.Tick(measure)
+        self:AddPriorityCallback("CAT_GUY_TICK", priority, function(_, tempoManager)
+            return callbacks.Tick(tempoManager)
         end)
     end
     if callbacks.EvaluateCache then

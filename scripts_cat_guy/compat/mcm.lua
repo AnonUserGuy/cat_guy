@@ -31,6 +31,10 @@ function mcmCompat:Init(mcm, inputHelper, tempoDefs)
 
     self:AddBoolean(mcm, "MomsHeadphonesHaveMetronome", configTab.GAMEPLAY, "Mom's Headphones have Metronome", {"Whether or not Mom's Headphones make a metronome play, even without the Toy Metronome trinket.", "In case you don't want to waste a trinket slot."})
     self:AddBoolean(mcm, "PercyBHasMomsHeadphones", configTab.GAMEPLAY, "Tainted Percy has Mom's Headphones", {"Whether or not Tainted Percy starts with Mom's Headphones.", "In case you want to try his gimmick without also having to play with regular Percy's gimmick."})
+    mcm.AddSpace(MOD_NAME, configTab.GAMEPLAY)
+    mcm.AddText(MOD_NAME, configTab.GAMEPLAY, function() return "The following only work on save file 1," end)
+    mcm.AddText(MOD_NAME, configTab.GAMEPLAY, function() return "and require a restart to take effect!" end)
+    self:AddBoolean(mcm, "ReworkToothAndNail", configTab.GAMEPLAY, "Rework Tooth and Nail", {"Whether or not to rework Tooth and Nail to have its synergy with Mom's Headphones. May be necessary to disable if another mod tries to rework Tooth and Nail."})
 
     self:AddInteger(mcm, "OffsetTrigger", configTab.INPUT_LATENCY, "Offset (Trigger)", "ms", {"Offset of inputs to accommodate for audio/controls latency, in milliseconds."})
     self:AddIntegerWithDefault(mcm, "OffsetRelease", "OffsetTrigger", configTab.INPUT_LATENCY, "Offset (Release)", "Offset (Trigger)", "ms", {"Offset of released inputs to accommodate for audio/controls latency, in milliseconds."})

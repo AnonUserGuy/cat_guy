@@ -8,6 +8,8 @@ local TWO_THIRDS = 2/3
 ---@field tempoDefs table<Music, TempoDef>
 ---@field beat number strictly increasing beat number
 ---@field beatMusic number beat number relative to music
+---@field measure integer
+---@field measuresSinceTimeSigChange integer
 ---@field latencyTestEnabled boolean
 ---@field buttonPressed boolean
 ---@field offsetsTriggerIndex integer
@@ -37,8 +39,10 @@ function TempoManager:New(tempoDefs)
 
     instance.beat = 0
     instance.beatMusic = 0
+    instance.measure = 0
+    instance.measuresSinceTimeSigChange = 0
     instance.timeSigCount = 0
-    instance.timeSigCurrent = 0
+    instance.timeSig = 0
     instance.triplet = false
     instance.musicRestartBeat = nil
 
@@ -99,12 +103,16 @@ function TempoManager:PreMusicPlay(music)
         self:PrepareTempoDef(def)
         self.time = 0
         self.beat = -(def.beatOffset or 0.000001)
+        self.measure = -1
+        self.measuresSinceTimeSigChange = -1
         self.beatMusic = self.beat
         self.bpmIndex = 0
-        self.timeSigCurrent = def.timeSig or (def.timeSigs and (def.timeSigs[0] or -1)) or 4
+        self.timeSig = def.timeSig or (def.timeSigs and (def.timeSigs[0] or -1)) or 4
         self.timeSigCount = (def.timeSigs and not def.timeSigs[0] and -1) or 0
         if self.beatMusic > 0 then
-            self.timeSigCount = self.timeSigCurrent - 1
+            self.measure = self.measure + 1
+            self.measuresSinceTimeSigChange = self.measuresSinceTimeSigChange + 1
+            self.timeSigCount = self.timeSig - 1
         end
         self.triplet = def.triplet
         self.lastSysTime = Isaac.GetTime()
@@ -169,16 +177,17 @@ function TempoManager:Update(timeDelta)
         j = j - 1
         local beatInt = math.floor(self.beatMusic) - j
         if def.timeSigs and def.timeSigs[beatInt] then
-            self.timeSigCurrent = def.timeSigs[beatInt]
+            self.measuresSinceTimeSigChange = -1
+            self.timeSig = def.timeSigs[beatInt]
             self.timeSigCount = 0
         end
         if self.timeSigCount == 0 then
-            Isaac.RunCallback("CAT_GUY_TICK", true)
-            self.timeSigCount = self.timeSigCurrent
-        else
-            Isaac.RunCallback("CAT_GUY_TICK", false)
+            self.measure = self.measure + 1
+            self.measuresSinceTimeSigChange = self.measuresSinceTimeSigChange + 1
+            self.timeSigCount = self.timeSig
         end
         self.timeSigCount = self.timeSigCount - 1
+        Isaac.RunCallback("CAT_GUY_TICK", self)
 
         if def.triplets and def.triplets[beatInt] ~= nil then
             self.triplet = def.triplets[beatInt]

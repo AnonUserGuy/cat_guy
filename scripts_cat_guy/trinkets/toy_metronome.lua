@@ -56,7 +56,7 @@ function toyMetronome.UseItem(itemId, _, player, _, _, _)
     end
 end
 
-function toyMetronome.Tick(measure)
+function toyMetronome.Tick(tempoManager)
     if Game():IsPauseMenuOpen() then
         return
     end
@@ -65,7 +65,7 @@ function toyMetronome.Tick(measure)
     or (CatGuy:GetConfig("MomsHeadphonesHaveMetronome") and CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) end))) then
         SFXManager():Play(SFX_ID_RIMSHOT,
             math.max(Options.MusicVolume / Options.SFXVolume, 1), 2,
-            false, measure and 1.25 or 1)
+            false, tempoManager.timeSigCount == tempoManager.timeSig - 1 and 1.25 or 1)
     end
 end
 

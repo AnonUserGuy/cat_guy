@@ -125,6 +125,12 @@ EIDDefs.collectibles = {
     }
 }
 
+if CAT_GUY_REWORKED_TOOTH_AND_NAIL then
+    EIDDefs.collectibles[CatGuy.CollectibleType.MOMS_HEADPHONES].synergies[CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL] = {
+        ["en_us"] = "Invincibility occurs every 1 or 2 measures"
+    }
+end
+
 ---@class TrinketEID
 ---@field description? langStrings
 ---@field modifierCondition? fun(eid: any, descObj: DescObj, player: EntityPlayer): boolean

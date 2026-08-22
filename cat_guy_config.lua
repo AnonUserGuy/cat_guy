@@ -16,6 +16,12 @@ local catGuyConfig = {
     -- Default: true
     PercyBHasMomsHeadphones = true,
 
+    -- Whether or not to rework Tooth and Nail to have its synergy with Mom's Headphones.
+    -- May be necessary to disable if another mod tries to rework Tooth and Nail.
+    -- Requires restarting the game to take effect.
+    -- Default: true
+    ReworkToothAndNail = true,
+
 
     --------- INPUT LATENCY --------- 
 
