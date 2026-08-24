@@ -1,3 +1,5 @@
+local ITEM_NAME_3_STRIKEOUT_LAYER_ID = 16
+
 local livesFont = Font()
 livesFont:Load("font/pftempestasevencondensed.fnt")
 
@@ -79,8 +81,10 @@ function percyB.PrePlayerAddMaxHearts_player(player, amount)
 end
 
 function percyB.PrePlayerAddEternalHearts_player(player, amount)
-    if not checkEternalHearts(player) then
-        player:GetEffects():AddNullEffect(CatGuy.NullItemID.PERCY_ETERNAL_HEART)
+    for _ = 1, amount do
+        if not checkEternalHearts(player) then
+            player:GetEffects():AddNullEffect(CatGuy.NullItemID.PERCY_ETERNAL_HEART)
+        end
     end
 end
 
@@ -104,6 +108,18 @@ function percyB.PostPlayerHUDRenderHearts_player(_, sprite, position, _, player)
         local maxLives = lives - CatGuy.PlayerUtils.GetPercyLifeCount(player) + 9
         livesFont:DrawString("/"..maxLives, position.X + 5 * width, position.Y - 8, KColor(0.718, 0.718, 0.718,1))
     end
+end
+
+function percyB.PreRenderCharacterSelectPage_player(_, _, _, sprite)
+    if not sprite then
+        return
+    end
+    local strikeoutLayer = sprite:GetAllLayers()[ITEM_NAME_3_STRIKEOUT_LAYER_ID + 1]
+    if not strikeoutLayer then
+        return
+    end
+    CatGuy:CatGuyLoad(true)
+    strikeoutLayer:SetVisible(not CatGuy:GetConfig("PercyBHasMomsHeadphones"))
 end
 
 return percyB

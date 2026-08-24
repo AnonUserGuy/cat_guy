@@ -68,7 +68,18 @@ function CatGuy:CatGuySave()
     CatGuy:SaveData(json.encode(CatGuy:PreEncodeJSON(CatGuy.Save)))
 end
 
-function CatGuy:CatGuyLoad()
+CatGuy.LastLoad = 0
+
+---@param lazy? boolean
+---@return boolean loaded
+function CatGuy:CatGuyLoad(lazy)
+    local load = Isaac.GetFrameCount()
+    if lazy and load <= CatGuy.LastLoad + 1 then
+        CatGuy.LastLoad = load
+        return false
+    end
+    CatGuy.LastLoad = load
+
     if not CatGuy:HasData() then
         CatGuy.Save = {}
     else
@@ -80,6 +91,7 @@ function CatGuy:CatGuyLoad()
         print("Configs have been changed in cat_guy_config.lua, which have overwritten ones made in-game")
         CatGuy:CatGuySave()
     end
+    return true
 end
 
 ---@param src table<any, any>
@@ -181,17 +193,20 @@ local TempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type Tem
 local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
 CatGuy.TempoManager = TempoManager:New(tempoDefs)
 
-CatGuy.PlayerCallbacks = {} ---@type table<PlayerType, PlayerCallbacks>
-CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY]                         = include("scripts_cat_guy.players.percy")
-CatGuy.PlayerCallbacks[CatGuy.PlayerType.PERCY_B]                       = include("scripts_cat_guy.players.percy_b")
+CatGuy.PlayerCallbacks = { ---@type table<PlayerType, PlayerCallbacks>
+    [CatGuy.PlayerType.PERCY]                   = include("scripts_cat_guy.players.percy"),
+    [CatGuy.PlayerType.PERCY_B]                 = include("scripts_cat_guy.players.percy_b"),
+}
 
-CatGuy.CollectibleCallbacks = {} ---@type table<CollectibleType, CollectibleCallbacks>
-CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.MOMS_HEADPHONES]     = include("scripts_cat_guy.collectibles.moms_headphones")
-CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.TRIPLE_METRE]        = include("scripts_cat_guy.collectibles.triple_metre")
-CatGuy.CollectibleCallbacks[CatGuy.CollectibleType.UNDERHANDS]          = include("scripts_cat_guy.collectibles.underhands")
+CatGuy.CollectibleCallbacks = { ---@type table<CollectibleType, CollectibleCallbacks>
+    [CatGuy.CollectibleType.MOMS_HEADPHONES]    = include("scripts_cat_guy.collectibles.moms_headphones"),
+    [CatGuy.CollectibleType.TRIPLE_METRE]       = include("scripts_cat_guy.collectibles.triple_metre"),
+    [CatGuy.CollectibleType.UNDERHANDS]         = include("scripts_cat_guy.collectibles.underhands")
+}
 
-CatGuy.TrinketCallbacks = {} ---@type table<TrinketType, TrinketCallbacks>
-CatGuy.TrinketCallbacks[CatGuy.TrinketType.TOY_METRONOME]               = include("scripts_cat_guy.trinkets.toy_metronome")
+CatGuy.TrinketCallbacks = { ---@type table<TrinketType, TrinketCallbacks>
+    [CatGuy.TrinketType.TOY_METRONOME]          = include("scripts_cat_guy.trinkets.toy_metronome")
+}
 
 if Isaac.GetFrameCount() < 60 and CatGuy:GetConfig("ReworkToothAndNail") then
     CAT_GUY_REWORKED_TOOTH_AND_NAIL = true
@@ -443,8 +458,8 @@ function CatGuy:AddCollectibleCallbacks(itemId, callbacks, priority)
         end, itemId)
     end
     if callbacks.UseItem_item then
-        self:AddPriorityCallback(ModCallbacks.MC_USE_ITEM, priority, function(_, itemId, rng, player, flags, slot, custonVarData)
-            return callbacks.UseItem_item(itemId, rng, player, flags, slot, custonVarData)
+        self:AddPriorityCallback(ModCallbacks.MC_USE_ITEM, priority, function(_, type, rng, player, flags, slot, custonVarData)
+            return callbacks.UseItem_item(type, rng, player, flags, slot, custonVarData)
         end, itemId)
     end
 
@@ -455,12 +470,33 @@ function CatGuy:AddCollectibleCallbacks(itemId, callbacks, priority)
     end
 end
 
+---@param playerType PlayerType
+---@param callbacks PlayerCallbacks
+---@param priority? CallbackPriority
+function CatGuy:AddPlayerCallbacks(playerType, callbacks, priority)
+    priority = priority or CallbackPriority.DEFAULT
+
+    self:AddCallbacks(callbacks, priority)
+
+    if callbacks.PreRenderCharacterSelectPage_player then
+        self:AddPriorityCallback(ModCallbacks.MC_PRE_RENDER_CHARACTER_SELECT_PAGE, priority, function(_, type, renderPos, defaultSprite, moddedSprite, hasCustomBackground)
+            return callbacks.PreRenderCharacterSelectPage_player(type, renderPos, defaultSprite, moddedSprite, hasCustomBackground)
+        end, playerType)
+    end
+
+    if callbacks.Priority_player then
+        for priority0, callbacks0 in pairs(callbacks.Priority_player) do
+            self:AddPlayerCallbacks(playerType, callbacks0, priority0)
+        end
+    end
+end
+
 for itemId, callbacks in pairs(CatGuy.CollectibleCallbacks) do
     CatGuy:AddCollectibleCallbacks(itemId, callbacks)
 end
 
-for _, callbacks in pairs(CatGuy.PlayerCallbacks) do
-    CatGuy:AddCallbacks(callbacks)
+for playerType, callbacks in pairs(CatGuy.PlayerCallbacks) do
+    CatGuy:AddPlayerCallbacks(playerType, callbacks)
 end
 
 for _, callbacks in pairs(CatGuy.TrinketCallbacks) do

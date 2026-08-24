@@ -1,4 +1,5 @@
 ---@class PlayerCallbacks: Callbacks
+---@field Priority_player? table<CallbackPriority, PlayerCallbacks>
 ---@field PostPlayerInit_player? fun(player: EntityPlayer)
 ---@field PostPlayerUpdate_player? fun(player: EntityPlayer)
 ---@field PostPlayerRender_player? fun(player: EntityPlayer, renderOffset: Vector)
@@ -7,3 +8,4 @@
 ---@field PrePlayerAddMaxHearts_player? fun(player: EntityPlayer, amount: integer): integer?
 ---@field PrePlayerAddEternalHearts_player? fun(player: EntityPlayer, amount: integer): integer?
 ---@field PostPlayerHUDRenderHearts_player? fun(offset: Vector, heartsSprite: Sprite, position: Vector, spriteScale: number, player: EntityPlayer): boolean?
+---@field PreRenderCharacterSelectPage_player? fun(playerType: PlayerType, renderPos: Vector, defaultSprite: Sprite, moddedSprite?: Sprite, hasCustomBackground: boolean): boolean?
