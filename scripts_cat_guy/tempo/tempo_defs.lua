@@ -8,7 +8,7 @@ local tempoDefs = {
     [Music.MUSIC_NECROPOLIS]                    = {bpm = 120},
     [Music.MUSIC_WOMB_UTERO]                    = {bpm = 90},
     [Music.MUSIC_GAME_OVER]                     = {bpm = 85, timeSig = 3},
-    [Music.MUSIC_BOSS]                          = {bpm = 150},
+    [Music.MUSIC_BOSS]                          = {bpm = 150, timeSigs = {[2] = 4}},
     [Music.MUSIC_CATHEDRAL]                     = {bpm = 100},
     [Music.MUSIC_SHEOL]                         = {bpm = 110, offset = 269},
     [Music.MUSIC_DARK_ROOM]                     = {bpm = 90, offset = 82},

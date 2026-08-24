@@ -142,14 +142,15 @@ function toothAndNail.Tick(tempoManager)
         return
     end
 
-    local firstMeasure = tempoManager.timeSig >= 6 or (tempoManager.measure % 2) == 0
-    local secondMeasure = tempoManager.timeSig >= 6 or (tempoManager.measure % 2) == 1
+    local measureDuration = math.ceil(2 ^ math.floor(math.log(12 / tempoManager.timeSig, 2)))
+    local firstMeasure = (tempoManager.measure % measureDuration) == 0
+    local lastMeasure = (tempoManager.measure % measureDuration) == (measureDuration - 1)
 
-    if secondMeasure and tempoManager.timeSigCount == 2 then
+    if lastMeasure and tempoManager.timeSigCount == 2 then
         tickBeat(1)
-    elseif secondMeasure and tempoManager.timeSigCount == 1 then
+    elseif lastMeasure and tempoManager.timeSigCount == 1 then
         tickBeat(2)
-    elseif secondMeasure and tempoManager.timeSigCount == 0 then
+    elseif lastMeasure and tempoManager.timeSigCount == 0 then
         tickBeat(3)
     elseif firstMeasure and tempoManager.timeSigCount == tempoManager.timeSig - 1 then
         effectBeat()

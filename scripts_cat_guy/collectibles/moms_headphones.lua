@@ -73,7 +73,9 @@
 --- - Incubus/Twisted Pair/Gello + Technology's
 ---     - Doesn't work due to REPENTOGON bug
 ---     - Their technology's function as usual
----
+--- 
+--- - Tooth and Nail
+---     - Turn to stone every 1 to 2 measures
 ---
 --- Synergies to do:
 --- - Broken Stopwatch/I'm Excited/I'm Drowsy
@@ -85,9 +87,7 @@
 ---     - I can't figure out a way to detect it as opposed to Technology lasers
 --- - Epic Fetus?
 ---     - Maybe missile lands in 1 measure?
---- - Neputus?
---- - Tooth and Nail?
----     - Make turn to stone every 1 to 2 measures
+--- - Neptunus?
 --- - Epiphoria?
 
 local FAMILIAR_DAMAGE_MULTIPLIER = {
