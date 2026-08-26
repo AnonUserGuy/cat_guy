@@ -8,7 +8,7 @@
 This mod's main attraction, Percy, is a character with stats similar to Cain (2 red hearts, higher speed, lower range) but lacking the high base damage and multiplier. Instead to deal damage, Percy has a starting item unique to the mod: Mom's Headphones!
 
 ### Mom's Headphones
-A passive item from treasure rooms, Mom's Headphones completely change tear shooting mechanics. Instead of being able to hold a fire button to shoot continuously, now the fire button must be pressed for each shot. The button can be mashed to shoot tons of tears, but they will do significantly less damage if you shoot faster than your tear rate stat would normally allow. So, instead of mashing you should...
+A passive item from treasure rooms, Mom's Headphones completely change tear shooting mechanics. Instead of being able to hold a fire button to shoot continuously, now the fire button must be pressed for each shot. The button can be mashed to shoot tons of tears, but they will do significantly less damage if you shoot faster than your tear rate would normally allow. So, instead of mashing you should...
 
 #### Shoot to the Beat!
 With Mom's Headphones, if you shoot on-beat to the music, your tears will do more damage!
@@ -32,14 +32,14 @@ Mom's Headphones have lots of synergies, including:
 Instead of leaning into musical mechanics, Tainted Percy more-so leans into cat themed mechanics. Tainted Percy is a ghost, like the Lost or Tainted Lost. They have no mantle, instead starting with 3 extra lives. When taking HP ups, they will gain extra lives proportional to the amount of red heart containers gained. They also start with a pocket active unique to the mod: Underhands.
 
 ### Underhands
-The Underhands are a 6 charge active item found in devil and curse rooms that, upon first picking up, grant the player 3 extra lives. If the player dies and spends one of these lives (and has health), they will revive with only one heart container similar to how Dead Cat works.
+The Underhands are a 6 charge active item found in devil and curse rooms that, upon first picking up, grant the player 3 extra lives. If Isaac dies and spends one of these lives, they will revive with only one heart container (assuming they have health).
 
 When used, Isaac receives a 3-second shield. For the remainder of the current room, dying will revive Isaac in that room rather than outside of it. While the Underhands are not too useful for most characters, they are a boon for the Lost or Tainted Percy. 
 
-## Mod Compatibility
-This mod is currently compatible with:
-- [External Item Descriptions](https://steamcommunity.com/sharedfiles/filedetails/?id=836319872)
-- [Mod Config Menu](https://steamcommunity.com/sharedfiles/filedetails/?id=3701683951)
+## Configuration
+This mod supports configuration through [Mod Config Menu](https://steamcommunity.com/sharedfiles/filedetails/?id=3701683951). 
+
+Alternatively, configuration can be changed by editing `cat_guy_config.lua`.
 
 ## Todo
 - Add support for important music mods. (Flash music, Antibirth music, [Soundtrack Menu](https://steamcommunity.com/sharedfiles/filedetails/?id=1933285222))
