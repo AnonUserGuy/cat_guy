@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="Kerkel" CreatedOn="8/7/2026 5:49:02 PM" Version="51" Fps="30"/>
+	<Info CreatedBy="DogLuggage" CreatedOn="8/7/2026 5:49:02 PM" Version="51" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="ui.png" Id="0"/>

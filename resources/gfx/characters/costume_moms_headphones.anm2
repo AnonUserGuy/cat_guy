@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="8/12/2026 9:08:57 PM" Version="105" Fps="30"/>
+	<Info CreatedBy="DogLuggage" CreatedOn="8/12/2026 9:08:57 PM" Version="105" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="costumes\costume_moms_headphones.png" Id="0"/>

@@ -1,6 +1,9 @@
 .vscode/
-.luarc.json
 out/
-*.lnk
 resources/gfx/characters/costumes_percy/edit me/*
+
+.luarc.json
+disable.it
 cat_guy_config_user.lua
+
+*.lnk

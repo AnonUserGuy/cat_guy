@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="8/12/2026 11:57:07 AM" Version="106" Fps="30"/>
+	<Info CreatedBy="DogLuggage" CreatedOn="8/12/2026 11:57:07 AM" Version="106" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="costumes\costume_percy_whiskers.png" Id="0"/>

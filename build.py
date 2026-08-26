@@ -6,7 +6,7 @@ def main():
     in_dir = '.\\'
     out_dir = '.\\out'
 
-    bad_dirs = [".\\out", ".\\.vscode", ".\\.git", ".\\resources\\gfx\\characters\\costumes_percy\\edit me"]
+    bad_dirs = [out_dir, ".\\.vscode", ".\\.git", ".\\resources\\gfx\\characters\\costumes_percy\\edit me"]
     bad_files = [".\\cat_guy_config_user.lua"]
     extensions = [".lua", ".xml", ".ogg", ".wav", ".anm2", ".png", ".fs", ".vs", ".md"]
 
