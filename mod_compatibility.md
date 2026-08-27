@@ -46,6 +46,8 @@ CatGuy.TempoManager:RegisterTempoDefs({
 })
 ```
 
+The game's vanilla definitions can be found at [`./scripts_cat_guy/tempo/tempo_defs.lua`](https://github.com/AnonUserGuy/cat_guy/blob/main/scripts_cat_guy/tempo/tempo_defs.lua)
+
 ## Relevant Issues
 - https://github.com/TeamREPENTOGON/REPENTOGON/issues/910
 - https://github.com/TeamREPENTOGON/REPENTOGON/issues/364
