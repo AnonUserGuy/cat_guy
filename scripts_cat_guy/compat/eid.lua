@@ -37,7 +37,7 @@ function EIDCompat:Init(eid, defs)
         end
 
         if collectibleEid.modifier then
-            eid:addDescriptionModifier("cat_guy_collectible_"..itemId, function(descObj)
+            eid:addDescriptionModifier("cat_guy_c"..itemId, function(descObj)
                 if descObj.ObjType == EntityType.ENTITY_PICKUP
                 and descObj.ObjVariant == PickupVariant.PICKUP_COLLECTIBLE
                 and descObj.ObjSubType == itemId then
@@ -56,12 +56,16 @@ function EIDCompat:Init(eid, defs)
         if collectibleEid.synergies then
             for itemId0, synergy in pairs(collectibleEid.synergies) do
                 if type(itemId0) == "table" then
-                    for _, itemId1 in pairs(itemId0) do
-                        self:AddSynergy(eid, itemId, itemId1, synergy)
-                    end
+                    self:AddSynergy(eid, synergy, itemId, table.unpack(itemId0))
                 else
-                    self:AddSynergy(eid, itemId, itemId0, synergy)
+                    self:AddSynergy(eid, synergy, itemId, itemId0)
                 end
+            end
+        end
+
+        if collectibleEid.trinketSynergies then
+            for trinketType, synergy in pairs(collectibleEid.trinketSynergies) do
+                self:AddCollectibleTrinketSynergy(eid, synergy, itemId, trinketType)
             end
         end
     end
@@ -73,7 +77,7 @@ function EIDCompat:Init(eid, defs)
             end
         end
         if trinketEid.modifier then
-            eid:addDescriptionModifier("cat_guy_trinket_"..trinketType, function(descObj)
+            eid:addDescriptionModifier("cat_guy_t"..trinketType, function(descObj)
                 if descObj.ObjType == EntityType.ENTITY_PICKUP
                 and descObj.ObjVariant == PickupVariant.PICKUP_TRINKET
                 and descObj.ObjSubType == trinketType then
@@ -88,33 +92,84 @@ function EIDCompat:Init(eid, defs)
                 return trinketEid.modifier(eid, descObj, eid:ClosestPlayerTo(descObj.Entity))
             end)
         end
+        if trinketEid.collectibleSynergies then
+            for itemId, synergy in pairs(trinketEid.collectibleSynergies) do
+                self:AddCollectibleTrinketSynergy(eid, synergy, itemId, trinketType)
+            end
+        end
     end
 end
 
 ---@param eid any
----@param itemId1 CollectibleType
----@param itemId2 CollectibleType
 ---@param synergy langStrings
-function EIDCompat:AddSynergy(eid, itemId1, itemId2, synergy)
-    self:AddUnilateralSynergy(eid, itemId1, itemId2, synergy)
-    self:AddUnilateralSynergy(eid, itemId2, itemId1, synergy)
+---@param ... CollectibleType
+function EIDCompat:AddSynergy(eid, synergy, ...)
+    for i, itemId in ipairs({...}) do
+        local args = {...}
+        table.remove(args, i)
+        self:AddUnilateralSynergy(eid, synergy, itemId, table.unpack(args))
+    end
 end
 
 ---@param eid any
----@param itemIdPedestal CollectibleType
----@param itemIdPossessed CollectibleType
 ---@param synergy langStrings
-function EIDCompat:AddUnilateralSynergy(eid, itemIdPedestal, itemIdPossessed, synergy)
-    eid:addDescriptionModifier("cat_guy_synergy_"..itemIdPedestal.."_"..itemIdPossessed, function(descObj) ---@param descObj DescObj
+---@param itemIdPedestal CollectibleType
+---@param ... CollectibleType
+function EIDCompat:AddUnilateralSynergy(eid, synergy, itemIdPedestal, ...)
+    local args = {...}
+    local name = "cat_guy_c"..itemIdPedestal.."_c"
+    for _, itemId in ipairs(args) do
+        name = name.."_c"..itemId
+    end
+    local desc = synergy["en_us"]
+    desc = string.gsub(desc, "#", "#{{Collectible"..args[1].."}} ")
+    desc = "#{{Collectible"..args[1].."}} "..desc
+    eid:addDescriptionModifier(name, function(descObj) ---@param descObj DescObj
         if descObj.ObjType == EntityType.ENTITY_PICKUP
         and descObj.ObjVariant == PickupVariant.PICKUP_COLLECTIBLE 
         and descObj.ObjSubType == itemIdPedestal then
             local player = eid:ClosestPlayerTo(descObj.Entity) ---@type EntityPlayer
-            return player:HasCollectible(itemIdPossessed)
+            for _, itemId in ipairs(args) do
+                if not player:HasCollectible(itemId) then
+                    return false
+                end
+            end
+            return true
         end
         return false
     end, function(descObj)
-        eid:appendToDescription(descObj, "#{{Collectible"..itemIdPossessed.."}} "..synergy["en_us"])
+        eid:appendToDescription(descObj, desc)
+        return descObj
+    end)
+end
+
+---@param eid any
+---@param synergy langStrings
+---@param itemId CollectibleType
+---@param trinketType TrinketType
+function EIDCompat:AddCollectibleTrinketSynergy(eid, synergy, itemId, trinketType)
+    eid:addDescriptionModifier("cat_guy_c"..itemId.."_t"..trinketType, function(descObj) ---@param descObj DescObj
+        if descObj.ObjType == EntityType.ENTITY_PICKUP
+        and descObj.ObjVariant == PickupVariant.PICKUP_COLLECTIBLE
+        and descObj.ObjSubType == itemId then
+            local player = eid:ClosestPlayerTo(descObj.Entity) ---@type EntityPlayer
+            return player:HasTrinket(trinketType)
+        end
+        return false
+    end, function(descObj)
+        eid:appendToDescription(descObj, "#{{Trinket"..trinketType.."}} "..synergy["en_us"])
+        return descObj
+    end)
+    eid:addDescriptionModifier("cat_guy_t"..trinketType.."_c"..itemId, function(descObj) ---@param descObj DescObj
+        if descObj.ObjType == EntityType.ENTITY_PICKUP
+        and descObj.ObjVariant == PickupVariant.PICKUP_TRINKET
+        and descObj.ObjSubType == trinketType then
+            local player = eid:ClosestPlayerTo(descObj.Entity) ---@type EntityPlayer
+            return player:HasCollectible(itemId)
+        end
+        return false
+    end, function(descObj)
+        eid:appendToDescription(descObj, "#{{Collectible"..itemId.."}} "..synergy["en_us"])
         return descObj
     end)
 end

@@ -26,6 +26,8 @@
 ---
 ---@field Tick? fun(tempoManager?: TempoManager)
 ---
+---@field PreMusicPlay? fun(music: Music, volume: number, isFade: boolean): table|Music|boolean?
+---
 ---@field EvaluateCache? table<CacheFlag, fun(player: EntityPlayer, flag: CacheFlag)>
 
 ---@alias Pointer integer pointers to entities obtained through GetPtrHash(Entity)

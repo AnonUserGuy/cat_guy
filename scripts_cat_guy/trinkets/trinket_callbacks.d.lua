@@ -1,2 +1,4 @@
 ---@class TrinketCallbacks: Callbacks
+---@field Priority_trinket? table<CallbackPriority, TrinketCallbacks>
+---@field PreAddTrinket_trinket? fun(player: EntityPlayer, trinketType: TrinketType, firstTime: boolean): boolean|TrinketType?
 ---@field PrePlayerHUDTrinketRender_trinket? fun(slot: integer, position: Vector, scale: number, player: EntityPlayer, cropOffset: Vector): table|boolean?

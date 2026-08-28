@@ -1,4 +1,4 @@
-### This mod requires **REPENTOGON** to work! Visit https://repentogon.com for more information!
+### This mod requires **REPENTOGON** to work! Visit https://steamcommunity.com/sharedfiles/filedetails/?id=3127536138 for more information!
 
 ***NOTE: This mod currently isn't compatible with any music mods, and only works with the game's vanilla music. Modded music compatibility to come!***
 

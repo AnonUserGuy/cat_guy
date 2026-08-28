@@ -1,12 +1,13 @@
 <items gfxroot="gfx/items/" version="1">
     <passive id="1" name="Mom's Headphones" description="I'm listening" gfx="collectibles_momsheadphones.png" 
         quality="3" tags="summonable offensive mom" />
-    <passive name="Triple Metre" description="???" gfx="collectibles_underhands.png"
-        quality="2" />
+    <passive name="Triple Metre" description="Bouncy triple shot" gfx="collectibles_triple_metre.png"
+        quality="2" tags="summonable offensive" />
     <active name="Underhands" description="Bound to this world" gfx="collectibles_underhands.png" maxcharges="6" 
         quality="2" />
 
 	<trinket name="Toy Metronome" description="Tick tock!" gfx="trinket_toymetronome.png" />
+	<trinket name="Broken Headphones" description="Stuck on shuffle" gfx="trinket_brokenheadphones.png" />
 
     <null name="Percy Revive" customtags="revive" persistent="true" />
     <null name="Dead Cat Revive" customtags="revive" persistent="true" />

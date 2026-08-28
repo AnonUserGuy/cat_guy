@@ -19,7 +19,8 @@ CatGuy.CollectibleType = {
 }
 
 CatGuy.TrinketType = {
-    TOY_METRONOME       = Isaac.GetTrinketIdByName("Toy Metronome")
+    TOY_METRONOME       = Isaac.GetTrinketIdByName("Toy Metronome"),
+    BROKEN_HEADPHONES   = Isaac.GetTrinketIdByName("Broken Headphones")
 }
 
 CatGuy.NullItemID = {
@@ -201,20 +202,14 @@ CatGuy.PlayerCallbacks = { ---@type table<PlayerType, PlayerCallbacks>
 CatGuy.CollectibleCallbacks = { ---@type table<CollectibleType, CollectibleCallbacks>
     [CatGuy.CollectibleType.MOMS_HEADPHONES]    = include("scripts_cat_guy.collectibles.moms_headphones"),
     [CatGuy.CollectibleType.TRIPLE_METRE]       = include("scripts_cat_guy.collectibles.triple_metre"),
-    [CatGuy.CollectibleType.UNDERHANDS]         = include("scripts_cat_guy.collectibles.underhands")
+    [CatGuy.CollectibleType.UNDERHANDS]         = include("scripts_cat_guy.collectibles.underhands"),
+    [CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL]= include("scripts_cat_guy.collectibles.tooth_and_nail")
 }
 
 CatGuy.TrinketCallbacks = { ---@type table<TrinketType, TrinketCallbacks>
-    [CatGuy.TrinketType.TOY_METRONOME]          = include("scripts_cat_guy.trinkets.toy_metronome")
+    [CatGuy.TrinketType.TOY_METRONOME]          = include("scripts_cat_guy.trinkets.toy_metronome"),
+    [CatGuy.TrinketType.BROKEN_HEADPHONES]      = include("scripts_cat_guy.trinkets.broken_headphones")
 }
-
-if Isaac.GetFrameCount() < 60 and CatGuy:GetConfig("ReworkToothAndNail") then
-    CAT_GUY_REWORKED_TOOTH_AND_NAIL = true
-    Isaac.ReworkCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL)
-end
-if CAT_GUY_REWORKED_TOOTH_AND_NAIL then
-    CatGuy.CollectibleCallbacks[CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL] = include("scripts_cat_guy.collectibles.tooth_and_nail")
-end
 
 ---@param player EntityPlayer
 function CatGuy:PostPlayerInit(player)
@@ -424,6 +419,11 @@ function CatGuy:AddCallbacks(callbacks, priority)
             return callbacks.Tick(tempoManager)
         end)
     end
+    if callbacks.PreMusicPlay then
+        self:AddPriorityCallback(ModCallbacks.MC_PRE_MUSIC_PLAY, priority, function(_, music, volume, isFade)
+            return callbacks.PreMusicPlay(music, volume, isFade)
+        end)
+    end
     if callbacks.EvaluateCache then
         for flag, func in pairs(callbacks.EvaluateCache) do
             if flag == CacheFlag.CACHE_ALL then
@@ -491,6 +491,27 @@ function CatGuy:AddPlayerCallbacks(playerType, callbacks, priority)
     end
 end
 
+---@param trinketType TrinketType
+---@param callbacks TrinketCallbacks
+---@param priority? CallbackPriority
+function CatGuy:AddTrinketCallbacks(trinketType, callbacks, priority)
+    priority = priority or CallbackPriority.DEFAULT
+
+    self:AddCallbacks(callbacks, priority)
+
+    if callbacks.PreAddTrinket_trinket then
+        self:AddPriorityCallback(ModCallbacks.MC_PRE_ADD_TRINKET, priority, function(_, player, trinketType0, firstTime)
+            return callbacks.PreAddTrinket_trinket(player, trinketType0, firstTime)
+        end, trinketType)
+    end
+
+    if callbacks.Priority_trinket then
+        for priority0, callbacks0 in pairs(callbacks.Priority_trinket) do
+            self:AddTrinketCallbacks(trinketType, callbacks0, priority0)
+        end
+    end
+end
+
 for itemId, callbacks in pairs(CatGuy.CollectibleCallbacks) do
     CatGuy:AddCollectibleCallbacks(itemId, callbacks)
 end
@@ -499,8 +520,8 @@ for playerType, callbacks in pairs(CatGuy.PlayerCallbacks) do
     CatGuy:AddPlayerCallbacks(playerType, callbacks)
 end
 
-for _, callbacks in pairs(CatGuy.TrinketCallbacks) do
-    CatGuy:AddCallbacks(callbacks)
+for trinketType, callbacks in pairs(CatGuy.TrinketCallbacks) do
+    CatGuy:AddTrinketCallbacks(trinketType, callbacks)
 end
 
 CatGuy:AddPriorityCallback(ModCallbacks.MC_PRE_MUSIC_PLAY, CallbackPriority.LATE, function(_, music, _, _)

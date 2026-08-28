@@ -104,7 +104,7 @@ function percyB.PostPlayerHUDRenderHearts_player(_, sprite, position, _, player)
 
     local lives = player:GetExtraLives()
     if lives > 0 then
-        local width = math.ceil(math.log(lives + 1, 10)) + 1
+        local width = math.ceil(math.log(lives + 1, 10)) + (player:HasChanceRevive() and 2 or 1)
         local maxLives = lives - CatGuy.PlayerUtils.GetPercyLifeCount(player) + 9
         livesFont:DrawString("/"..maxLives, position.X + 5 * width, position.Y - 8, KColor(0.718, 0.718, 0.718,1))
     end

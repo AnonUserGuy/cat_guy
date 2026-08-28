@@ -1,20 +1,11 @@
 local BLINK_COLOR = Color(1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5)
 BLINK_COLOR:SetColorize(1, 1, 1, 1)
 
-local TIMER_MAX = 180 * 2
-local TICK_DURATION = 15 * 2
-local EFFECT_DURATION = 30 * 2
-
-local TICK_TIME_1 = TIMER_MAX - EFFECT_DURATION - TICK_DURATION * 3
-local TICK_TIME_2 = TIMER_MAX - EFFECT_DURATION - TICK_DURATION * 2
-local TICK_TIME_3 = TIMER_MAX - EFFECT_DURATION - TICK_DURATION
-local EFFECT_TIME = TIMER_MAX - EFFECT_DURATION
-
 local tickVolume = {0.4, 0.6, 0.8}
 local tickPitch = {1.7, 1.4, 1.7}
 
-local timers = {} ---@type table<Pointer, integer>
-local needsRemoved = {} ---@type table<Pointer, boolean>
+local blocked = {} ---@type table<Pointer, boolean>
+local effected = {} ---@type table<Pointer, boolean>
 
 local beatEffected = nil ---@type integer?
 local successfulTick = 0
@@ -22,6 +13,11 @@ local wasPaused = false
 
 ---@type CollectibleCallbacks
 local toothAndNail = {}
+
+---@param player EntityPlayer
+local function hasSynergy(player)
+    return player:HasCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL, false, true) and player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES)
+end
 
 ---@param player EntityPlayer
 local function blink(player)
@@ -52,50 +48,36 @@ end
 
 function toothAndNail.PostPlayerUpdate(player)
     local p = GetPtrHash(player)
-    if needsRemoved[p] and (not CatGuy.TempoManager.tempoDef or not (player:HasCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL) and player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES))) then
-        if player:GetEffects():HasNullEffect(NullItemID.ID_TOOTH_AND_NAIL) then
-            if player:HasCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL) then
-                timers[p] = EFFECT_TIME + 1
-            else
-                revert(player)
+    if not CatGuy.TempoManager.tempoDef or not hasSynergy(player) then
+        if blocked[p] then
+            if effected[p] then
+                if player:GetEffects():HasNullEffect(NullItemID.ID_TOOTH_AND_NAIL) then
+                    revert(player)
+                end
+                effected[p] = nil
             end
+            if player:IsCollectibleBlocked(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL) then
+                player:UnblockCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL)
+            end
+            blocked[p] = nil
         end
-        needsRemoved[p] = nil
-    end
-
-    if not player:HasCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL)
-    or (player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) and CatGuy.TempoManager.tempoDef) then
-        if timers[p] then
+    else
+        if not blocked[p] then
             if player:GetEffects():HasNullEffect(NullItemID.ID_TOOTH_AND_NAIL) then
                 revert(player)
             end
-            timers[p] = nil
         end
-        return
+        if not player:IsCollectibleBlocked(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL) then
+            player:BlockCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL)
+        end
+        blocked[p] = true
     end
-
-    local timer = timers[p] or 0
-
-    if timer == TICK_TIME_1 then
-        tick(player, 1)
-    elseif timer == TICK_TIME_2 then
-        tick(player, 2)
-    elseif timer == TICK_TIME_3 then
-        tick(player, 3)
-    elseif timer == EFFECT_TIME then
-        effect(player)
-    elseif timer >= TIMER_MAX then
-        revert(player)
-        timer = 0
-    end
-
-    timers[p] = timer + 1
 end
 
 ---@param func fun(player: EntityPlayer, i: integer?)
 local function forEachToothAndNailer(func)
     CatGuy.PlayerUtils.ForEachPlayer(function(player, i)
-        if player:HasCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL) and player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
+        if hasSynergy(player) then
             func(player, i)
         end
     end)
@@ -120,7 +102,7 @@ local function effectBeat()
     beatEffected = math.floor(CatGuy.TempoManager.beat)
     forEachToothAndNailer(function(player)
         effect(player)
-        needsRemoved[GetPtrHash(player)] = true
+        effected[GetPtrHash(player)] = true
     end)
 end
 
@@ -130,14 +112,12 @@ local function revertBeat()
     end
     forEachToothAndNailer(function(player)
         revert(player)
-        needsRemoved[GetPtrHash(player)] = nil
+        effected[GetPtrHash(player)] = nil
     end)
 end
 
 function toothAndNail.Tick(tempoManager)
-    if not CatGuy.PlayerUtils.AnyPlayer(function(player) return
-    player:HasCollectible(CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL)
-    and player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) end) then
+    if not CatGuy.PlayerUtils.AnyPlayer(function(player) return hasSynergy(player) end) then
         successfulTick = 0
         return
     end
@@ -167,7 +147,7 @@ function toothAndNail.PostRender()
             if player:GetEffects():HasNullEffect(NullItemID.ID_TOOTH_AND_NAIL) then
                 revert(player)
             end
-            needsRemoved[GetPtrHash(player)] = nil
+            effected[GetPtrHash(player)] = nil
         end)
     end
     wasPaused = paused

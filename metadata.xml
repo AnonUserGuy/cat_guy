@@ -3,7 +3,8 @@
     <name>Percy: The Musical Cat! [WIP]</name>
     <directory>cat_guy</directory>
     <id>3790558949</id>
-    <description>[h3]This mod requires [b]REPENTOGON[/b] to work! Visit https://repentogon.com for more information![/h3]
+    <version>1.2</version>
+	  <description>[h3]This mod requires [b]REPENTOGON[/b] to work! Visit https://steamcommunity.com/sharedfiles/filedetails/?id=3127536138 for more information![/h3]
 
 [b][i]NOTE: This mod currently isn't compatible with any music mods, and only works with the game's vanilla music. Modded music compatibility to come![/i][/b]
 
@@ -61,7 +62,6 @@ Alternatively, configuration can be changed by editing "cat_guy_config.lua".
   [*]Steam: https://steamcommunity.com/sharedfiles/filedetails/?id=3790558949
   [*]GitHub: https://github.com/AnonUserGuy/cat_guy
 [/list]</description>
-    <version>1.0</version>
     <tag id="Lua"/>
     <tag id="Items"/>
     <tag id="Active Items"/>

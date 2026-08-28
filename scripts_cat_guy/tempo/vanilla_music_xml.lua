@@ -3,6 +3,8 @@
 ---@field intro? string
 ---@field path? string
 ---@field sourceid? string
+---@field id? string
+---@field loop? string
 
 --- Repentance (not Repentance+) music XML as an importable lua table. keyed by ids, layer subnodes in a list called "layers".
 --- Not used anymore.
