@@ -67,6 +67,7 @@ def colorize(path: str):
         data = img.load()
         if not data:
             return
+        found_any_color = False
         color_map: list[list[tuple[int, int]]] = [[] for _ in range(len(colors_in))]
         for y in range(img.height):
             for x in range(img.width):
@@ -76,6 +77,10 @@ def colorize(path: str):
                 if i != None:
                     #print(f"found match {i}: {x}, {y}")
                     color_map[i].append((x, y))
+                    found_any_color = True
+
+        if not found_any_color:
+            return
         
         for name in colors_out:
             img_new = img.copy()

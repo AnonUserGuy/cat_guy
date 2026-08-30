@@ -24,7 +24,7 @@ function underhands.PreTriggerPlayerDeath(player)
     end
 end
 
-function underhands.PostAddCollectible_item(_, _, firstTime, _, _, player)
+function underhands.PostTriggerCollectibleAdded_item(player, _, firstTime)
     local util = CatGuy.PlayerUtils
     if firstTime then
         util.AddPercyLives(player, PERCY_LIVES_INIT)

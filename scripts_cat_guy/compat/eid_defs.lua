@@ -59,6 +59,7 @@ EIDDefs.players[CatGuy.PlayerType.PERCY_B] = {
 ---@field description? langStrings
 ---@field synergies? table<CollectibleType|CollectibleType[], langStrings>
 ---@field trinketSynergies? table<TrinketType, langStrings>
+---@field duplicate? langStrings
 ---@field modifierCondition? fun(eid: any, descObj: DescObj, player: EntityPlayer): boolean
 ---@field modifier? fun(eid: any, descObj: DescObj, player: EntityPlayer): DescObj
 
@@ -77,10 +78,10 @@ local MOMS_HEADPHONES_RELEASE = {
 EIDDefs.collectibles[CatGuy.CollectibleType.MOMS_HEADPHONES] = {
     description = {
         ["en_us"] = "#{{Tears}} Shoots 1 tear for each shooting input"..
+            "#↑ {{Damage}} x2.0 damage if shot perfectly onbeat"..
+            "#↓ {{Damage}} x0.75 damage if shot perfectly offbeat"..
             "#{{Tears}} Tear Rate set to closest one that matches tempo of song x2^N"..
-            "#{{Damage}} Firing faster than fire rate deals significantly less damage"..
-            "#↑ {{Damage}} Shots do x2.0 damage if shot perfectly onbeat"..
-            "#↓ {{Damage}} Shots do x0.75 damage if shot perfectly offbeat"
+            "#{{Damage}} Firing faster than fire rate deals significantly less damage"
     },
     modifier = function(eid, descObj, player)
         local pickup = descObj.Entity and descObj.Entity:ToPickup()
@@ -150,6 +151,29 @@ EIDDefs.collectibles[CatGuy.CollectibleType.UNDERHANDS] = {
     }
 }
 
+EIDDefs.collectibles[CatGuy.CollectibleType.TRIPLE_METRE] = {
+    description = {
+        ["en_us"] = "#{{Collectible"..CollectibleType.COLLECTIBLE_INNER_EYE.."}} Grant's copy of Inner Eye:"..
+            "#{{Collectible"..CollectibleType.COLLECTIBLE_INNER_EYE.."}} {{Tears}} x0.51 Fire rate multiplier"..
+            "#{{Collectible"..CollectibleType.COLLECTIBLE_INNER_EYE.."}} Isaac shoots 3 tears at once"..
+            "#{{Collectible"..CollectibleType.COLLECTIBLE_BROKEN_WATCH.."}} Getting hit makes music \"swung\" for 8 seconds"..
+            "#{{Collectible"..CollectibleType.COLLECTIBLE_BROKEN_WATCH.."}} Swung music makes game speed rapidly alternate between fast and slow"
+    },
+    duplicate = {
+        ["en_us"] = "Isaac fires 1 more tear#No additional stat decrease"
+    }
+}
+
+EIDDefs.collectibles[CatGuy.CollectibleType.FORTE] = {
+    description = {
+        ["en_us"] = "# For every extra music layer playing:"..
+            "#↑ {{Speed}} +0.3 Speed#↑ {{Tears}} +0.2 Tears#↑ {{Damage}} +0.3 Damage#↑ {{Range}} +1.5 Range"..
+            "#Being in a boss fight counts for 1 layer"
+    },
+    duplicate = {
+        ["en_us"] = "Each additional copy counts for 1 layer"
+    }
+}
 
 
 

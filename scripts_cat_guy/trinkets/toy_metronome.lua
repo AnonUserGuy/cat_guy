@@ -12,7 +12,7 @@ local lastBeat = 0.0
 local ticked = false
 local left = true
 
-local function getCropOffset()
+local function update()
     if not Game():IsPauseMenuOpen() then
         local tempoManager = CatGuy.TempoManager
         if not (tempoManager and tempoManager.tempoDef and tempoManager.tempoDef.bpm) then
@@ -57,7 +57,7 @@ function toyMetronome.UseItem(itemId, _, player, _, _, _)
 end
 
 function toyMetronome.Tick(tempoManager)
-    if Game():IsPauseMenuOpen() then
+    if not tempoManager.tempoDef or Game():IsPauseMenuOpen() then
         return
     end
     ticked = true
@@ -69,8 +69,8 @@ function toyMetronome.Tick(tempoManager)
     end
 end
 
-function toyMetronome.PrePlayerHUDTrinketRender_trinket(_, position, scale)
-    return {CropOffset = Vector(getCropOffset(), 0)}
+function toyMetronome.PrePlayerHUDTrinketRender_trinket()
+    return {CropOffset = Vector(update(), 0)}
 end
 
 

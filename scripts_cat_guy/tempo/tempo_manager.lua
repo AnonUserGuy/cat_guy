@@ -6,6 +6,7 @@ local TWO_THIRDS = 2/3
 ---@class TempoManager
 ---@field lastPitch number
 ---@field tempoDefs table<Music, TempoDef>
+---@field tempoDef? TempoDef
 ---@field beat number strictly increasing beat number
 ---@field beatMusic number beat number relative to music
 ---@field measure integer
@@ -36,6 +37,7 @@ function TempoManager:New(tempoDefs)
 
     instance.time = 0
     instance.bpmIndex = 0
+    instance.lastBpm = 0
 
     instance.beat = 0
     instance.beatMusic = 0
@@ -118,65 +120,73 @@ function TempoManager:PreMusicPlay(music)
         self.lastSysTime = Isaac.GetTime()
     else
         self.tempoDef = nil
+        self.time = 0
     end
 end
 
 ---@param timeDelta integer time passed since last frame in milliseconds
 function TempoManager:Update(timeDelta)
-    if not (self.tempoDef and self.tempoDef.bpm) then
-        return
-    end
-    timeDelta = timeDelta * self.lastPitch
-
     local lastBeat = self.beat
+    timeDelta = timeDelta * self.lastPitch
+    self.lastPitch = MusicManager():GetCurrentPitch() or 1.0
 
     local def = self.tempoDef
-    while true do
-        if (def.bpmIndices and def.bpmIndices[self.bpmIndex + 1] and (self.time + timeDelta) > def.bpmIndices[self.bpmIndex + 1]) then
-            local nextBpmChange = def.bpmIndices[self.bpmIndex + 1]
-            local timeTilBpmChange = nextBpmChange - self.time
-            timeDelta = timeDelta - timeTilBpmChange
-
-            self.time = nextBpmChange
-            local beatDelta = timeTilBpmChange * (def.bpms[def.bpmIndices[self.bpmIndex]] or def.bpm) / MILLISECONDS_PER_MINUTE
+    if not (def and def.bpm) then
+        self.time = self.time + timeDelta
+        if self.lastBpm ~= 0 then
+            local beatDelta = timeDelta * self.lastBpm / MILLISECONDS_PER_MINUTE
             self.beat = self.beat + beatDelta
-            self.beatMusic = self.beatMusic + beatDelta
+        end
+    else
+        while true do
+            if (def.bpmIndices and def.bpmIndices[self.bpmIndex + 1] and (self.time + timeDelta) > def.bpmIndices[self.bpmIndex + 1]) then
+                local nextBpmChange = def.bpmIndices[self.bpmIndex + 1]
+                local timeTilBpmChange = nextBpmChange - self.time
+                timeDelta = timeDelta - timeTilBpmChange
 
-            self.bpmIndex = self.bpmIndex + 1
-        elseif (def.length and (self.time + timeDelta) > (def.length + (def.intro or 0))) then
-            local songEnd = def.length + (def.intro or 0)
-            local timeTilEnd = songEnd - self.time
-            timeDelta = timeDelta - timeTilEnd
+                self.time = nextBpmChange
+                self.lastBpm = def.bpms[def.bpmIndices[self.bpmIndex]] or def.bpm
+                local beatDelta = timeTilBpmChange * self.lastBpm / MILLISECONDS_PER_MINUTE
+                self.beat = self.beat + beatDelta
+                self.beatMusic = self.beatMusic + beatDelta
 
-            self.time = def.intro or 0
-            local beatDelta = timeTilEnd * (def.bpmIndices and def.bpms[def.bpmIndices[self.bpmIndex]] or def.bpm) / MILLISECONDS_PER_MINUTE
-            self.beat = self.beat + beatDelta
-            self.beatMusic = def.beatIntro or 0.0
-            
-            if def.bpmIndices then
-                for i, time0 in ipairs(def.bpmIndices) do
-                    if time0 > self.time then
-                        self.bpmIndex = i - 1
-                        break
+                self.bpmIndex = self.bpmIndex + 1
+            elseif (def.length and (self.time + timeDelta) > (def.length + (def.intro or 0))) then
+                local songEnd = def.length + (def.intro or 0)
+                local timeTilEnd = songEnd - self.time
+                timeDelta = timeDelta - timeTilEnd
+
+                self.time = def.intro or 0
+                self.lastBpm = def.bpmIndices and def.bpms[def.bpmIndices[self.bpmIndex]] or def.bpm
+                local beatDelta = timeTilEnd * self.lastBpm / MILLISECONDS_PER_MINUTE
+                self.beat = self.beat + beatDelta
+                self.beatMusic = def.beatIntro or 0.0
+                
+                if def.bpmIndices then
+                    for i, time0 in ipairs(def.bpmIndices) do
+                        if time0 > self.time then
+                            self.bpmIndex = i - 1
+                            break
+                        end
                     end
                 end
+            else
+                break
             end
-        else
-            break
         end
+        self.lastBpm = def.bpmIndices and def.bpms[def.bpmIndices[self.bpmIndex]] or def.bpm
+        local beatDelta = timeDelta * self.lastBpm / MILLISECONDS_PER_MINUTE
+        self.beat = self.beat + beatDelta
+        self.beatMusic = self.beatMusic + beatDelta
+
+        self.time = self.time + timeDelta
     end
-    local beatDelta = timeDelta * (def.bpmIndices and def.bpms[def.bpmIndices[self.bpmIndex]] or def.bpm) / MILLISECONDS_PER_MINUTE
-    self.beat = self.beat + beatDelta
-    self.beatMusic = self.beatMusic + beatDelta
-
-
-    self.time = self.time + timeDelta
 
     local j = math.floor(self.beat) - math.floor(lastBeat)
     while j > 0 do
         j = j - 1
         local beatInt = math.floor(self.beatMusic) - j
-        if def.timeSigs and def.timeSigs[beatInt] then
+        if def and def.timeSigs and def.timeSigs[beatInt] then
             self.measuresSinceTimeSigChange = -1
             self.timeSig = def.timeSigs[beatInt]
             self.timeSigCount = 0
@@ -187,19 +197,23 @@ function TempoManager:Update(timeDelta)
             self.timeSigCount = self.timeSig
         end
         self.timeSigCount = self.timeSigCount - 1
-        Isaac.RunCallback("CAT_GUY_TICK", self)
-
-        if def.triplets and def.triplets[beatInt] ~= nil then
+        if def and def.triplets and def.triplets[beatInt] ~= nil then
             self.triplet = def.triplets[beatInt]
         end
+        Isaac.RunCallback(CatGuy.ModCallbacks.TICK, self)
     end
 end
 
 function TempoManager:PostRender()
     local sysTime = Isaac.GetTime()
+    local bpm = self.lastBpm
+    local pitch = self.lastPitch
     self:Update(sysTime - self.lastSysTime + self:GetNudge())
-    self.lastPitch = MusicManager():GetCurrentPitch() or 1.0
     self.lastSysTime = sysTime
+    if self.lastBpm ~= bpm or self.lastPitch ~= pitch then
+        Isaac.RunCallback(CatGuy.ModCallbacks.POST_BPM_CHANGE, self, self.lastBpm ~= bpm, self.lastPitch ~= pitch)
+    end
+
     self:LatencyTest()
     if self.musicRestartBeat and self.beat > self.musicRestartBeat then
         self.musicRestartBeat = nil
@@ -250,7 +264,7 @@ function TempoManager:LatencyTest()
 
     local buttonPressed = Input.IsButtonPressed(CatGuy:GetConfig("ControlsLatencyTest"), 0)
     if buttonPressed ~= self.buttonPressed then
-        self:RecordSample(buttonPressed)
+        self:RecordLatencyTestSample(buttonPressed)
         self.buttonPressed = buttonPressed
     end
 
@@ -264,7 +278,7 @@ function TempoManager:LatencyTest()
 end
 
 ---@param triggered boolean
-function TempoManager:RecordSample(triggered)
+function TempoManager:RecordLatencyTestSample(triggered)
     local offset = ((self.beat + 0.5) % 1.0 - 0.5) / self:GetCurrentBPM() * MILLISECONDS_PER_MINUTE
     if triggered then
         self.offsetsTrigger[self.offsetsTriggerIndex] = offset
@@ -275,12 +289,9 @@ function TempoManager:RecordSample(triggered)
     end
 end
 
+---@return number
 function TempoManager:GetCurrentBPM()
-    if self.tempoDef.bpmIndices then
-        return (self.tempoDef.bpms[self.tempoDef.bpmIndices[self.bpmIndex]] or self.tempoDef.bpm) * MusicManager():GetCurrentPitch()
-    else
-        return self.tempoDef.bpm * MusicManager():GetCurrentPitch()
-    end
+    return self.lastBpm * MusicManager():GetCurrentPitch()
 end
 
 ---@param release? boolean

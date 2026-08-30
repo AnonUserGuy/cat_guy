@@ -48,7 +48,7 @@ end
 
 function toothAndNail.PostPlayerUpdate(player)
     local p = GetPtrHash(player)
-    if not CatGuy.TempoManager.tempoDef or not hasSynergy(player) then
+    if not CatGuy.TempoManager.lastBpm or not hasSynergy(player) then
         if blocked[p] then
             if effected[p] then
                 if player:GetEffects():HasNullEffect(NullItemID.ID_TOOTH_AND_NAIL) then

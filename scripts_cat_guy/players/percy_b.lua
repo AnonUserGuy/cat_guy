@@ -67,8 +67,10 @@ function percyB.PreTriggerPlayerDeath_player(player)
     player:GetEffects():RemoveNullEffect(NullItemID.ID_LOST_CURSE, -1)
 end
 
-function percyB.PostAddBirthright_player(_, _, _, _, _, player)
-    player:AddMaxHearts(2)
+function percyB.PostTriggerBirthrightAdded_player(player, firstTime)
+    if firstTime then
+        player:AddMaxHearts(2)
+    end
 end
 
 function percyB.PrePlayerAddMaxHearts_player(player, amount)

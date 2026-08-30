@@ -24,18 +24,21 @@ function percy.PostPlayerUpdate(player)
     end
 end
 
-function percy.PostAddBirthright_player(_, _, _, _, _, player)
-    player:AddCacheFlags(CacheFlag.CACHE_FIREDELAY | CacheFlag.CACHE_DAMAGE)
-    player:EvaluateItems()
-end
-
 local function BirthrightFireRate()
-    if CatGuy.TempoManager and CatGuy.TempoManager.tempoDef then
+    if CatGuy.TempoManager and CatGuy.TempoManager.lastBpm then
         return 30 * 60 / CatGuy.TempoManager:GetCurrentBPM() - 1
     else
         return 10.0
     end
 end
+
+---@param player EntityPlayer
+local function evaluateItems(player)
+    player:AddCacheFlags(CacheFlag.CACHE_FIREDELAY)
+    player:EvaluateItems()
+end
+percy.PostTriggerBirthrightAdded_player = evaluateItems
+percy.PostTriggerBirthrightRemoved_player = evaluateItems
 
 percy.EvaluateCache = {}
 percy.EvaluateCache[CacheFlag.CACHE_DAMAGE] = function(player)

@@ -25,7 +25,7 @@ local function resetHurtTimer(player)
     player:AddNullItemEffect(CatGuy.NullItemID.TRIPLE_METRE_HURT, true, 240, false)
 end
 
-function triple.PostAddCollectible_item(_, _, firstTime, _, _, player)
+function triple.PostTriggerCollectibleAdded_item(player, _, firstTime)
     if firstTime then
         resetHurtTimer(player)
     end

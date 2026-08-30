@@ -5,8 +5,13 @@
 ---@field sourceid? string
 ---@field id? string
 ---@field loop? string
+---@field layer? string|MusicXMLLayer[] 
 
---- Repentance (not Repentance+) music XML as an importable lua table. keyed by ids, layer subnodes in a list called "layers".
+---@class MusicXMLLayer
+---@field path? string
+---@field mul? string
+
+--- Repentance (not Repentance+) music XML as an importable lua table. keyed by ids, layer subnodes in a list called "layer".
 --- Not used anymore.
 ---@type table<Music, MusicXMLNode>
 local vanillaMusicXML = {
@@ -54,11 +59,11 @@ local vanillaMusicXML = {
 	[Music.MUSIC_JINGLE_BOSS_OVER3]    			= {name="Boss Death Alternate Alternate (jingle)", path="Repentance/Alt Boss Track Jingle.ogg", loop="false", mul="2.2"},
 
 	[Music.MUSIC_MOTHER_BOSS]     				= {name="Boss (Mother)", path="Repentance/MOTHER_BOSS_V6.ogg", loop="true", mul="1.25"},
-	[Music.MUSIC_DOGMA_BOSS]      				= {name="Boss (Dogma)", path="Repentance/Static Boss Light V2.ogg", loop="true", layermode="2", layerfadespeed="0.008", layers = {
+	[Music.MUSIC_DOGMA_BOSS]      				= {name="Boss (Dogma)", path="Repentance/Static Boss Light V2.ogg", loop="true", layermode="2", layerfadespeed="0.008", layer = {
 		{path="Repentance/Static Boss V2 with Preachers V3.ogg", mul="1.2"},
 		{path="Repentance/Static.ogg", mul="1"},
 	}},
-	[Music.MUSIC_BEAST_BOSS]      				= {name="Boss (Beast)", path="Repentance/The_End_FAMINE.ogg", loop="true", layermode="2", layerfadespeed="0.01", mul="1.5", layers = {
+	[Music.MUSIC_BEAST_BOSS]      				= {name="Boss (Beast)", path="Repentance/The_End_FAMINE.ogg", loop="true", layermode="2", layerfadespeed="0.01", mul="1.5", layer = {
 		{path="Repentance/The_End_PESTILENCE.ogg", mul="1.5"},
 		{path="Repentance/The_End_WAR.ogg", mul="1.5"},
 		{path="Repentance/The_End_DEATH.ogg", mul="1.5"},
@@ -128,7 +133,7 @@ local vanillaMusicXML = {
 	[Music.MUSIC_DROSS_REVERSE]       			= {name="Dross (reversed)", path="Repentance/Dross Reverse.ogg", loop="true", mul="1.2"},
 	[Music.MUSIC_MINESHAFT_AMBIENT]   			= {name="Abandoned Mineshaft", path="Repentance/Vast Empty Chasm.ogg", loop="true"},
 	[Music.MUSIC_MINESHAFT_ESCAPE]    			= {name="Mineshaft Escape", path="Repentance/Chased By Death V3.ogg", loop="true"},
-	[Music.MUSIC_REVERSE_GENESIS]     			= {name="Genesis (reversed)", path="Repentance/backwards/Genesis ii Reverse Main Loop.ogg", loop="true", mul="1.2", layers={
+	[Music.MUSIC_REVERSE_GENESIS]     			= {name="Genesis (reversed)", path="Repentance/backwards/Genesis ii Reverse Main Loop.ogg", loop="true", mul="1.2", layer={
 		{path="Repentance/backwards/Genesis ii Reverse Basement Layer (Drums).ogg", mul="1.2"},
 		{path="Repentance/backwards/Genesis ii Reverse Caves Layer (Bass).ogg", mul="1.2"},
 		{path="Repentance/backwards/Genesis ii Reverse Depths Layer (Guitar).ogg", mul="1.2"},

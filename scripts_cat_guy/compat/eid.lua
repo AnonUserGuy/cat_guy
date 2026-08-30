@@ -68,6 +68,10 @@ function EIDCompat:Init(eid, defs)
                 self:AddCollectibleTrinketSynergy(eid, synergy, itemId, trinketType)
             end
         end
+
+        if collectibleEid.duplicate then
+            self:AddSelfSynergy(eid, collectibleEid.duplicate, itemId)
+        end
     end
 
     for trinketType, trinketEid in pairs(defs.trinkets) do
@@ -107,29 +111,33 @@ function EIDCompat:AddSynergy(eid, synergy, ...)
     for i, itemId in ipairs({...}) do
         local args = {...}
         table.remove(args, i)
-        self:AddUnilateralSynergy(eid, synergy, itemId, table.unpack(args))
+        self:AddUnilateralSynergy(eid, synergy, itemId, args)
     end
 end
 
 ---@param eid any
 ---@param synergy langStrings
 ---@param itemIdPedestal CollectibleType
----@param ... CollectibleType
-function EIDCompat:AddUnilateralSynergy(eid, synergy, itemIdPedestal, ...)
-    local args = {...}
-    local name = "cat_guy_c"..itemIdPedestal.."_c"
-    for _, itemId in ipairs(args) do
+---@param itemIdsOwned CollectibleType|CollectibleType[]
+---@param pedestalOnly? boolean
+function EIDCompat:AddUnilateralSynergy(eid, synergy, itemIdPedestal, itemIdsOwned, pedestalOnly)
+    if type(itemIdsOwned) ~= "table" then
+        itemIdsOwned =  {itemIdsOwned}
+    end
+    local name = "cat_guy_c"..itemIdPedestal
+    for _, itemId in ipairs(itemIdsOwned) do
         name = name.."_c"..itemId
     end
     local desc = synergy["en_us"]
-    desc = string.gsub(desc, "#", "#{{Collectible"..args[1].."}} ")
-    desc = "#{{Collectible"..args[1].."}} "..desc
+    desc = string.gsub(desc, "#", "#{{Collectible"..itemIdsOwned[1].."}} ")
+    desc = "#{{Collectible"..itemIdsOwned[1].."}} "..desc
     eid:addDescriptionModifier(name, function(descObj) ---@param descObj DescObj
         if descObj.ObjType == EntityType.ENTITY_PICKUP
-        and descObj.ObjVariant == PickupVariant.PICKUP_COLLECTIBLE 
-        and descObj.ObjSubType == itemIdPedestal then
+        and descObj.ObjVariant == PickupVariant.PICKUP_COLLECTIBLE
+        and descObj.ObjSubType == itemIdPedestal
+        and (not pedestalOnly or descObj.Entity) then
             local player = eid:ClosestPlayerTo(descObj.Entity) ---@type EntityPlayer
-            for _, itemId in ipairs(args) do
+            for _, itemId in ipairs(itemIdsOwned) do
                 if not player:HasCollectible(itemId) then
                     return false
                 end
@@ -141,6 +149,32 @@ function EIDCompat:AddUnilateralSynergy(eid, synergy, itemIdPedestal, ...)
         eid:appendToDescription(descObj, desc)
         return descObj
     end)
+end
+
+---@param eid any
+---@param synergy langStrings
+---@param itemId CollectibleType
+function EIDCompat:AddSelfSynergy(eid, synergy, itemId)
+    local desc = synergy["en_us"]
+    desc = string.gsub(desc, "#", "#{{Collectible"..itemId.."}} ")
+    desc = "#{{Collectible"..itemId.."}} "..desc
+    eid:addDescriptionModifier("cat_guy_c"..itemId.."_c"..itemId, function(descObj) ---@param descObj DescObj
+        if descObj.ObjType == EntityType.ENTITY_PICKUP
+        and descObj.ObjVariant == PickupVariant.PICKUP_COLLECTIBLE
+        and descObj.ObjSubType == itemId then
+            local player = eid:ClosestPlayerTo(descObj.Entity) ---@type EntityPlayer
+            if (descObj.Entity and player:HasCollectible(itemId))
+            or player:GetCollectibleNum(itemId) > 1 then
+                return true
+            end
+        end
+        return false
+    end, function(descObj)
+        eid:appendToDescription(descObj, desc)
+        return descObj
+    end)
+    self:AddUnilateralSynergy(eid, synergy, itemId, CollectibleType.COLLECTIBLE_DIPLOPIA, true)
+    self:AddUnilateralSynergy(eid, synergy, itemId, CollectibleType.COLLECTIBLE_CROOKED_PENNY, true)
 end
 
 ---@param eid any

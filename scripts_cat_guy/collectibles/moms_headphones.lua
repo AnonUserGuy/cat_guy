@@ -245,6 +245,8 @@ end
 
 ---@type CollectibleCallbacks
 local headphones = {}
+headphones.Priority = {}
+headphones.Priority[CallbackPriority.LATE] = {}
 
 function headphones.PostGameStarted(continued)
     if continued then
@@ -256,10 +258,26 @@ function headphones.PostGameStarted(continued)
     end
 end
 
-function headphones.PostAddCollectible_item(_, _, firstTime, _, _, player)
+---@param player EntityPlayer
+local function evaluateItems(player)
+    player:AddCacheFlags(CacheFlag.CACHE_FIREDELAY)
+    player:EvaluateItems()
+end
+headphones.PostTriggerCollectibleRemoved_item = evaluateItems
+
+function headphones.PostTriggerCollectibleAdded_item(player, _, firstTime)
+    evaluateItems(player)
     if firstTime and not player:HasTrinket(CatGuy.TrinketType.TOY_METRONOME) then
         needsTrinket[GetPtrHash(player)] = 2
     end
+end
+
+function headphones.PostBPMChange()
+    CatGuy.PlayerUtils.ForEachPlayer(function(player)
+        if player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
+            evaluateItems(player)
+        end
+    end)
 end
 
 ---@param player EntityPlayer
@@ -378,8 +396,6 @@ function headphones.PostPlayerUpdate(player)
     local modifiers = weapon:GetModifiers()
     local type = weapon:GetWeaponType()
     --print(modifiers..", "..type)
-    player:AddCacheFlags(CacheFlag.CACHE_FIREDELAY)
-    player:EvaluateItems()
 
     if (type == WeaponType.WEAPON_TEARS) then
         if (player:GetPlayerType() == PlayerType.PLAYER_LILITH_B) then
@@ -706,14 +722,11 @@ function headphones.EvaluateTearHitParams(player, params, weaponType, _, _, sour
     end
 end
 
-headphones.Priority = {}
-headphones.Priority[CallbackPriority.LATE] = {}
 headphones.Priority[CallbackPriority.LATE].EvaluateCache = {}
 headphones.Priority[CallbackPriority.LATE].EvaluateCache[CacheFlag.CACHE_FIREDELAY] = function(player)
-    if not player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
-        return
+    if player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) then
+        player.MaxFireDelay = CatGuy.TempoManager:GetRhythmicFireDelay(player.MaxFireDelay)
     end
-    player.MaxFireDelay = CatGuy.TempoManager:GetRhythmicFireDelay(player.MaxFireDelay)
 end
 
 --[[ function headphones.PostPlayerRender(player)

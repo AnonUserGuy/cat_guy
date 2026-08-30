@@ -25,9 +25,11 @@
 ---@field PostFamiliarFireTechLaser? fun(laser: EntityLaser)
 ---
 ---@field Tick? fun(tempoManager?: TempoManager)
+---@field PostBPMChange? fun(tempoManager?: TempoManager)
 ---
 ---@field PreMusicPlay? fun(music: Music, volume: number, isFade: boolean): table|Music|boolean?
 ---
+---@field EvaluateStat? table<EvaluateStatStage, fun(player: EntityPlayer, stage: EvaluateStatStage, value: number): number?>
 ---@field EvaluateCache? table<CacheFlag, fun(player: EntityPlayer, flag: CacheFlag)>
 
 ---@alias Pointer integer pointers to entities obtained through GetPtrHash(Entity)

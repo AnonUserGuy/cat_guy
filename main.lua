@@ -7,6 +7,11 @@ end
 
 local json = require("json")
 
+CatGuy.ModCallbacks = {
+    TICK                = "CAT_GUY_TICK",
+    POST_BPM_CHANGE     = "CAT_GUY_POST_BPM_CHANGE"
+}
+
 CatGuy.PlayerType = {
     PERCY               = Isaac.GetPlayerTypeByName("Percy"),
     PERCY_B             = Isaac.GetPlayerTypeByName("Percy", true)
@@ -15,6 +20,7 @@ CatGuy.PlayerType = {
 CatGuy.CollectibleType = {
     MOMS_HEADPHONES     = Isaac.GetItemIdByName("Mom's Headphones"),
     TRIPLE_METRE        = Isaac.GetItemIdByName("Triple Metre"),
+    FORTE               = Isaac.GetItemIdByName("Forte"),
     UNDERHANDS          = Isaac.GetItemIdByName("Underhands")
 }
 
@@ -27,7 +33,8 @@ CatGuy.NullItemID = {
     PERCY_REVIVE        = Isaac.GetNullItemIdByName("Percy Revive"),
     DEAD_CAT_REVIVE     = Isaac.GetNullItemIdByName("Dead Cat Revive"),
     PERCY_ETERNAL_HEART = Isaac.GetNullItemIdByName("Percy Eternal Heart"),
-    TRIPLE_METRE_HURT   = Isaac.GetNullItemIdByName("Triple Metre Hurt")
+    TRIPLE_METRE_HURT   = Isaac.GetNullItemIdByName("Triple Metre Hurt"),
+    FORTE_SCARED        = Isaac.GetNullItemIdByName("Forte Scared")
 }
 
 ---@param input table<string|number, any>
@@ -202,6 +209,7 @@ CatGuy.PlayerCallbacks = { ---@type table<PlayerType, PlayerCallbacks>
 CatGuy.CollectibleCallbacks = { ---@type table<CollectibleType, CollectibleCallbacks>
     [CatGuy.CollectibleType.MOMS_HEADPHONES]    = include("scripts_cat_guy.collectibles.moms_headphones"),
     [CatGuy.CollectibleType.TRIPLE_METRE]       = include("scripts_cat_guy.collectibles.triple_metre"),
+    [CatGuy.CollectibleType.FORTE]              = include("scripts_cat_guy.collectibles.forte"),
     [CatGuy.CollectibleType.UNDERHANDS]         = include("scripts_cat_guy.collectibles.underhands"),
     [CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL]= include("scripts_cat_guy.collectibles.tooth_and_nail")
 }
@@ -239,14 +247,21 @@ function CatGuy:PostPlayerRender(player, renderOffset)
 end
 CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, CatGuy.PostPlayerRender, PlayerVariant.PLAYER)
 
----@param player EntityPlayer
-function CatGuy:PostAddBirthright(type, charge, firstTime, slot, varData, player)
-    local callbacks = self.PlayerCallbacks[player:GetPlayerType()]
-    if callbacks and callbacks.PostAddBirthright_player then
-        return callbacks.PostAddBirthright_player(type, charge, firstTime, slot, varData, player)
+---@param this CatGuyMod
+CatGuy:AddCallback(ModCallbacks.MC_POST_TRIGGER_COLLECTIBLE_ADDED, function(this, player, type, firstTime, wispOrInnate)
+    local callbacks = this.PlayerCallbacks[player:GetPlayerType()]
+    if callbacks and callbacks.PostTriggerBirthrightAdded_player then
+        return callbacks.PostTriggerBirthrightAdded_player(player, type, firstTime, wispOrInnate)
     end
-end
-CatGuy:AddCallback(ModCallbacks.MC_POST_ADD_COLLECTIBLE, CatGuy.PostAddBirthright, CollectibleType.COLLECTIBLE_BIRTHRIGHT)
+end, CollectibleType.COLLECTIBLE_BIRTHRIGHT)
+
+---@param this CatGuyMod
+CatGuy:AddCallback(ModCallbacks.MC_POST_TRIGGER_COLLECTIBLE_REMOVED, function(this, player, type, removeFromPlayerForm, wispOrInnate)
+    local callbacks = this.PlayerCallbacks[player:GetPlayerType()]
+    if callbacks and callbacks.PostTriggerBirthrightRemoved_player then
+        return callbacks.PostTriggerBirthrightRemoved_player(player, type, removeFromPlayerForm, wispOrInnate)
+    end
+end, CollectibleType.COLLECTIBLE_BIRTHRIGHT)
 
 ---@param player EntityPlayer
 function CatGuy:PreTriggerPlayerDeath(player)
@@ -277,7 +292,6 @@ function CatGuy:PrePlayerAddEternalHearts(player, amount)
     end
 end
 CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYER_ADD_HEARTS, CatGuy.PrePlayerAddEternalHearts, AddHealthType.ETERNAL)
-
 
 ---@param this CatGuyMod
 CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYERHUD_RENDER_HEARTS, function(this, offset, heartsSprite, position, spriteScale, player)
@@ -415,8 +429,15 @@ function CatGuy:AddCallbacks(callbacks, priority)
         end)
     end
     if callbacks.Tick then
-        self:AddPriorityCallback("CAT_GUY_TICK", priority, function(_, tempoManager)
+        ---@param tempoManager TempoManager
+        self:AddPriorityCallback(CatGuy.ModCallbacks.TICK, priority, function(_, tempoManager)
             return callbacks.Tick(tempoManager)
+        end)
+    end
+    if callbacks.PostBPMChange then
+        ---@param tempoManager TempoManager
+        self:AddPriorityCallback(CatGuy.ModCallbacks.POST_BPM_CHANGE, priority, function(_, tempoManager)
+            return callbacks.PostBPMChange(tempoManager)
         end)
     end
     if callbacks.PreMusicPlay then
@@ -435,6 +456,13 @@ function CatGuy:AddCallbacks(callbacks, priority)
                     return func(player, flag0)
                 end, flag)
             end
+        end
+    end
+    if callbacks.EvaluateStat then
+        for stage, func in pairs(callbacks.EvaluateStat) do
+            self:AddPriorityCallback(ModCallbacks.MC_EVALUATE_STAT, priority, function(_, player, stage0, value)
+                return func(player, stage0, value)
+            end, stage)
         end
     end
 
@@ -457,6 +485,17 @@ function CatGuy:AddCollectibleCallbacks(itemId, callbacks, priority)
             return callbacks.PostAddCollectible_item(type, charge, firstTime, slot, varData, player)
         end, itemId)
     end
+    if callbacks.PostTriggerCollectibleAdded_item then
+        self:AddPriorityCallback(ModCallbacks.MC_POST_TRIGGER_COLLECTIBLE_ADDED, priority, function(_, player, type, firstTime, wispOrInnate)
+            return callbacks.PostTriggerCollectibleAdded_item(player, type, firstTime, wispOrInnate)
+        end, itemId)
+    end
+    if callbacks.PostTriggerCollectibleRemoved_item then
+        self:AddPriorityCallback(ModCallbacks.MC_POST_TRIGGER_COLLECTIBLE_REMOVED, priority, function(_, player, type, removeFromPlayerForm, wispOrInnate)
+            return callbacks.PostTriggerCollectibleRemoved_item(player, type, removeFromPlayerForm, wispOrInnate)
+        end, itemId)
+    end
+
     if callbacks.UseItem_item then
         self:AddPriorityCallback(ModCallbacks.MC_USE_ITEM, priority, function(_, type, rng, player, flags, slot, custonVarData)
             return callbacks.UseItem_item(type, rng, player, flags, slot, custonVarData)
