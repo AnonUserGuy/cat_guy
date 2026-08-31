@@ -151,7 +151,7 @@ EIDDefs.collectibles[CatGuy.CollectibleType.UNDERHANDS] = {
     }
 }
 
-EIDDefs.collectibles[CatGuy.CollectibleType.TRIPLE_METRE] = {
+EIDDefs.collectibles[CatGuy.CollectibleType.TRIPLET_SWING] = {
     description = {
         ["en_us"] = "#{{Collectible"..CollectibleType.COLLECTIBLE_INNER_EYE.."}} Grant's copy of Inner Eye:"..
             "#{{Collectible"..CollectibleType.COLLECTIBLE_INNER_EYE.."}} {{Tears}} x0.51 Fire rate multiplier"..

@@ -13,7 +13,9 @@ local function getSwingRatio(x)
 end
 
 local function anybodyHurt()
-    return CatGuy.PlayerUtils.AnyPlayer(function(player) return player:GetEffects():HasNullEffect(CatGuy.NullItemID.TRIPLE_METRE_HURT) end)
+    return CatGuy.PlayerUtils.AnyPlayer(function(player)
+        return player:GetEffects():HasNullEffect(CatGuy.NullItemID.TRIPLET_SWING_HURT)
+    end)
 end
 
 ---@param player EntityPlayer
@@ -22,7 +24,7 @@ local function resetHurtTimer(player)
     if anybodyHurt() and tempoManager.tempoDef and not tempoManager.triplet then
         tempoManager:ScheduleRestartMusic()
     end
-    player:AddNullItemEffect(CatGuy.NullItemID.TRIPLE_METRE_HURT, true, 240, false)
+    player:AddNullItemEffect(CatGuy.NullItemID.TRIPLET_SWING_HURT, true, 240, false)
 end
 
 function triple.PostTriggerCollectibleAdded_item(player, _, firstTime)
@@ -36,10 +38,20 @@ function triple.PostUpdate()
         if needsCancel then
             needsCancel = false
             Game():GetRoom():SetBrokenWatchState(0)
+            CatGuy.PlayerUtils.ForEachPlayer(function(player)
+                player:GetEffects():RemoveNullEffect(CatGuy.NullItemID.TRIPLET_SWING_ANNOYED, 99)
+            end)
         end
         return
     end
     needsCancel = true
+    CatGuy.PlayerUtils.ForEachPlayer(function(player)
+        if player:GetEffects():HasNullEffect(CatGuy.NullItemID.TRIPLET_SWING_HURT) then
+            player:GetEffects():RemoveNullEffect(CatGuy.NullItemID.TRIPLET_SWING_ANNOYED, 99)
+        elseif not player:GetEffects():HasNullEffect(CatGuy.NullItemID.TRIPLET_SWING_ANNOYED) then
+            player:GetEffects():AddNullEffect(CatGuy.NullItemID.TRIPLET_SWING_ANNOYED)
+        end
+    end)
 
     if not basePitch then
         basePitch = MusicManager():GetCurrentPitch()
@@ -95,18 +107,18 @@ function triple.PreRender()
 end
 
 function triple.PostPlayerUpdate(player)
-    local diff = player:GetCollectibleNum(CatGuy.CollectibleType.TRIPLE_METRE) - player:GetInnateCollectibleCount(CollectibleType.COLLECTIBLE_INNER_EYE, "triple_metre")
+    local diff = player:GetCollectibleNum(CatGuy.CollectibleType.TRIPLET_SWING) - player:GetInnateCollectibleCount(CollectibleType.COLLECTIBLE_INNER_EYE, "triplet_swing")
     if diff ~= 0 then
         if diff > 0 then
-            player:AddInnateCollectible(CollectibleType.COLLECTIBLE_INNER_EYE, diff, "triple_metre")
+            player:AddInnateCollectible(CollectibleType.COLLECTIBLE_INNER_EYE, diff, "triplet_swing")
         else
-            player:RemoveInnateCollectible(CollectibleType.COLLECTIBLE_INNER_EYE, -diff, "triple_metre")
+            player:RemoveInnateCollectible(CollectibleType.COLLECTIBLE_INNER_EYE, -diff, "triplet_swing")
         end
     end
 end
 
 function triple.PlayerTakeDamage(player, _, flags)
-    if (flags & DamageFlag.DAMAGE_NO_PENALTIES) ~= 0 or not player:HasCollectible(CatGuy.CollectibleType.TRIPLE_METRE) then
+    if (flags & DamageFlag.DAMAGE_NO_PENALTIES) ~= 0 or not player:HasCollectible(CatGuy.CollectibleType.TRIPLET_SWING) then
         return
     end
     resetHurtTimer(player)

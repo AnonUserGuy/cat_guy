@@ -13,28 +13,29 @@ CatGuy.ModCallbacks = {
 }
 
 CatGuy.PlayerType = {
-    PERCY               = Isaac.GetPlayerTypeByName("Percy"),
-    PERCY_B             = Isaac.GetPlayerTypeByName("Percy", true)
+    PERCY                   = Isaac.GetPlayerTypeByName("Percy"),
+    PERCY_B                 = Isaac.GetPlayerTypeByName("Percy", true)
 }
 
 CatGuy.CollectibleType = {
-    MOMS_HEADPHONES     = Isaac.GetItemIdByName("Mom's Headphones"),
-    TRIPLE_METRE        = Isaac.GetItemIdByName("Triple Metre"),
-    FORTE               = Isaac.GetItemIdByName("Forte"),
-    UNDERHANDS          = Isaac.GetItemIdByName("Underhands")
+    MOMS_HEADPHONES         = Isaac.GetItemIdByName("Mom's Headphones"),
+    TRIPLET_SWING           = Isaac.GetItemIdByName("Triplet Swing"),
+    FORTE                   = Isaac.GetItemIdByName("Forte"),
+    UNDERHANDS              = Isaac.GetItemIdByName("Underhands")
 }
 
 CatGuy.TrinketType = {
-    TOY_METRONOME       = Isaac.GetTrinketIdByName("Toy Metronome"),
-    BROKEN_HEADPHONES   = Isaac.GetTrinketIdByName("Broken Headphones")
+    TOY_METRONOME           = Isaac.GetTrinketIdByName("Toy Metronome"),
+    BROKEN_HEADPHONES       = Isaac.GetTrinketIdByName("Broken Headphones")
 }
 
 CatGuy.NullItemID = {
-    PERCY_REVIVE        = Isaac.GetNullItemIdByName("Percy Revive"),
-    DEAD_CAT_REVIVE     = Isaac.GetNullItemIdByName("Dead Cat Revive"),
-    PERCY_ETERNAL_HEART = Isaac.GetNullItemIdByName("Percy Eternal Heart"),
-    TRIPLE_METRE_HURT   = Isaac.GetNullItemIdByName("Triple Metre Hurt"),
-    FORTE_SCARED        = Isaac.GetNullItemIdByName("Forte Scared")
+    PERCY_REVIVE            = Isaac.GetNullItemIdByName("Percy Revive"),
+    DEAD_CAT_REVIVE         = Isaac.GetNullItemIdByName("Dead Cat Revive"),
+    PERCY_ETERNAL_HEART     = Isaac.GetNullItemIdByName("Percy Eternal Heart"),
+    TRIPLET_SWING_HURT      = Isaac.GetNullItemIdByName("Triplet Swing Hurt"),
+    TRIPLET_SWING_ANNOYED   = Isaac.GetNullItemIdByName("Triplet Swing Annoyed"),
+    FORTE_SCARED            = Isaac.GetNullItemIdByName("Forte Scared")
 }
 
 ---@param input table<string|number, any>
@@ -208,7 +209,7 @@ CatGuy.PlayerCallbacks = { ---@type table<PlayerType, PlayerCallbacks>
 
 CatGuy.CollectibleCallbacks = { ---@type table<CollectibleType, CollectibleCallbacks>
     [CatGuy.CollectibleType.MOMS_HEADPHONES]    = include("scripts_cat_guy.collectibles.moms_headphones"),
-    [CatGuy.CollectibleType.TRIPLE_METRE]       = include("scripts_cat_guy.collectibles.triple_metre"),
+    [CatGuy.CollectibleType.TRIPLET_SWING]      = include("scripts_cat_guy.collectibles.triplet_swing"),
     [CatGuy.CollectibleType.FORTE]              = include("scripts_cat_guy.collectibles.forte"),
     [CatGuy.CollectibleType.UNDERHANDS]         = include("scripts_cat_guy.collectibles.underhands"),
     [CollectibleType.COLLECTIBLE_TOOTH_AND_NAIL]= include("scripts_cat_guy.collectibles.tooth_and_nail")
