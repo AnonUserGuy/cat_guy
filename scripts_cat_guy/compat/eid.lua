@@ -125,12 +125,15 @@ function EIDCompat:AddUnilateralSynergy(eid, synergy, itemIdPedestal, itemIdsOwn
         itemIdsOwned =  {itemIdsOwned}
     end
     local name = "cat_guy_c"..itemIdPedestal
+    local icon = "#"
     for _, itemId in ipairs(itemIdsOwned) do
         name = name.."_c"..itemId
+        icon = icon.."{{Collectible"..itemId.."}} "
     end
+
     local desc = synergy["en_us"]
-    desc = string.gsub(desc, "#", "#{{Collectible"..itemIdsOwned[1].."}} ")
-    desc = "#{{Collectible"..itemIdsOwned[1].."}} "..desc
+    desc = string.gsub(desc, "#", icon)
+    desc = icon..desc
     eid:addDescriptionModifier(name, function(descObj) ---@param descObj DescObj
         if descObj.ObjType == EntityType.ENTITY_PICKUP
         and descObj.ObjVariant == PickupVariant.PICKUP_COLLECTIBLE

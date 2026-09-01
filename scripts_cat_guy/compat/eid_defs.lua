@@ -28,6 +28,10 @@ EIDDefs.players[CatGuy.PlayerType.PERCY] = {
     name = {
         ["en_us"] = "Percy"
     },
+    description = {
+        ["en_us"] = "#↑ {{Speed}} 0.3 speed"..
+            "#{{Speed}} x0.7 speed changes"
+    },
     birthright = {
         ["en_us"] = "{{Collectible"..CatGuy.CollectibleType.MOMS_HEADPHONES.."}} Regain Mom's Headphones if lost"..
             "#{{Tears}} Tear Rate fixed at tempo of song"..
@@ -39,7 +43,9 @@ EIDDefs.players[CatGuy.PlayerType.PERCY_B] = {
         ["en_us"] = "Tainted Percy"
     },
     description = {
-        ["en_us"] = "Flight"..
+        ["en_us"] = "#↑ {{Speed}} 0.3 speed"..
+            "#{{Speed}} x0.7 speed changes"..
+            "Flight"..
             "#Spectral tears"..
             "#{{Warning}} No health"..
             "#{{Collectible"..CollectibleType.COLLECTIBLE_1UP.."}} Health ups grant lives"..
@@ -75,6 +81,9 @@ local MOMS_HEADPHONES_CONTACT = {
 local MOMS_HEADPHONES_RELEASE = {
     ["en_us"] = "Deals more damage if released onbeat"
 }
+local MOMS_HEADPHONES_TECH_FAMILIAR = {
+    ["en_us"] = "No effect on familiars"
+}
 EIDDefs.collectibles[CatGuy.CollectibleType.MOMS_HEADPHONES] = {
     description = {
         ["en_us"] = "#{{Tears}} Shoots 1 tear for each shooting input"..
@@ -93,14 +102,17 @@ EIDDefs.collectibles[CatGuy.CollectibleType.MOMS_HEADPHONES] = {
     synergies = {
         [CollectibleType.COLLECTIBLE_SOY_MILK] = MOMS_HEADPHONES_CONTINUOUS,
         [CollectibleType.COLLECTIBLE_MARKED] = MOMS_HEADPHONES_CONTINUOUS,
-        [CollectibleType.COLLECTIBLE_LUDOVICO_TECHNIQUE] = MOMS_HEADPHONES_CONTACT,
-        [ {CollectibleType.COLLECTIBLE_BRIMSTONE, CollectibleType.COLLECTIBLE_SOY_MILK} ] = MOMS_HEADPHONES_CONTACT,
-        [CollectibleType.COLLECTIBLE_TECHNOLOGY_2] = MOMS_HEADPHONES_CONTACT,
         [CollectibleType.COLLECTIBLE_BRIMSTONE] = MOMS_HEADPHONES_RELEASE,
         [CollectibleType.COLLECTIBLE_TECH_X] = MOMS_HEADPHONES_RELEASE,
         [CollectibleType.COLLECTIBLE_CHOCOLATE_MILK] = MOMS_HEADPHONES_RELEASE,
         [CollectibleType.COLLECTIBLE_CURSED_EYE] = MOMS_HEADPHONES_RELEASE,
         [CollectibleType.COLLECTIBLE_MONSTROS_LUNG] = MOMS_HEADPHONES_RELEASE,
+        [CollectibleType.COLLECTIBLE_LUDOVICO_TECHNIQUE] = MOMS_HEADPHONES_CONTACT,
+        [ {CollectibleType.COLLECTIBLE_BRIMSTONE, CollectibleType.COLLECTIBLE_SOY_MILK} ] = MOMS_HEADPHONES_CONTACT,
+        [CollectibleType.COLLECTIBLE_TECHNOLOGY_2] = MOMS_HEADPHONES_CONTACT,
+        [CollectibleType.COLLECTIBLE_TECH_5] = {
+            ["en_us"] = "Affects tear delay damage reduction"
+        },
         [CollectibleType.COLLECTIBLE_C_SECTION] = {
             ["en_us"] = "First fetus takes 1 beat x2^N to fire depending on tear rate"
         },
@@ -116,6 +128,22 @@ EIDDefs.collectibles[CatGuy.CollectibleType.MOMS_HEADPHONES] = {
         }
     }
 }
+local FAMILIAR_ITEMS = {
+    CollectibleType.COLLECTIBLE_INCUBUS,
+    CollectibleType.COLLECTIBLE_TWISTED_PAIR,
+    CollectibleType.COLLECTIBLE_SUMPTORIUM,
+    CollectibleType.COLLECTIBLE_GELLO
+}
+local TECHNOLOGY_ITEMS = {
+    CollectibleType.COLLECTIBLE_TECHNOLOGY,
+    CollectibleType.COLLECTIBLE_TECHNOLOGY_2,
+    CollectibleType.COLLECTIBLE_TECH_5
+}
+for _, tech in ipairs(TECHNOLOGY_ITEMS) do
+    for _, familiar in ipairs(FAMILIAR_ITEMS) do
+        EIDDefs.collectibles[CatGuy.CollectibleType.MOMS_HEADPHONES].synergies[{tech, familiar}] = MOMS_HEADPHONES_TECH_FAMILIAR
+    end
+end
 
 local UNDERHANDS_CHANGE_REVIVE = {
     ["en_us"] = "In-room revives don't cause character changes"
@@ -151,6 +179,9 @@ EIDDefs.collectibles[CatGuy.CollectibleType.UNDERHANDS] = {
     }
 }
 
+local TRIPLET_SWING_DUPLICATE = {
+    ["en_us"] = "Isaac fires 1 more tear#No additional stat decrease"
+}
 EIDDefs.collectibles[CatGuy.CollectibleType.TRIPLET_SWING] = {
     description = {
         ["en_us"] = "#{{Collectible"..CollectibleType.COLLECTIBLE_INNER_EYE.."}} Grant's copy of Inner Eye:"..
@@ -159,9 +190,10 @@ EIDDefs.collectibles[CatGuy.CollectibleType.TRIPLET_SWING] = {
             "#{{Collectible"..CollectibleType.COLLECTIBLE_BROKEN_WATCH.."}} Getting hit makes music \"swung\" for 8 seconds"..
             "#{{Collectible"..CollectibleType.COLLECTIBLE_BROKEN_WATCH.."}} Swung music makes game speed rapidly alternate between fast and slow"
     },
-    duplicate = {
-        ["en_us"] = "Isaac fires 1 more tear#No additional stat decrease"
-    }
+    synergies = {
+        [CollectibleType.COLLECTIBLE_INNER_EYE] = TRIPLET_SWING_DUPLICATE
+    },
+    duplicate = TRIPLET_SWING_DUPLICATE,
 }
 
 EIDDefs.collectibles[CatGuy.CollectibleType.FORTE] = {

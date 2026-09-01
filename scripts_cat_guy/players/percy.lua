@@ -3,12 +3,14 @@ local baseFireDelay = {}
 
 ---@type PlayerCallbacks
 local percy = {}
+percy.Priority = {}
+percy.Priority[CallbackPriority.LATE] = {}
 
 function percy.PostPlayerInit_player(player)
     player:AddCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES)
 end
 
-function percy.PostPlayerRender_player(player)
+function percy.PrePlayerRender_player(player)
     CatGuy.PlayerUtils.ApplyShader(player, "shaders/coloroffset_percy")
 end
 
@@ -58,12 +60,21 @@ percy.EvaluateCache[CacheFlag.CACHE_FIREDELAY] = function(player)
     if player:GetPlayerType() ~= CatGuy.PlayerType.PERCY or not player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) then
         return
     end
-    
+
     local p = GetPtrHash(player)
     baseFireDelay[p] = player.MaxFireDelay
 
     player.MaxFireDelay = BirthrightFireRate()
     player:AddCacheFlags(CacheFlag.CACHE_DAMAGE)
+end
+
+percy.Priority[CallbackPriority.LATE].EvaluateCache = {}
+percy.Priority[CallbackPriority.LATE].EvaluateCache[CacheFlag.CACHE_SPEED] = function(player)
+    if player:GetPlayerType() ~= CatGuy.PlayerType.PERCY then
+        return
+    end
+
+    player.MoveSpeed = 0.7 * player.MoveSpeed + 0.6
 end
 
 return percy

@@ -9,7 +9,8 @@ local json = require("json")
 
 CatGuy.ModCallbacks = {
     TICK                = "CAT_GUY_TICK",
-    POST_BPM_CHANGE     = "CAT_GUY_POST_BPM_CHANGE"
+    POST_BPM_CHANGE     = "CAT_GUY_POST_BPM_CHANGE",
+    POST_LOAD           = "CAT_GUY_POST_LOAD"
 }
 
 CatGuy.PlayerType = {
@@ -38,6 +39,38 @@ CatGuy.NullItemID = {
     FORTE_SCARED            = Isaac.GetNullItemIdByName("Forte Scared")
 }
 
+local FAMILIAR_DAMAGE_MULTIPLIER_LILITH = {
+    [FamiliarVariant.INCUBUS] = 1.0,
+    [FamiliarVariant.TWISTED_BABY] = 0.5, -- twisted pair
+    [FamiliarVariant.UMBILICAL_BABY] = 1.0 -- gello
+}
+
+---Keyed by Player Type, Familiar Variant, and (optionally) Familiar SubType
+---@type table<PlayerType, table<FamiliarVariant, number|table<integer, number>>>
+CatGuy.FamiliarVariantDamageMultipliers = {
+    [-1] = { -- default
+        [FamiliarVariant.TWISTED_BABY] = 0.375, -- twisted pair
+        [FamiliarVariant.BLOOD_BABY] = { -- sumptorium clot
+            [-1] = 0.35, -- default
+            [2] = 0.43, -- black clot
+            [3] = 0.52, -- eternal clot
+        }
+    },
+    [PlayerType.PLAYER_LILITH] = FAMILIAR_DAMAGE_MULTIPLIER_LILITH,
+    [PlayerType.PLAYER_LILITH_B] = FAMILIAR_DAMAGE_MULTIPLIER_LILITH
+}
+
+---@param familiar EntityFamiliar
+function CatGuy.GetFamiliarVariantDamageMultiplier(familiar)
+    local multipliers = CatGuy.FamiliarVariantDamageMultipliers[familiar.Player:GetPlayerType()]
+    local val = (multipliers and multipliers[familiar.Variant])
+        or CatGuy.FamiliarVariantDamageMultipliers[-1][familiar.Variant]
+    if type(val) == "table" then
+        val = val[familiar.SubType] or val[-1]
+    end
+    return val or (multipliers and multipliers[-1]) or 0.75
+end
+
 ---@param input table<string|number, any>
 function CatGuy:PreEncodeJSON(input)
     local output = {}
@@ -48,7 +81,7 @@ function CatGuy:PreEncodeJSON(input)
             key = "_"..key
         end
         if type(value) == "table" then
-            value = CatGuy:PreEncodeJSON(value)
+            value = self:PreEncodeJSON(value)
         end
         output[key] = value
     end
@@ -66,7 +99,7 @@ function CatGuy:PostDecodeJSON(input)
             key = key:sub(2)
         end
         if type(value) == "table" then
-            value = CatGuy:PostDecodeJSON(value)
+            value = self:PostDecodeJSON(value)
         end
         output[key] = value
     end
@@ -74,7 +107,7 @@ function CatGuy:PostDecodeJSON(input)
 end
 
 function CatGuy:CatGuySave()
-    CatGuy:SaveData(json.encode(CatGuy:PreEncodeJSON(CatGuy.Save)))
+    self:SaveData(json.encode(self:PreEncodeJSON(self.Save)))
 end
 
 CatGuy.LastLoad = 0
@@ -83,22 +116,22 @@ CatGuy.LastLoad = 0
 ---@return boolean loaded
 function CatGuy:CatGuyLoad(lazy)
     local load = Isaac.GetFrameCount()
-    if lazy and load <= CatGuy.LastLoad + 1 then
-        CatGuy.LastLoad = load
+    if lazy and load <= self.LastLoad + 1 then
+        self.LastLoad = load
         return false
     end
-    CatGuy.LastLoad = load
+    self.LastLoad = load
 
-    if not CatGuy:HasData() then
-        CatGuy.Save = {}
+    if not self:HasData() then
+        self.Save = {}
     else
-        CatGuy.Save = CatGuy:PostDecodeJSON(json.decode(CatGuy:LoadData()))
+        self.Save = self:PostDecodeJSON(json.decode(self:LoadData()))
     end
-    CatGuy.Save.Config = CatGuy.Save.Config or {}
-    CatGuy.Save.ConfigDefault = CatGuy.Save.ConfigDefault or {}
-    if CatGuy:CheckConfig(CatGuy.Config, CatGuy.Save.Config, CatGuy.Save.ConfigDefault) then
+    self.Save.Config = self.Save.Config or {}
+    self.Save.ConfigDefault = self.Save.ConfigDefault or {}
+    if self:CheckConfig(self.Config, self.Save.Config, self.Save.ConfigDefault) then
         print("Configs have been changed in cat_guy_config.lua, which have overwritten ones made in-game")
-        CatGuy:CatGuySave()
+        self:CatGuySave()
     end
     return true
 end
@@ -139,18 +172,18 @@ end
 ---@param configName string
 ---@param value any
 function CatGuy:SetConfig(configName, value)
-    CatGuy.Save.Config[configName] = value
-    CatGuy.Save.ConfigDefault[configName] = CatGuy.Config[configName]
-    CatGuy:CatGuySave()
+    self.Save.Config[configName] = value
+    self.Save.ConfigDefault[configName] = self.Config[configName]
+    self:CatGuySave()
 end
 
 ---@param configName string
 ---@return any
 function CatGuy:GetConfig(configName)
-    if CatGuy.Save and CatGuy.Save.Config and CatGuy.Save.Config[configName] ~= nil then
-        return CatGuy.Save.Config[configName]
+    if self.Save and self.Save.Config and self.Save.Config[configName] ~= nil then
+        return self.Save.Config[configName]
     end
-    return CatGuy.Config[configName]
+    return self.Config[configName]
 end
 
 ---@param music Music|string
@@ -162,21 +195,21 @@ function CatGuy:SetTempoEnabled(music, value)
             music = node.name
         end
     end
-    CatGuy.Save.Config.TempoEnabled = CatGuy.Save.Config.TempoEnabled or {}
-    CatGuy.Save.Config.TempoEnabled[music] = value
-    CatGuy.Save.ConfigDefault.TempoEnabled = CatGuy.Save.ConfigDefault.TempoEnabled or {}
-    CatGuy.Save.ConfigDefault.TempoEnabled[music] = CatGuy.Config.TempoEnabled[music]
-    CatGuy:CatGuySave()
+    self.Save.Config.TempoEnabled = self.Save.Config.TempoEnabled or {}
+    self.Save.Config.TempoEnabled[music] = value
+    self.Save.ConfigDefault.TempoEnabled = self.Save.ConfigDefault.TempoEnabled or {}
+    self.Save.ConfigDefault.TempoEnabled[music] = self.Config.TempoEnabled[music]
+    self:CatGuySave()
 end
 
 ---@param music Music|string
 ---@return boolean?
 function CatGuy:GetTempoEnabled(music)
-    if CatGuy.Save and CatGuy.Save.Config and CatGuy.Save.Config.TempoEnabled and CatGuy.Save.Config.TempoEnabled[music] ~= nil then
-        return CatGuy.Save.Config.TempoEnabled[music]
+    if self.Save and self.Save.Config and self.Save.Config.TempoEnabled and self.Save.Config.TempoEnabled[music] ~= nil then
+        return self.Save.Config.TempoEnabled[music]
     end
-    if CatGuy.Config.TempoEnabled[music] ~= nil then
-        return CatGuy.Config.TempoEnabled[music]
+    if self.Config.TempoEnabled[music] ~= nil then
+        return self.Config.TempoEnabled[music]
     end
     if type(music) == "number" then
         local node = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
@@ -187,7 +220,8 @@ function CatGuy:GetTempoEnabled(music)
     return true
 end
 
-CatGuy.XML = XMLData.GetModById(XMLData.GetEntryById(XMLNode.ITEM, CatGuy.CollectibleType.MOMS_HEADPHONES).sourceid)
+CatGuy.ID = "3790558949"
+CatGuy.XML = XMLData.GetModById(CatGuy.ID)
 
 CatGuy.Config = include("cat_guy_config") ---@type CatGuyConfig
 local userConfig = include("cat_guy_config_user")
@@ -238,15 +272,21 @@ function CatGuy:PostPlayerUpdate(player)
 end
 CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, CatGuy.PostPlayerUpdate, PlayerVariant.PLAYER)
 
----@param player EntityPlayer
----@param renderOffset Vector
-function CatGuy:PostPlayerRender(player, renderOffset)
-    local callbacks = self.PlayerCallbacks[player:GetPlayerType()]
+---@param this CatGuyMod
+CatGuy:AddCallback(ModCallbacks.MC_PRE_PLAYER_RENDER, function(this, player, renderOffset)
+    local callbacks = this.PlayerCallbacks[player:GetPlayerType()]
+    if callbacks and callbacks.PrePlayerRender_player then
+        return callbacks.PrePlayerRender_player(player, renderOffset)
+    end
+end, PlayerVariant.PLAYER)
+
+--[[ ---@param this CatGuyMod
+CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, function(this, player, renderOffset)
+    local callbacks = this.PlayerCallbacks[player:GetPlayerType()]
     if callbacks and callbacks.PostPlayerRender_player then
         return callbacks.PostPlayerRender_player(player, renderOffset)
     end
-end
-CatGuy:AddCallback(ModCallbacks.MC_POST_PLAYER_RENDER, CatGuy.PostPlayerRender, PlayerVariant.PLAYER)
+end, PlayerVariant.PLAYER) ]]
 
 ---@param this CatGuyMod
 CatGuy:AddCallback(ModCallbacks.MC_POST_TRIGGER_COLLECTIBLE_ADDED, function(this, player, type, firstTime, wispOrInnate)
@@ -372,7 +412,7 @@ function CatGuy:AddCallbacks(callbacks, priority)
             if player then
                 return callbacks.PlayerTakeDamage(player, amount, damageFlags, source, countdownFrames)
             end
-        end)
+        end, EntityType.ENTITY_PLAYER)
     end
     if callbacks.PreTriggerPlayerDeath then
         self:AddPriorityCallback(ModCallbacks.MC_PRE_TRIGGER_PLAYER_DEATH, priority, function(_, player)
@@ -431,13 +471,13 @@ function CatGuy:AddCallbacks(callbacks, priority)
     end
     if callbacks.Tick then
         ---@param tempoManager TempoManager
-        self:AddPriorityCallback(CatGuy.ModCallbacks.TICK, priority, function(_, tempoManager)
+        self:AddPriorityCallback(self.ModCallbacks.TICK, priority, function(_, tempoManager)
             return callbacks.Tick(tempoManager)
         end)
     end
     if callbacks.PostBPMChange then
         ---@param tempoManager TempoManager
-        self:AddPriorityCallback(CatGuy.ModCallbacks.POST_BPM_CHANGE, priority, function(_, tempoManager)
+        self:AddPriorityCallback(self.ModCallbacks.POST_BPM_CHANGE, priority, function(_, tempoManager)
             return callbacks.PostBPMChange(tempoManager)
         end)
     end
@@ -573,9 +613,9 @@ CatGuy:AddPriorityCallback(ModCallbacks.MC_POST_RENDER, CallbackPriority.LATE, f
 end)
 
 function CatGuy:PostGameStarted()
-    CatGuy:CatGuyLoad()
+    self:CatGuyLoad()
     if ModConfigMenu then
-        CatGuy.Compat.ModConfigMenu:Init(ModConfigMenu, InputHelper, tempoDefs)
+        self.Compat.ModConfigMenu:Init(ModConfigMenu, InputHelper, tempoDefs)
     end
 end
 CatGuy:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, CatGuy.PostGameStarted)
@@ -605,4 +645,4 @@ if Isaac.IsInGame() then
     CatGuy:PostGameStarted()
 end
 
-Isaac.RunCallback("CAT_GUY_POST_LOAD")
+Isaac.RunCallback(CatGuy.ModCallbacks.POST_LOAD)

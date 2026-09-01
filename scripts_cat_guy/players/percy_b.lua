@@ -5,6 +5,8 @@ livesFont:Load("font/pftempestasevencondensed.fnt")
 
 ---@type PlayerCallbacks
 local percyB = {}
+percyB.Priority = {}
+percyB.Priority[CallbackPriority.LATE] = {}
 
 function percyB.PostPlayerInit_player(player)
     player:SetPocketActiveItem(CatGuy.CollectibleType.UNDERHANDS, ActiveSlot.SLOT_POCKET, false)
@@ -90,7 +92,7 @@ function percyB.PrePlayerAddEternalHearts_player(player, amount)
     end
 end
 
-function percyB.PostPlayerRender_player(player)
+function percyB.PrePlayerRender_player(player)
     CatGuy.PlayerUtils.ApplyShader(player, "shaders/coloroffset_percy_b")
 end
 
@@ -122,6 +124,15 @@ function percyB.PreRenderCharacterSelectPage_player(_, _, _, sprite)
     end
     CatGuy:CatGuyLoad(true)
     strikeoutLayer:SetVisible(not CatGuy:GetConfig("PercyBHasMomsHeadphones"))
+end
+
+percyB.Priority[CallbackPriority.LATE].EvaluateCache = {}
+percyB.Priority[CallbackPriority.LATE].EvaluateCache[CacheFlag.CACHE_SPEED] = function(player)
+    if player:GetPlayerType() ~= CatGuy.PlayerType.PERCY_B then
+        return
+    end
+
+    player.MoveSpeed = 0.7 * player.MoveSpeed + 0.6
 end
 
 return percyB

@@ -1,12 +1,12 @@
 <players root="gfx/characters/costumes/" portraitroot="gfx/ui/stage/" nameimageroot="gfx/ui/boss/">
     <player name="Percy" skin="character_percy.png" hp="4" armor="2"
-        speedmodifier="0.3" rangemodifier="-2.0" luckmodifier="1.0"
+        rangemodifier="-2.0" luckmodifier="1.0"
         nameimage="PlayerName_Percy.png" 
         portrait="PlayerPortrait_Percy.png" skinColor="-1" costumeSuffix="percy" modcostume="1"
-        birthright="tears ups into damage ups" 
+        birthright="Finger saver" 
     />
     <player name="Percy" bSkinParent="Percy" skin="character_percy_b.png" hp="0" healthtype="2" coins="1" 
-        speedmodifier="0.3" rangemodifier="2.0" luckmodifier="-1.0"
+        rangemodifier="2.0" luckmodifier="-1.0"
         nameimage="PlayerName_Percy.png" 
         portrait="PlayerPortrait_Percy_B.png" skinColor="0" costumeSuffix="percy" modcostume="2"
         birthright="More lives per life +2 lives" 

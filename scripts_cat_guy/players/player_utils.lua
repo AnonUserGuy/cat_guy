@@ -56,6 +56,24 @@ function util.AnyPlayerAlive()
     end)
 end
 
+
+---@param player EntityPlayer
+---@param func fun(sprite: Sprite, i: integer)
+function util.ForEachSprite(player, func)
+    func(player:GetSprite(), -1)
+    for j, costume in ipairs(player:GetCostumeSpriteDescs()) do
+        func(costume:GetSprite(), j)
+    end
+end
+
+
+---@param player EntityPlayer
+---@param shader string
+function util.ApplyShader(player, shader)
+    util.ForEachSprite(player, function(sprite) sprite:SetCustomShader(shader) end)
+end
+
+
 ---@param player EntityPlayer
 ---@return integer percyLifeCount
 function util.GetPercyLifeCount(player)
@@ -272,18 +290,6 @@ function util.AnimatePercies()
     if animateDeadCat then
         animateDeadCat:AnimateCollectible(CollectibleType.COLLECTIBLE_DEAD_CAT)
         animateDeadCat = nil
-    end
-end
-
----@param player EntityPlayer
----@param shader string
-function util.ApplyShader(player, shader)
-    -- Base player sprite
-    player:GetSprite():SetCustomShader(shader)
-
-    -- Costume sprites
-    for _, costume in ipairs(player:GetCostumeSpriteDescs()) do
-        costume:GetSprite():SetCustomShader(shader)
     end
 end
 

@@ -80,8 +80,6 @@
 --- Synergies to do:
 --- - Broken Stopwatch/I'm Excited/I'm Drowsy
 ---     - tear rate stuff
---- - Paralysis
----     - should stop bouncing
 --- - Tainted Lilith's Gello + various
 --- - Tech.5?
 ---     - I can't figure out a way to detect it as opposed to Technology lasers
@@ -89,18 +87,6 @@
 ---     - Maybe missile lands in 1 measure?
 --- - Neptunus?
 --- - Epiphoria?
-
-local FAMILIAR_DAMAGE_MULTIPLIER = {
-    [FamiliarVariant.INCUBUS] = 0.75,
-    [FamiliarVariant.TWISTED_BABY] = 0.375,
-    [FamiliarVariant.UMBILICAL_BABY] = 0.75
-}
-
-local FAMILIAR_DAMAGE_MULTIPLIER_LILITH = {
-    [FamiliarVariant.INCUBUS] = 1.0,
-    [FamiliarVariant.TWISTED_BABY] = 0.5,
-    [FamiliarVariant.UMBILICAL_BABY] = 1.0
-}
 
 local DAMAGE_MULT_MAX = 2.0
 local DAMAGE_MULT_MIN = 0.75
@@ -167,7 +153,7 @@ end
 
 ---@param familiar EntityFamiliar
 ---@param updateLastFire boolean?
-function GetFireDelayDamageMultiplierFamiliar(familiar, updateLastFire)
+local function getFireDelayDamageMultiplierFamiliar(familiar, updateLastFire)
     local f = GetPtrHash(familiar)
     local time = Game():GetFrameCount()
     local delta = time - (lastTimeFired[f] or 0)
@@ -429,13 +415,9 @@ function headphones.PostPlayerUpdate(player)
         updateFetus(player, weapon)
     end
 
-    if not player:IsDead() then
+    if not player:IsDead() and player.ControlsCooldown <= 0 then
         local squish = getTempoDamageMultiplier() ^ 0.10
-        player:GetSprite().Scale = Vector(player:GetSprite().Scale.X * squish, player:GetSprite().Scale.Y / squish)
-
-        for _, costume in ipairs(player:GetCostumeSpriteDescs()) do
-            costume:GetSprite().Scale = Vector(costume:GetSprite().Scale.X * squish, costume:GetSprite().Scale.Y / squish)
-        end
+        CatGuy.PlayerUtils.ForEachSprite(player, function(sprite) sprite.Scale = Vector(sprite.Scale.X * squish, sprite.Scale.Y / squish) end)
     end
 end
 
@@ -449,9 +431,7 @@ function headphones.PostFamiliarUpdate(familiar)
     if not weapon then
         return
     end
-    local familiarDamageMultiplier = (((player:GetPlayerType() == PlayerType.PLAYER_LILITH or player:GetPlayerType() == PlayerType.PLAYER_LILITH_B)
-        and FAMILIAR_DAMAGE_MULTIPLIER_LILITH or FAMILIAR_DAMAGE_MULTIPLIER)[familiar.Variant] or 1.0) *
-    familiar:GetMultiplier()
+    local familiarDamageMultiplier = CatGuy.GetFamiliarVariantDamageMultiplier(familiar) * familiar:GetMultiplier()
 
     local playerWeapon = player:GetWeapon(1)
     if not playerWeapon then
@@ -469,7 +449,7 @@ function headphones.PostFamiliarUpdate(familiar)
             weapon:SetFireDelay(player.FireDelay)
         end
         if (modifiers & WeaponModifier.NEPTUNUS) ~= 0 then
-            weapon:SetCharge(playerWeapon:GetCharge())
+            weapon:SetCharge(getFireDelayDamageMultiplierFamiliar(familiar) * weapon:GetMaxCharge())
         end
     elseif (type == WeaponType.WEAPON_BRIMSTONE) then
         if (modifiers & (WeaponModifier.SOY_MILK)) ~= 0 then
@@ -646,8 +626,7 @@ local function evaluateTearHitParamsFamiliar(familiar, params, weaponType)
             end
         end
 
-        local fireDelayDamageMultiplier0 = doFireDelay(player) and
-        (GetFireDelayDamageMultiplierFamiliar(familiar, true) ^ 2) or 1.0
+        local fireDelayDamageMultiplier0 = doFireDelay(player) and (getFireDelayDamageMultiplierFamiliar(familiar, true) ^ 2) or 1.0
         local multiplier = fireDelayDamageMultiplier0 * (tempoDamageMultiplier[p] or 1.0)
 
         params.TearDamage = params.TearDamage * multiplier

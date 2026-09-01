@@ -1,3 +1,4 @@
+-- quadruple indented entries aren't very important
 ---@type table<Music, TempoDef>
 local tempoDefs = {
     --[Music.MUSIC_BASEMENT]                      = {bpm = 0},
@@ -97,7 +98,7 @@ local tempoDefs = {
     ----[Music.MUSIC_MINESHAFT_AMBIENT]             = {bpm = 0},
     --[Music.MUSIC_MINESHAFT_ESCAPE]              = {bpm = 0},
     --[Music.MUSIC_REVERSE_GENESIS]               = {bpm = 0},
-    --[Music.MUSIC_DEATHMATCH]                    = {bpm = 0}
+    ----[Music.MUSIC_DEATHMATCH]                    = {bpm = 0}
 }
 
 return tempoDefs

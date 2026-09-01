@@ -1,12 +1,19 @@
 ---@class PlayerCallbacks: Callbacks
 ---@field Priority_player? table<CallbackPriority, PlayerCallbacks>
+---
 ---@field PostPlayerInit_player? fun(player: EntityPlayer)
 ---@field PostPlayerUpdate_player? fun(player: EntityPlayer)
----@field PostPlayerRender_player? fun(player: EntityPlayer, renderOffset: Vector)
+---
+---@field PrePlayerRender_player? fun(player: EntityPlayer, renderOffset: Vector): Vector|boolean?
+----@field PostPlayerRender_player? fun(player: EntityPlayer, renderOffset: Vector)
+---
 ---@field PreTriggerPlayerDeath_player? fun(player: EntityPlayer)
+---
 ---@field PostTriggerBirthrightAdded_player? fun(player: EntityPlayer, type: CollectibleType, firstTime: boolean, wispOrInnate: boolean)
 ---@field PostTriggerBirthrightRemoved_player? fun(player: EntityPlayer, type: CollectibleType, removeFromPlayerForm: boolean, wispOrInnate: boolean)
+---
 ---@field PrePlayerAddMaxHearts_player? fun(player: EntityPlayer, amount: integer): integer?
 ---@field PrePlayerAddEternalHearts_player? fun(player: EntityPlayer, amount: integer): integer?
 ---@field PostPlayerHUDRenderHearts_player? fun(offset: Vector, heartsSprite: Sprite, position: Vector, spriteScale: number, player: EntityPlayer): boolean?
+---
 ---@field PreRenderCharacterSelectPage_player? fun(playerType: PlayerType, renderPos: Vector, defaultSprite: Sprite, moddedSprite?: Sprite, hasCustomBackground: boolean): boolean?
