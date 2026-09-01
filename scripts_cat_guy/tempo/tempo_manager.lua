@@ -97,6 +97,13 @@ function TempoManager:ValidateTempoDefs(tempoDefs)
     return out
 end
 
+---@param music? Music
+---@return TempoDef?
+function TempoManager:GetValidTempoDef(music)
+    local def = self.tempoDefs[music]
+    return def and def.bpm and def
+end
+
 ---@param music Music
 function TempoManager:PreMusicPlay(music)
     local def = self.tempoDefs[music] ---@type TempoDef?

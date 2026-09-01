@@ -48,7 +48,7 @@ local FAMILIAR_DAMAGE_MULTIPLIER_LILITH = {
 
 ---Keyed by Player Type, Familiar Variant, and (optionally) Familiar SubType
 ---@type table<PlayerType, table<FamiliarVariant, number|table<integer, number>>>
-CatGuy.FamiliarVariantDamageMultipliers = {
+CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS = {
     [-1] = { -- default
         [FamiliarVariant.TWISTED_BABY] = 0.375, -- twisted pair
         [FamiliarVariant.BLOOD_BABY] = { -- sumptorium clot
@@ -63,13 +63,92 @@ CatGuy.FamiliarVariantDamageMultipliers = {
 
 ---@param familiar EntityFamiliar
 function CatGuy.GetFamiliarVariantDamageMultiplier(familiar)
-    local multipliers = CatGuy.FamiliarVariantDamageMultipliers[familiar.Player:GetPlayerType()]
+    local multipliers = CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[familiar.Player:GetPlayerType()]
     local val = (multipliers and multipliers[familiar.Variant])
-        or CatGuy.FamiliarVariantDamageMultipliers[-1][familiar.Variant]
+        or CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[-1][familiar.Variant]
     if type(val) == "table" then
         val = val[familiar.SubType] or val[-1]
     end
     return val or (multipliers and multipliers[-1]) or 0.75
+end
+
+---@param table table
+---@param indent? string
+---@param indentAmount? integer
+function CatGuy:PrintTable_internal(table, indent, indentAmount)
+    indent = indent or "  "
+    indentAmount = indentAmount or 0
+
+    local space = string.rep(indent, indentAmount)
+    for key, val in pairs(table) do
+        if type(val) == "table" then
+            print(space.."["..tostring(key).."] = {")
+            self:PrintTable_internal(val, indent, indentAmount + 1)
+            print(space.."}")
+        else
+            print(space.."["..tostring(key).."] = "..tostring(val))
+        end
+    end
+end
+
+---@param table table
+---@param indent? string
+function CatGuy:PrintTable(table, indent)
+    indent = indent or "  "
+    print("{")
+    self:PrintTable_internal(table, indent, 1)
+    print("}")
+end
+
+CatGuy.MUSIC_XML_COUNT = XMLData.GetNumEntries(XMLNode.MUSIC)
+---@diagnostic disable-next-line: undefined-field, assign-type-mismatch
+CatGuy.MUSIC_MAX_ID = tonumber(XMLData.GetEntryByOrder(XMLNode.MUSIC, CatGuy.MUSIC_XML_COUNT).id) ---@type integer
+
+---@param rng RNG
+---@param predicate? fun(music: Music, node?: MusicXMLNode): any
+---@return Music
+function CatGuy:RandomMusic(rng, predicate)
+    while true do
+        local node = XMLData.GetEntryByOrder(XMLNode.MUSIC, rng:RandomInt(CatGuy.MUSIC_XML_COUNT)) ---@type MusicXMLNode?
+        if node then
+            local id = tonumber(node.id)
+            if id and (not predicate or predicate(id, node)) then
+                return id
+            end
+        end
+    end
+end
+
+---@param music Music
+---@param n integer
+---@return Music
+function CatGuy:IncrementMusic(music, n)
+    if n > 0 then
+        while n > 0 do
+            music = music + 1
+            while not XMLData.GetEntryById(XMLNode.MUSIC, music) do
+                if music > CatGuy.MUSIC_MAX_ID then
+                    music = Music.MUSIC_BASEMENT
+                else
+                    music = music + 1
+                end
+            end
+            n = n - 1
+        end
+    else
+        while n < 0 do
+            music = music - 1
+            while not XMLData.GetEntryById(XMLNode.MUSIC, music) do
+                if music < Music.MUSIC_BASEMENT then
+                    music = CatGuy.MUSIC_MAX_ID
+                else
+                    music = music - 1
+                end
+            end
+            n = n + 1
+        end
+    end
+    return music
 end
 
 ---@param input table<string|number, any>
@@ -512,6 +591,11 @@ function CatGuy:AddCallbacks(callbacks, priority)
                 return func(player, stage0, value)
             end, stage)
         end
+    end
+    if callbacks.PreGameExit then
+        self:AddPriorityCallback(ModCallbacks.MC_PRE_GAME_EXIT, priority, function(_, shouldSave)
+            return callbacks.PreGameExit(shouldSave)
+        end)
     end
 
     if callbacks.Priority then

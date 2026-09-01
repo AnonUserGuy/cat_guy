@@ -33,5 +33,7 @@
 ---
 ---@field EvaluateStat? table<EvaluateStatStage, fun(player: EntityPlayer, stage: EvaluateStatStage, value: number): number?>
 ---@field EvaluateCache? table<CacheFlag, fun(player: EntityPlayer, flag: CacheFlag)>
+---
+---@field PreGameExit? fun(shouldSave: boolean)
 
 ---@alias Pointer integer pointers to entities obtained through GetPtrHash(Entity)

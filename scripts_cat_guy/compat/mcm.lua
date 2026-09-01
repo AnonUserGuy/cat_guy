@@ -111,16 +111,18 @@ function mcmCompat:UpdateTempos(mcm, tempoDefs)
         Info = CurrentInfo
     })
 
-    for music, _ in pairs(tempoDefs) do
-        local node = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
-        if not node then
-            self:AddTempoEnabled(mcm, music, configTab.SONG_SPECIFIC_SETTINGS, music.." - Unknown Track")
-        else
-            local j = {"Path: \""..node.path.."\""}
-            if node.intro then
-                table.insert(j, 1, "Intro: \""..node.intro.."\"")
+    for music, val in pairs(tempoDefs) do
+        if val.bpm then
+            local node = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
+            if not node then
+                self:AddTempoEnabled(mcm, music, configTab.SONG_SPECIFIC_SETTINGS, music.." - Unknown Track")
+            else
+                local j = {"Path: \""..node.path.."\""}
+                if node.intro then
+                    table.insert(j, 1, "Intro: \""..node.intro.."\"")
+                end
+                self:AddTempoEnabled(mcm, music, configTab.SONG_SPECIFIC_SETTINGS, music.." - "..node.name, j)
             end
-            self:AddTempoEnabled(mcm, music, configTab.SONG_SPECIFIC_SETTINGS, music.." - "..node.name, j)
         end
     end
 end

@@ -1,8 +1,6 @@
 ---@type TrinketCallbacks
 local oggPlayer = {}
 
-local MUSIC_XML_COUNT = XMLData.GetNumEntries(XMLNode.MUSIC)
-
 local lastRNG = nil ---@type RNG?
 local isRandomizing = false
 
@@ -14,17 +12,10 @@ local function randomizeMusic(rng)
         rng = RNG()
     end
     local playerHasHeadphones = CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) end)
-    while true do
-        local node = XMLData.GetEntryByOrder(XMLNode.MUSIC, rng:RandomInt(MUSIC_XML_COUNT)) ---@type MusicXMLNode?
-        if node and node.loop ~= "false" then
-            local id = tonumber(node.id)
-            if id and (not playerHasHeadphones or #CatGuy.TempoManager.tempoDefs <= 0 or CatGuy.TempoManager.tempoDefs[tonumber(node.id)]) then
-                MusicManager():Play(id, 0)
-                MusicManager():UpdateVolume()
-                break
-            end
-        end
-    end
+    local id = CatGuy:RandomMusic(rng, function(newId, node) return node.loop ~= "false"
+        and (not playerHasHeadphones or #CatGuy.TempoManager.tempoDefs <= 0 or CatGuy.TempoManager:GetValidTempoDef(newId)) end)
+    MusicManager():Play(id, 0)
+    MusicManager():UpdateVolume()
     isRandomizing = false
 end
 
