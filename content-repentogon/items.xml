@@ -9,7 +9,8 @@
         quality="2" />
 
 	<trinket name="Toy Metronome" description="Tick tock!" gfx="trinket_toymetronome.png" achievement="-1" />
-	<trinket name="Broken Headphones" description="Stuck on shuffle" gfx="trinket_brokenheadphones.png" achievement="-1" />
+	<trinket name="OGG Player" description="It only supports Vorbis" gfx="trinket_brokenheadphones.png" achievement="-1" />
+    <trinket name="Broken OGG Player" description="Stuck on shuffle" gfx="trinket_brokenheadphones.png" achievement="-1" />
 
     <null name="Percy Revive" customtags="revive" persistent="true" />
     <null name="Dead Cat Revive" customtags="revive" persistent="true" />

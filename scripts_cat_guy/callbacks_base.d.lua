@@ -2,11 +2,13 @@
 ---@field Priority? table<CallbackPriority, Callbacks>
 ---@field InputAction? fun(entity: Entity, inputHook: InputHook, buttonAction: ButtonAction): boolean|number?
 ---@field PostUpdate? fun()
----@field PreRender? fun()
----@field PostRender? fun()
 ---@field PostNewRoom? fun()
 ---@field PostNewLevel? fun()
 ---@field PostGameStarted? fun(continued: boolean)
+---
+---@field PreRender? fun()
+---@field PostRender? fun()
+---@field PostHUDRender? fun()
 ---
 ---@field PostPlayerUpdate? fun(player: EntityPlayer)
 ---@field PostPlayerRender? fun(player: EntityPlayer)

@@ -27,7 +27,8 @@ CatGuy.CollectibleType = {
 
 CatGuy.TrinketType = {
     TOY_METRONOME           = Isaac.GetTrinketIdByName("Toy Metronome"),
-    BROKEN_HEADPHONES       = Isaac.GetTrinketIdByName("Broken Headphones")
+    OGG_PLAYER              = Isaac.GetTrinketIdByName("OGG Player"),
+    BROKEN_OGG_PLAYER       = Isaac.GetTrinketIdByName("Broken OGG Player")
 }
 
 CatGuy.NullItemID = {
@@ -251,7 +252,8 @@ CatGuy.CollectibleCallbacks = { ---@type table<CollectibleType, CollectibleCallb
 
 CatGuy.TrinketCallbacks = { ---@type table<TrinketType, TrinketCallbacks>
     [CatGuy.TrinketType.TOY_METRONOME]          = include("scripts_cat_guy.trinkets.toy_metronome"),
-    [CatGuy.TrinketType.BROKEN_HEADPHONES]      = include("scripts_cat_guy.trinkets.broken_headphones")
+    [CatGuy.TrinketType.OGG_PLAYER]             = include("scripts_cat_guy.trinkets.ogg_player"),
+    [CatGuy.TrinketType.BROKEN_OGG_PLAYER]      = include("scripts_cat_guy.trinkets.broken_ogg_player")
 }
 
 ---@param player EntityPlayer
@@ -379,6 +381,11 @@ function CatGuy:AddCallbacks(callbacks, priority)
     if callbacks.PostRender then
         self:AddPriorityCallback(ModCallbacks.MC_POST_RENDER, priority, function(_)
             return callbacks.PostRender()
+        end)
+    end
+    if callbacks.PostHUDRender then
+        self:AddPriorityCallback(ModCallbacks.MC_POST_HUD_RENDER, priority, function(_)
+            return callbacks.PostHUDRender()
         end)
     end
     if callbacks.PostNewRoom then

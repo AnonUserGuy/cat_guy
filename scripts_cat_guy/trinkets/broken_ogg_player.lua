@@ -1,5 +1,5 @@
 ---@type TrinketCallbacks
-local headphones = {}
+local oggPlayer = {}
 
 local MUSIC_XML_COUNT = XMLData.GetNumEntries(XMLNode.MUSIC)
 
@@ -28,22 +28,22 @@ local function randomizeMusic(rng)
     isRandomizing = false
 end
 
-function headphones.PreAddTrinket_trinket(player)
-    randomizeMusic(player:GetTrinketRNG(CatGuy.TrinketType.BROKEN_HEADPHONES))
+function oggPlayer.PreAddTrinket_trinket(player)
+    randomizeMusic(player:GetTrinketRNG(CatGuy.TrinketType.BROKEN_OGG_PLAYER))
 end
 
-function headphones.PreMusicPlay()
+function oggPlayer.PreMusicPlay()
     if isRandomizing then
         return
     end
 
     if Isaac.IsInGame() then
-        local player = CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.BROKEN_HEADPHONES) and player end) ---@type EntityPlayer?
+        local player = CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.BROKEN_OGG_PLAYER) and player end) ---@type EntityPlayer?
         if not player then
             lastRNG = nil
             return
         end
-        lastRNG = player:GetTrinketRNG(CatGuy.TrinketType.BROKEN_HEADPHONES)
+        lastRNG = player:GetTrinketRNG(CatGuy.TrinketType.BROKEN_OGG_PLAYER)
 
         randomizeMusic(lastRNG)
         return false
@@ -58,11 +58,11 @@ function headphones.PreMusicPlay()
     end
 end
 
-function headphones.PlayerTakeDamage(player)
-    if not player:HasTrinket(CatGuy.TrinketType.BROKEN_HEADPHONES) then
+function oggPlayer.PlayerTakeDamage(player)
+    if not player:HasTrinket(CatGuy.TrinketType.BROKEN_OGG_PLAYER) then
         return
     end
-    randomizeMusic(player:GetTrinketRNG(CatGuy.TrinketType.BROKEN_HEADPHONES))
+    randomizeMusic(player:GetTrinketRNG(CatGuy.TrinketType.BROKEN_OGG_PLAYER))
 end
 
-return headphones
+return oggPlayer

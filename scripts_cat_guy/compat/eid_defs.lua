@@ -242,7 +242,7 @@ EIDDefs.trinkets[CatGuy.TrinketType.TOY_METRONOME] = {
         return descObj
     end
 }
-EIDDefs.trinkets[CatGuy.TrinketType.BROKEN_HEADPHONES] = {
+EIDDefs.trinkets[CatGuy.TrinketType.BROKEN_OGG_PLAYER] = {
     description = {
         ["en_us"] = "#Every song is randomized before played"..
             "#Getting hit plays a new song"
