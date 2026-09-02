@@ -23,13 +23,13 @@ function oggPlayer.PreAddTrinket_trinket(player)
     randomizeMusic(player:GetTrinketRNG(CatGuy.TrinketType.BROKEN_OGG_PLAYER))
 end
 
-function oggPlayer.PreMusicPlay()
-    if isRandomizing then
+function oggPlayer.PreMusicPlay(music)
+    if isRandomizing or music == MusicManager():GetCurrentMusicID() then
         return
     end
 
     if Isaac.IsInGame() then
-        local player = CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.BROKEN_OGG_PLAYER) and player end) ---@type EntityPlayer?
+        local player = CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.BROKEN_OGG_PLAYER) and player end)
         if not player then
             lastRNG = nil
             return

@@ -110,12 +110,13 @@ local function getTempoDamageEqn(beat)
         DAMAGE_MULT_MIN
 end
 
+---@param player? EntityPlayer
 ---@param latencyAdjusted? boolean
 ---@param release? boolean
-local function getTempoDamageMultiplier(latencyAdjusted, release)
+local function getTempoDamageMultiplier(player, latencyAdjusted, release)
     local tempoManager = CatGuy.TempoManager
     if tempoManager and tempoManager.tempoDef then
-        return getTempoDamageEqn((latencyAdjusted and tempoManager:GetLatencyAdjustedBeat(release) or tempoManager.beat) % 1.0)
+        return getTempoDamageEqn((latencyAdjusted and tempoManager:GetLatencyAdjustedBeat(player and player.ControllerIndex ~= 0, release) or tempoManager.beat) % 1.0)
     else
         return 1.0
     end
@@ -126,7 +127,7 @@ end
 ---@param release? boolean
 local function updateTempoDamageMultiplier(player, latencyAdjusted, release)
     local p = GetPtrHash(player)
-    tempoDamageMultiplier[p] = getTempoDamageMultiplier(latencyAdjusted, release)
+    tempoDamageMultiplier[p] = getTempoDamageMultiplier(player, latencyAdjusted, release)
 end
 
 ---@param player EntityPlayer
@@ -197,10 +198,11 @@ local function doFireDelay(player, onlyPostPlayerUpdate, ignoreModifiers)
         and not player:HasCollectible(CollectibleType.COLLECTIBLE_MARKED)
 end
 
-local function getFetalDelay()
+---@param player? EntityPlayer
+local function getFetalDelay(player)
     local tempoManager = CatGuy.TempoManager
     if tempoManager and tempoManager.tempoDef then
-        local beat = tempoManager:GetLatencyAdjustedBeatCSection()
+        local beat = tempoManager:GetLatencyAdjustedBeatCSection(player and player.ControllerIndex ~= 0)
         lastBeat = beat
         return beat
     else
@@ -220,7 +222,7 @@ local function updateFire(player)
         if dir ~= Direction.NO_DIRECTION then
             updateTempoDamageMultiplier(player, true)
             if lastFireDirection[p] == Direction.NO_DIRECTION then
-                iWantToHaveABaby[p] = getFetalDelay()
+                iWantToHaveABaby[p] = getFetalDelay(player)
             end
         else
             iWantToHaveABaby[p] = nil
@@ -431,7 +433,7 @@ function headphones.PostFamiliarUpdate(familiar)
     if not weapon then
         return
     end
-    local familiarDamageMultiplier = CatGuy.GetFamiliarVariantDamageMultiplier(familiar) * familiar:GetMultiplier()
+    local familiarDamageMultiplier = CatGuy:GetFamiliarVariantDamageMultiplier(familiar) * familiar:GetMultiplier()
 
     local playerWeapon = player:GetWeapon(1)
     if not playerWeapon then
@@ -642,7 +644,7 @@ local function evaluateTearHitParamsFamiliar(familiar, params, weaponType)
     elseif weaponType == WeaponType.WEAPON_BONE
     or weaponType == WeaponType.WEAPON_NOTCHED_AXE
     or weaponType == WeaponType.WEAPON_SPIRIT_SWORD then
-        local multiplier = getTempoDamageMultiplier(true)
+        local multiplier = getTempoDamageMultiplier(player, true)
         params.TearDamage = params.TearDamage * multiplier
         params.TearScale = params.TearScale * (multiplier ^ 0.5)
         --debugstring = tostring(params.TearDamage)
@@ -694,7 +696,7 @@ function headphones.EvaluateTearHitParams(player, params, weaponType, _, _, sour
     elseif weaponType == WeaponType.WEAPON_BONE
     or weaponType == WeaponType.WEAPON_NOTCHED_AXE
     or weaponType == WeaponType.WEAPON_SPIRIT_SWORD then
-        local multiplier = getTempoDamageMultiplier(true)
+        local multiplier = getTempoDamageMultiplier(player, true)
         params.TearDamage = params.TearDamage * multiplier
         params.TearScale = params.TearScale * (multiplier ^ 0.5)
         --debugstring = tostring(params.TearDamage)

@@ -97,8 +97,13 @@ local tempoDefs = {
     --[Music.MUSIC_DROSS_REVERSE]                 = {bpm = 0},
     ----[Music.MUSIC_MINESHAFT_AMBIENT]             = {bpm = 0},
     --[Music.MUSIC_MINESHAFT_ESCAPE]              = {bpm = 0},
-    --[Music.MUSIC_REVERSE_GENESIS]               = {bpm = 0},
-    ----[Music.MUSIC_DEATHMATCH]                    = {bpm = 0}
+    --[Music.MUSIC_REVERSE_GENESIS]               = {bpm = 0}
 }
+
+--[[ local MUSIC_DEATHMATCH = Music.MUSIC_DEATHMATCH or Isaac.GetMusicIdByName("Deathmatch")
+if MUSIC_DEATHMATCH then
+    tempoDefs[MUSIC_DEATHMATCH]                 = {bpm = 0}
+end ]]
+
 
 return tempoDefs

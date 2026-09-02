@@ -5,7 +5,7 @@ if not REPENTOGON then
     return
 end
 
-local json = require("json")
+include("scripts_cat_guy.compat.mcm_controller")
 
 CatGuy.ModCallbacks = {
     TICK                = "CAT_GUY_TICK",
@@ -65,7 +65,7 @@ CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS = {
 CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[PlayerType.PLAYER_LILITH_B] = CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[PlayerType.PLAYER_LILITH]
 
 ---@param familiar EntityFamiliar
-function CatGuy.GetFamiliarVariantDamageMultiplier(familiar)
+function CatGuy:GetFamiliarVariantDamageMultiplier(familiar)
     local multipliers = CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[familiar.Player:GetPlayerType()]
     local val = (multipliers and multipliers[familiar.Variant])
         or CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[-1][familiar.Variant]
@@ -154,170 +154,22 @@ function CatGuy:IncrementMusic(music, n)
     return music
 end
 
----@param input table<string|number, any>
-function CatGuy:PreEncodeJSON(input)
-    local output = {}
-    for key, value in pairs(input) do
-        if type(key) == "number" then
-            key = tostring(key)
-        elseif type(key) == "string" then
-            key = "_"..key
-        end
-        if type(value) == "table" then
-            value = self:PreEncodeJSON(value)
-        end
-        output[key] = value
-    end
-    return output
-end
-
----@param input table<string|number, any>
-function CatGuy:PostDecodeJSON(input)
-    local output = {}
-    for key, value in pairs(input) do
-        local num = tonumber(key)
-        if num then
-            key = num
-        else
-            key = key:sub(2)
-        end
-        if type(value) == "table" then
-            value = self:PostDecodeJSON(value)
-        end
-        output[key] = value
-    end
-    return output
-end
-
-function CatGuy:CatGuySave()
-    self:SaveData(json.encode(self:PreEncodeJSON(self.Save)))
-end
-
-CatGuy.LastLoad = 0
-
----@param lazy? boolean
----@return boolean loaded
-function CatGuy:CatGuyLoad(lazy)
-    local load = Isaac.GetFrameCount()
-    if lazy and load <= self.LastLoad + 1 then
-        self.LastLoad = load
-        return false
-    end
-    self.LastLoad = load
-
-    if not self:HasData() then
-        self.Save = {}
-    else
-        self.Save = self:PostDecodeJSON(json.decode(self:LoadData()))
-    end
-    self.Save.Config = self.Save.Config or {}
-    self.Save.ConfigDefault = self.Save.ConfigDefault or {}
-    if self:CheckConfig(self.Config, self.Save.Config, self.Save.ConfigDefault) then
-        print("Configs have been changed in cat_guy_config.lua, which have overwritten ones made in-game")
-        self:CatGuySave()
-    end
-    return true
-end
-
----@param src table<any, any>
----@param dest table<any, any>
-function CatGuy:CopyConfig(src, dest)
-    for key, val in pairs(src) do
-        if type(val) ~= "table" then
-            dest[key] = val
-        else
-            self:CopyConfig(val, dest[key])
-        end
-    end
-end
-
----@param tableConfig table<string, any>
----@param tableSave table<string, any>
----@param tableSaveDefault table<string, any>
-function CatGuy:CheckConfig(tableConfig, tableSave, tableSaveDefault)
-    local changed = false
-    for key, val in pairs(tableSaveDefault) do
-        if type(val) ~= "table" then
-            if tableConfig[key] ~= val then
-                tableSave[key] = nil
-                tableSaveDefault[key] = nil
-                changed = true
-            end
-        elseif type(tableConfig[key]) == "table" and type(tableSave[key]) == "table" then
-            if self:CheckConfig(tableConfig[key], tableSave[key], val) then
-                changed = true
-            end
-        end
-    end
-    return changed
-end
-
----@param configName string
----@param value any
-function CatGuy:SetConfig(configName, value)
-    self.Save.Config[configName] = value
-    self.Save.ConfigDefault[configName] = self.Config[configName]
-    self:CatGuySave()
-end
-
----@param configName string
----@return any
-function CatGuy:GetConfig(configName)
-    if self.Save and self.Save.Config and self.Save.Config[configName] ~= nil then
-        return self.Save.Config[configName]
-    end
-    return self.Config[configName]
-end
-
----@param music Music|string
----@param value boolean
-function CatGuy:SetTempoEnabled(music, value)
-    if type(music) == "number" and music >= Music.NUM_MUSIC then
-        local node = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
-        if node then
-            music = node.name
-        end
-    end
-    self.Save.Config.TempoEnabled = self.Save.Config.TempoEnabled or {}
-    self.Save.Config.TempoEnabled[music] = value
-    self.Save.ConfigDefault.TempoEnabled = self.Save.ConfigDefault.TempoEnabled or {}
-    self.Save.ConfigDefault.TempoEnabled[music] = self.Config.TempoEnabled[music]
-    self:CatGuySave()
-end
-
----@param music Music|string
----@return boolean?
-function CatGuy:GetTempoEnabled(music)
-    if self.Save and self.Save.Config and self.Save.Config.TempoEnabled and self.Save.Config.TempoEnabled[music] ~= nil then
-        return self.Save.Config.TempoEnabled[music]
-    end
-    if self.Config.TempoEnabled[music] ~= nil then
-        return self.Config.TempoEnabled[music]
-    end
-    if type(music) == "number" then
-        local node = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
-        if node then
-            return self:GetTempoEnabled(node.name)
-        end
-    end
-    return true
-end
 
 CatGuy.ID = "3790558949"
 CatGuy.XML = XMLData.GetModById(CatGuy.ID)
 
-CatGuy.Config = include("cat_guy_config") ---@type CatGuyConfig
-local userConfig = include("cat_guy_config_user")
-if type(userConfig) == "table" then
-    CatGuy:CopyConfig(userConfig, CatGuy.Config)
-end
-CatGuy:CatGuyLoad()
+local configManager = include("scripts_cat_guy.config.config_manager") ---@type ConfigManager
+local config = include("cat_guy_config") ---@type CatGuyConfig
+local userConfig = include("cat_guy_config_user") ---@type CatGuyConfig
+
+CatGuy.Config = configManager:New(CatGuy, config, userConfig)
+CatGuy.Config:Load()
 
 CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type PlayerUtils
 
-local TempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
+local tempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
 local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
-CatGuy.TempoManager = TempoManager:New(tempoDefs)
+CatGuy.TempoManager = tempoManager:New(tempoDefs)
 
 CatGuy.PlayerCallbacks = { ---@type table<PlayerType, PlayerCallbacks>
     [CatGuy.PlayerType.PERCY]                   = include("scripts_cat_guy.players.percy"),
@@ -707,7 +559,7 @@ CatGuy:AddPriorityCallback(ModCallbacks.MC_POST_RENDER, CallbackPriority.LATE, f
 end)
 
 function CatGuy:PostGameStarted()
-    self:CatGuyLoad()
+    self.Config:Load()
     if ModConfigMenu then
         self.Compat.ModConfigMenu:Init(ModConfigMenu, InputHelper, tempoDefs)
     end

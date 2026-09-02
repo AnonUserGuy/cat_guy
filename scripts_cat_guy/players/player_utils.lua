@@ -31,9 +31,9 @@ function util.ForEachPlayer(func)
     end
 end
 
-
----@param func fun(player: EntityPlayer, i: integer): boolean|any
----@return boolean|any
+---@generic T
+---@param func fun(player: EntityPlayer, i: integer): T
+---@return T|false
 function util.AnyPlayer(func)
     local numPlayers = Game():GetNumPlayers()
     for i = 0, numPlayers - 1 do
@@ -49,7 +49,6 @@ function util.AnyPlayer(func)
 end
 
 
----@return boolean
 function util.AnyPlayerAlive()
     return util.AnyPlayer(function(player)
         return not player:IsDead() and not player:IsCoopGhost()

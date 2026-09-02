@@ -10,7 +10,7 @@ percyB.Priority[CallbackPriority.LATE] = {}
 
 function percyB.PostPlayerInit_player(player)
     player:SetPocketActiveItem(CatGuy.CollectibleType.UNDERHANDS, ActiveSlot.SLOT_POCKET, false)
-    if CatGuy:GetConfig("PercyBHasMomsHeadphones") ~= false then
+    if CatGuy.Config:Get("PercyBHasMomsHeadphones") ~= false then
         player:AddCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES)
     end
 end
@@ -122,8 +122,8 @@ function percyB.PreRenderCharacterSelectPage_player(_, _, _, sprite)
     if not strikeoutLayer then
         return
     end
-    CatGuy:CatGuyLoad(true)
-    strikeoutLayer:SetVisible(not CatGuy:GetConfig("PercyBHasMomsHeadphones"))
+    CatGuy.Config:Load(true)
+    strikeoutLayer:SetVisible(not CatGuy.Config:Get("PercyBHasMomsHeadphones"))
 end
 
 percyB.Priority[CallbackPriority.LATE].EvaluateCache = {}

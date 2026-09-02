@@ -185,8 +185,8 @@ local TRIPLET_SWING_DUPLICATE = {
 EIDDefs.collectibles[CatGuy.CollectibleType.TRIPLET_SWING] = {
     description = {
         ["en_us"] = "#{{Collectible"..CollectibleType.COLLECTIBLE_INNER_EYE.."}} Grant's copy of Inner Eye:"..
-            "#{{Collectible"..CollectibleType.COLLECTIBLE_INNER_EYE.."}} {{Tears}} x0.51 Fire rate multiplier"..
-            "#{{Collectible"..CollectibleType.COLLECTIBLE_INNER_EYE.."}} Isaac shoots 3 tears at once"..
+            "#{{Tears}} {{IND}} x0.51 Fire rate"..
+            "#{{IND}} Shoot 3 tears at once"..
             "#{{Collectible"..CollectibleType.COLLECTIBLE_BROKEN_WATCH.."}} Getting hit makes music \"swung\" for 8 seconds"..
             "#{{Collectible"..CollectibleType.COLLECTIBLE_BROKEN_WATCH.."}} Swung music makes game speed rapidly alternate between fast and slow"
     },
@@ -241,6 +241,16 @@ EIDDefs.trinkets[CatGuy.TrinketType.TOY_METRONOME] = {
         end
         return descObj
     end
+}
+EIDDefs.trinkets[CatGuy.TrinketType.OGG_PLAYER] = {
+    description = {
+        ["en_us"] = "#Allows playing any song"..
+            "#While holding {{ButtonSelect}}:"..
+            "#{{IND}} {{ButtonX}}/{{ButtonB}} to seek"..
+            "#{{IND}} {{ButtonY}} to toggle shuffle"..
+            "#{{IND}} {{ButtonA}} to toggle lock"..
+            "#While locked, normal game music won't play"
+    }
 }
 EIDDefs.trinkets[CatGuy.TrinketType.BROKEN_OGG_PLAYER] = {
     description = {

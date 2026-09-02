@@ -107,7 +107,7 @@ end
 ---@param music Music
 function TempoManager:PreMusicPlay(music)
     local def = self.tempoDefs[music] ---@type TempoDef?
-    if def and def.bpm and CatGuy:GetTempoEnabled(music) ~= false then
+    if def and def.bpm and CatGuy.Config:GetTempoEnabled(music) ~= false then
         self.tempoDef = def
         self:PrepareTempoDef(def)
         self.time = 0
@@ -227,8 +227,7 @@ function TempoManager:PostRender()
         self:RestartMusic()
     end
     
-    if CatGuy.PlayerUtils.AnyPlayer(function(player)
-    return Input.IsButtonTriggered(CatGuy:GetConfig("ControlsRestartMusic"), player.ControllerIndex) end) then
+    if CatGuy.Config:IsButtonTriggered("ControlsRestartMusic") then
         self:RestartMusic()
     end
 end
@@ -266,7 +265,11 @@ function TempoManager:ResetLatencyTest()
 end
 
 function TempoManager:LatencyTest()
-    if Input.IsButtonTriggered(CatGuy:GetConfig("ControlsLatencyTestEnter"), 0) then
+    if (ModConfigMenu and ModConfigMenu.IsVisible) then
+        self.latencyTestEnabled = false
+        return
+    end
+    if CatGuy.Config:IsButtonTriggered("ControlsLatencyTestEnter") then
         self.latencyTestEnabled = not self.latencyTestEnabled
         self:ResetLatencyTest()
     end
@@ -274,7 +277,8 @@ function TempoManager:LatencyTest()
         return
     end
 
-    local buttonPressed = Input.IsButtonPressed(CatGuy:GetConfig("ControlsLatencyTest"), 0)
+    local buttonPressed = CatGuy.Config:IsButtonPressed("ControlsLatencyTest")
+
     if buttonPressed ~= self.buttonPressed then
         self:RecordLatencyTestSample(buttonPressed)
         self.buttonPressed = buttonPressed
@@ -306,19 +310,31 @@ function TempoManager:GetCurrentBPM()
     return self.lastBpm * MusicManager():GetCurrentPitch()
 end
 
+---@param controller? boolean
 ---@param release? boolean
-function TempoManager:GetLatencyAdjustedBeat(release)
-    if release and CatGuy:GetConfig("OffsetRelease") ~= nil then
-        return self.beat - CatGuy:GetConfig("OffsetRelease") * self:GetCurrentBPM() / MILLISECONDS_PER_MINUTE
-    end
-    return self.beat - CatGuy:GetConfig("OffsetTrigger") * self:GetCurrentBPM() / MILLISECONDS_PER_MINUTE
+function TempoManager:GetLatencyAdjustedBeat(controller, release)
+    local offset =
+        (release
+            and (controller
+                and CatGuy.Config:Get("OffsetReleaseController")
+                or CatGuy.Config:Get("OffsetTriggerController"))
+            or CatGuy.Config:Get("OffsetRelease"))
+        or (controller
+            and CatGuy.Config:Get("OffsetTriggerController"))
+        or CatGuy.Config:Get("OffsetTrigger")
+    
+    return self.beat - offset * self:GetCurrentBPM() / MILLISECONDS_PER_MINUTE
 end
 
-function TempoManager:GetLatencyAdjustedBeatCSection()
-    if CatGuy:GetConfig("OffsetCSection") ~= nil then
-        return self.beat - CatGuy:GetConfig("OffsetCSection") * self:GetCurrentBPM() / MILLISECONDS_PER_MINUTE
-    end
-    return self.beat - CatGuy:GetConfig("OffsetTrigger") * self:GetCurrentBPM() / MILLISECONDS_PER_MINUTE
+---@param controller? boolean
+function TempoManager:GetLatencyAdjustedBeatCSection(controller)
+    local offset =
+        (controller
+            and CatGuy.Config:Get("OffsetCSectionController")
+            or CatGuy.Config:Get("OffsetTriggerController"))
+        or CatGuy.Config:Get("OffsetCSection")
+        or CatGuy.Config:Get("OffsetTrigger")
+    return self.beat - offset * self:GetCurrentBPM() / MILLISECONDS_PER_MINUTE
 end
 
 local function rhythmicFireDelayEqn(delay, gameTicksPerBeat)

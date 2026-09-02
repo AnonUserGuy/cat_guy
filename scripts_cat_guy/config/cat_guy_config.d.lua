@@ -1,17 +1,33 @@
 ---@class CatGuyConfig
 ---@field MomsHeadphonesHaveMetronome boolean
 ---@field PercyBHasMomsHeadphones boolean
+---@field OGGPlayerTutorial boolean
 ---@field ControlsRestartMusic Keyboard
+---@field ControlsRestartMusicController integer
+---
 ---@field OffsetTrigger integer
----@field OffsetRelease nil|integer
----@field OffsetCSection nil|integer
+---@field OffsetRelease integer?
+---@field OffsetCSection integer?
+---
+---@field OffsetTriggerController integer?
+---@field OffsetReleaseController integer?
+---@field OffsetCSectionController integer?
+---
 ---@field ControlsLatencyTestEnter Keyboard
+---@field ControlsLatencyTestEnterController integer
 ---@field ControlsLatencyTest Keyboard
+---@field ControlsLatencyTestController integer
+---
 ----@field NudgeEnabled boolean
 ----@field NudgeAmount integer
 ----@field ControlsNudgeForward Keyboard
 ----@field ControlsNudgeBackward Keyboard
+---
 ---@field TempoEnabled table<Music|string, boolean>
+
+
+
+
 
 -- ignore this
 --[[     ------------ NUDGING ------------

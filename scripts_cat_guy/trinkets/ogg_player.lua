@@ -1,5 +1,16 @@
 local ONE_THIRD = 1/3
 
+local ICON_SPACE_WIDTH = 6
+local ICON_SHUFFLE_WIDTH = 14
+local ICON_LOCKED_WIDTH = 11
+
+---@return number
+local function s(n)
+    return 2 ^ (n / 12)
+end
+local NUMBER_PITCHES = {s(-1-5), s(0-5), s(2-5), s(4-5), s(5-5), s(7-5), s(9-5), s(11-5), s(12-5)}
+NUMBER_PITCHES[0] = s(14-5)
+
 local TIMER_MAX = 120
 local TIMER_FUNKY = 90
 local TIMER_FADED = 60
@@ -102,8 +113,9 @@ function oggPlayer.PostGameStarted()
     shuffle = false
 end
 
-local function chirp()
-    SFXManager():Play(CatGuy.SoundEffect.OGG_PLAYER_CHIRP, 0.25)
+---@param pitch? number
+local function chirp(pitch)
+    SFXManager():Play(CatGuy.SoundEffect.OGG_PLAYER_CHIRP, 0.25, 2, false, pitch or 1.0)
 end
 
 local function playMusic(music)
@@ -167,16 +179,18 @@ function oggPlayer.PostPlayerUpdate(player)
         if tutorial == 2 then
             tutorial = 1
         end
-    elseif Input.IsButtonTriggered(Keyboard.KEY_BACKSPACE, player.ControllerIndex) then
+    elseif Input.IsButtonTriggered(Keyboard.KEY_BACKSPACE, player.ControllerIndex)
+    or Input.IsButtonTriggered(Keyboard.KEY_KP_DECIMAL, player.ControllerIndex) then
         chirp()
         typing = typing // 10
     else
-        for i = Keyboard.KEY_0, Keyboard.KEY_9 do
-            if Input.IsButtonTriggered(i, player.ControllerIndex) then
-                chirp()
-                typing = typing * 10 + (i - Keyboard.KEY_0)
-                if typing > CatGuy.MUSIC_MAX_ID then
-                    typing = CatGuy.MUSIC_MAX_ID
+        for i = 0, 9 do
+            if Input.IsButtonTriggered(i + Keyboard.KEY_0, player.ControllerIndex)
+            or Input.IsButtonTriggered(i + Keyboard.KEY_KP_0, player.ControllerIndex) then
+                chirp(NUMBER_PITCHES[i])
+                typing = typing * 10 + i
+                while typing > CatGuy.MUSIC_MAX_ID do
+                    typing = math.floor(typing // 100 * 10 + i)
                 end
                 break
             end
@@ -213,6 +227,7 @@ function oggPlayer.PostUpdate()
     if typing > 0 then
         if not CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.OGG_PLAYER)
         and Input.IsActionPressed(ButtonAction.ACTION_MAP, player.ControllerIndex) end) then
+            chirp()
             if XMLData.GetEntryById(XMLNode.MUSIC, typing) then
                 playMusic(typing)
             end
@@ -249,32 +264,39 @@ function oggPlayer.PostHUDRender()
         a = (timer / TIMER_FUNKY) ^ 2
     end
 
-    local boxWidth = Isaac.GetScreenWidth()
     local str = "Now playing: "..(typing > 0 and tostring(typing) or text)
+    local width = font:GetStringWidth(str)
+    local boxWidth = Isaac.GetScreenWidth()
     if shuffle or locked then
         icon.Color = Color(r, g, b, a)
-        local width = font:GetStringWidth(str) + 12
-        boxWidth = boxWidth - 6
+        local iconsWidth = ICON_SPACE_WIDTH
+        boxWidth = boxWidth - ICON_SPACE_WIDTH
         if shuffle then
-            boxWidth = boxWidth - 14
+            boxWidth = boxWidth - ICON_SHUFFLE_WIDTH
         end
         if locked then
-            boxWidth = boxWidth - 11
+            boxWidth = boxWidth - ICON_LOCKED_WIDTH
         end
 
         if shuffle then
             icon:Play("Shuffle")
-            icon:Render(Vector((width + boxWidth) / 2, Isaac.GetScreenHeight() - 40))
-            width = width + 28
+            icon:Render(Vector(math.min((width + boxWidth) / 2, boxWidth) + iconsWidth, Isaac.GetScreenHeight() - 40))
+            iconsWidth = iconsWidth + ICON_SHUFFLE_WIDTH
         end
         if locked then
             icon:Play("Locked")
-            icon:Render(Vector((width + boxWidth) / 2, Isaac.GetScreenHeight() - 40))
+            icon:Render(Vector(math.min((width + boxWidth) / 2, boxWidth) + iconsWidth, Isaac.GetScreenHeight() - 40))
         end
     end
 
-    font:DrawString(str, 0, Isaac.GetScreenHeight() - 40, KColor(r, g, b, a), boxWidth, true)
-    if Game():GetRoom():GetAliveBossesCount() <= 0 then
+    --Isaac.DrawLine(Vector(0, Isaac.GetScreenHeight() - 40), Vector(boxWidth, Isaac.GetScreenHeight() - 40), KColor(r, g, b, a), KColor(r, g, b, a), 2)
+    if width > boxWidth then
+        font:DrawStringScaled(str, 0, Isaac.GetScreenHeight() - 40, boxWidth / width, 1.0, KColor(r, g, b, a), boxWidth, true)
+    else
+        font:DrawString(str, 0, Isaac.GetScreenHeight() - 40, KColor(r, g, b, a), boxWidth, true)
+    end
+    
+    if CatGuy.Config:Get("OGGPlayerTutorial") and Game():GetRoom():GetAliveBossesCount() <= 0 then
         if tutorial == 2 then
             font:DrawStringScaled("Hold [Tab] and press [Left] / [Right] to seek!", 0, Isaac.GetScreenHeight() - 25, 0.8, 0.8, KColor(r * 0.8, g * 0.8, b * 0.8, a), boxWidth, true)
         elseif tutorial == 1 then

@@ -24,13 +24,25 @@ local catGuyConfig = {
     -- Default: true
     PercyBHasMomsHeadphones = true,
 
+    -- Whether or not to display OGG Player controls whenever it is picked up.
+    -- true  = Enabled.
+    -- false = Disabled.
+    -- Default: true
+    OGGPlayerTutorial = true,
+
     -- Keybind for restarting the music, in case of desync.
     -- Key names can be found here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
     -- Default: Keyboard.KEY_SLASH
     ControlsRestartMusic = Keyboard.KEY_SLASH,
 
+    -- Controller button for restarting the music, in case of desync.
+    -- Default: -1
+    ControlsRestartMusicController = -1,
+
 
     --------- INPUT LATENCY --------- 
+
+    -- KEYBOARD --
 
     -- Offset of inputs to accommodate for audio/controls latency, in milliseconds.
     -- Default: 0
@@ -43,18 +55,50 @@ local catGuyConfig = {
 
     -- Offset of inputs *for specifically Mom's Headphones + C Section* to accommodate for audio/controls latency, in milliseconds.
     -- Set to "nil" to make it match OffsetTrigger.
+    -- Default: 95 
+    -- (this is based on my own latency. You'll likely want to change this.)
+    OffsetCSection = 95,
+
+
+    -- CONTROLLER --
+
+    -- Offset of inputs to accommodate for audio/controls latency, in milliseconds.
+    -- Set to "nil" to make it match OffsetTrigger (keyboard).
     -- Default: nil
-    OffsetCSection = nil,
+    OffsetTriggerController = nil,
+
+    -- Offset of released inputs to accommodate for audio/controls latency, in milliseconds.
+    -- Set to "nil" to make it match OffsetTriggerController.
+    -- Default: nil
+    OffsetReleaseController = nil,
+
+    -- Offset of inputs *for specifically Mom's Headphones + C Section* to accommodate for audio/controls latency, in milliseconds.
+    -- Set to "nil" to make it match OffsetTriggerController.
+    -- Default: 120
+    -- (this is based on my own latency. You'll likely want to change this.)
+    OffsetCSectionController = 120,
+
+
+    -- LATENCY TESTING --
 
     -- Keybind for entering/exiting "latency testing mode", where you can determine appropriate latency settings.
     -- Key names can be found here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
     -- Default: Keyboard.KEY_BACKSLASH
     ControlsLatencyTestEnter = Keyboard.KEY_BACKSLASH,
 
+    -- Controller button for entering/exiting "latency testing mode", where you can determine appropriate latency settings.
+    -- Default: -1
+    ControlsLatencyTestEnterController = -1,
+
     -- Keybind used to test latency.
     -- Key names can be found here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
     -- Default: Keyboard.KEY_B
     ControlsLatencyTest = Keyboard.KEY_B,
+
+    -- Controller button used to test latency.
+    -- Default: -1
+    ControlsLatencyTestController = -1,
+
 
 
     ----- SONG-SPECIFIC SETTINGS -----
