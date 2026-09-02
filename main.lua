@@ -13,6 +13,11 @@ CatGuy.ModCallbacks = {
     POST_LOAD           = "CAT_GUY_POST_LOAD"
 }
 
+CatGuy.SoundEffect = {
+    RIMSHOT                 = Isaac.GetSoundIdByName("Rimshot"),
+    OGG_PLAYER_CHIRP        = Isaac.GetSoundIdByName("OGG Player Chirp")
+}
+
 CatGuy.PlayerType = {
     PERCY                   = Isaac.GetPlayerTypeByName("Percy"),
     PERCY_B                 = Isaac.GetPlayerTypeByName("Percy", true)
@@ -40,12 +45,6 @@ CatGuy.NullItemID = {
     FORTE_SCARED            = Isaac.GetNullItemIdByName("Forte Scared")
 }
 
-local FAMILIAR_DAMAGE_MULTIPLIER_LILITH = {
-    [FamiliarVariant.INCUBUS] = 1.0,
-    [FamiliarVariant.TWISTED_BABY] = 0.5, -- twisted pair
-    [FamiliarVariant.UMBILICAL_BABY] = 1.0 -- gello
-}
-
 ---Keyed by Player Type, Familiar Variant, and (optionally) Familiar SubType
 ---@type table<PlayerType, table<FamiliarVariant, number|table<integer, number>>>
 CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS = {
@@ -57,9 +56,13 @@ CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS = {
             [3] = 0.52, -- eternal clot
         }
     },
-    [PlayerType.PLAYER_LILITH] = FAMILIAR_DAMAGE_MULTIPLIER_LILITH,
-    [PlayerType.PLAYER_LILITH_B] = FAMILIAR_DAMAGE_MULTIPLIER_LILITH
+    [PlayerType.PLAYER_LILITH] = {
+        [FamiliarVariant.INCUBUS] = 1.0,
+        [FamiliarVariant.TWISTED_BABY] = 0.5, -- twisted pair
+        [FamiliarVariant.UMBILICAL_BABY] = 1.0 -- gello
+    }
 }
+CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[PlayerType.PLAYER_LILITH_B] = CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[PlayerType.PLAYER_LILITH]
 
 ---@param familiar EntityFamiliar
 function CatGuy.GetFamiliarVariantDamageMultiplier(familiar)

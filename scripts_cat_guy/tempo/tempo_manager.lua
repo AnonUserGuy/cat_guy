@@ -215,7 +215,7 @@ function TempoManager:PostRender()
     local sysTime = Isaac.GetTime()
     local bpm = self.lastBpm
     local pitch = self.lastPitch
-    self:Update(sysTime - self.lastSysTime + self:GetNudge())
+    self:Update(sysTime - self.lastSysTime)
     self.lastSysTime = sysTime
     if self.lastBpm ~= bpm or self.lastPitch ~= pitch then
         Isaac.RunCallback(CatGuy.ModCallbacks.POST_BPM_CHANGE, self, self.lastBpm ~= bpm, self.lastPitch ~= pitch)
@@ -226,9 +226,14 @@ function TempoManager:PostRender()
         self.musicRestartBeat = nil
         self:RestartMusic()
     end
+    
+    if CatGuy.PlayerUtils.AnyPlayer(function(player)
+    return Input.IsButtonTriggered(CatGuy:GetConfig("ControlsRestartMusic"), player.ControllerIndex) end) then
+        self:RestartMusic()
+    end
 end
 
-function TempoManager:GetNudge()
+--[[ function TempoManager:GetNudge()
     if not CatGuy:GetConfig("NudgeEnabled") then
         return 0
     elseif Input.IsButtonTriggered(CatGuy:GetConfig("ControlsNudgeForward"), 0) then
@@ -238,7 +243,7 @@ function TempoManager:GetNudge()
     else
         return 0
     end
-end
+end ]]
 
 ---@param arr number[]
 ---@return number

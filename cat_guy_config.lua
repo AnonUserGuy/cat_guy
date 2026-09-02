@@ -24,6 +24,11 @@ local catGuyConfig = {
     -- Default: true
     PercyBHasMomsHeadphones = true,
 
+    -- Keybind for restarting the music, in case of desync.
+    -- Key names can be found here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
+    -- Default: Keyboard.KEY_SLASH
+    ControlsRestartMusic = Keyboard.KEY_SLASH,
+
 
     --------- INPUT LATENCY --------- 
 
@@ -50,29 +55,6 @@ local catGuyConfig = {
     -- Key names can be found here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
     -- Default: Keyboard.KEY_B
     ControlsLatencyTest = Keyboard.KEY_B,
-
-
-    ------------ NUDGING ------------
-
-    -- Whether or not nudging is enabled.
-    -- true  = Enabled.
-    -- false = Disabled.
-    -- Default: false
-    NudgeEnabled = false,
-
-    -- How far to nudge per input, in milliseconds.
-    -- Default: 16
-    NudgeAmount = 16,
-
-    -- Keybind for nudging forward in time.
-    -- Key names can be found here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
-    -- Default: Keyboard.KEY_RIGHT_BRACKET
-    ControlsNudgeForward = Keyboard.KEY_RIGHT_BRACKET,
-
-    -- Keybind for nudging backward in time.
-    -- Key names can be found here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
-    -- Default: Keyboard.KEY_LEFT_BRACKET
-    ControlsNudgeBackward = Keyboard.KEY_LEFT_BRACKET,
 
 
     ----- SONG-SPECIFIC SETTINGS -----

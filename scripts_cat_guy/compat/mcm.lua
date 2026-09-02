@@ -5,7 +5,7 @@ local configTab = {
     INFO = "Info",
     GAMEPLAY = "Gameplay",
     INPUT_LATENCY = "Latency",
-    NUDGING = "Nudging",
+    --NUDGING = "Nudging",
     SONG_SPECIFIC_SETTINGS = "Songs"
 }
 ---@class MCMCompat
@@ -30,6 +30,7 @@ function mcmCompat:Init(mcm, inputHelper, tempoDefs)
 
     self:AddBoolean(mcm, "MomsHeadphonesHaveMetronome", configTab.GAMEPLAY, "Mom's Headphones have Metronome", {"Whether or not Mom's Headphones make a metronome play, even without the Toy Metronome trinket.", "In case you don't want to waste a trinket slot."})
     self:AddBoolean(mcm, "PercyBHasMomsHeadphones", configTab.GAMEPLAY, "Tainted Percy has Mom's Headphones", {"Whether or not Tainted Percy starts with Mom's Headphones.", "In case you want to try his gimmick without also having to play with regular Percy's gimmick."})
+    self:AddKeybind(mcm, inputHelper, "ControlsRestartMusic", configTab.GAMEPLAY, "Restart Music Key", {"Keybind for restarting the music, in case of desync."})
 --[[     mcm.AddSpace(MOD_NAME, configTab.GAMEPLAY)
     mcm.AddText(MOD_NAME, configTab.GAMEPLAY, function() return "The following only work on save file 1," end)
     mcm.AddText(MOD_NAME, configTab.GAMEPLAY, function() return "and require a restart to take effect!" end)
@@ -42,11 +43,11 @@ function mcmCompat:Init(mcm, inputHelper, tempoDefs)
     self:AddKeybind(mcm, inputHelper, "ControlsLatencyTestEnter", configTab.INPUT_LATENCY, "Enable/Disable Latency Test", {"Keybind for entering/exiting \"latency testing mode\", where you can determine appropriate latency settings."})
     self:AddKeybind(mcm, inputHelper, "ControlsLatencyTest", configTab.INPUT_LATENCY, "Latency Test Key", {"Keybind used to test latency."})
 
-    self:AddBoolean(mcm, "NudgeEnabled", configTab.NUDGING, "Nudging Enabled", {"Whether or not nudging is enabled."})
+--[[     self:AddBoolean(mcm, "NudgeEnabled", configTab.NUDGING, "Nudging Enabled", {"Whether or not nudging is enabled."})
     self:AddInteger(mcm, "NudgeAmount", configTab.NUDGING, "Nudge Amount", "ms", {"How far to nudge per input, in milliseconds."})
     self:AddKeybind(mcm, inputHelper, "ControlsNudgeForward", configTab.NUDGING, "Nudge Forward", {"Keybind for nudging forward in time."})
-    self:AddKeybind(mcm, inputHelper, "ControlsNudgeBackward", configTab.NUDGING, "Nudge Backward", {"Keybind for nudging backward in time."})
-
+    self:AddKeybind(mcm, inputHelper, "ControlsNudgeBackward", configTab.NUDGING, "Nudge Backward", {"Keybind for nudging backward in time."}) 
+]]
     self:UpdateTempos(mcm, tempoDefs)
 end
 

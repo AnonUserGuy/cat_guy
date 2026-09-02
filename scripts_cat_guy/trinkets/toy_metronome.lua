@@ -1,5 +1,3 @@
-local SFX_ID_RIMSHOT = Isaac.GetSoundIdByName("Rimshot")
-
 local CROP_CENTER  = 32
 local CROP_LEFT    = 64
 local CROP_RIGHT   = 96
@@ -63,7 +61,7 @@ function toyMetronome.Tick(tempoManager)
     ticked = true
     if Options.SFXVolume > 0.0001 and (CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.TOY_METRONOME) end)
     or (CatGuy:GetConfig("MomsHeadphonesHaveMetronome") and CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasCollectible(CatGuy.CollectibleType.MOMS_HEADPHONES) end))) then
-        SFXManager():Play(SFX_ID_RIMSHOT,
+        SFXManager():Play(CatGuy.SoundEffect.RIMSHOT,
             math.max(Options.MusicVolume / Options.SFXVolume, 1), 2,
             false, tempoManager.timeSigCount == tempoManager.timeSig - 1 and 1.25 or 1)
     end

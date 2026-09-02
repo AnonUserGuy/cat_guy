@@ -102,6 +102,10 @@ function oggPlayer.PostGameStarted()
     shuffle = false
 end
 
+local function chirp()
+    SFXManager():Play(CatGuy.SoundEffect.OGG_PLAYER_CHIRP, 0.25)
+end
+
 local function playMusic(music)
     local realLocked = locked
     locked = false
@@ -150,22 +154,26 @@ function oggPlayer.PostPlayerUpdate(player)
     end
 
     if Input.IsActionTriggered(ButtonAction.ACTION_SHOOTRIGHT, player.ControllerIndex) then
+        chirp()
         nextSong(player:GetTrinketRNG(CatGuy.TrinketType.OGG_PLAYER))
         timer = TIMER_MAX
         if tutorial == 2 then
             tutorial = 1
         end
     elseif Input.IsActionTriggered(ButtonAction.ACTION_SHOOTLEFT, player.ControllerIndex) then
+        chirp()
         previousSong()
         timer = TIMER_MAX
         if tutorial == 2 then
             tutorial = 1
         end
     elseif Input.IsButtonTriggered(Keyboard.KEY_BACKSPACE, player.ControllerIndex) then
+        chirp()
         typing = typing // 10
     else
         for i = Keyboard.KEY_0, Keyboard.KEY_9 do
             if Input.IsButtonTriggered(i, player.ControllerIndex) then
+                chirp()
                 typing = typing * 10 + (i - Keyboard.KEY_0)
                 if typing > CatGuy.MUSIC_MAX_ID then
                     typing = CatGuy.MUSIC_MAX_ID
@@ -176,12 +184,14 @@ function oggPlayer.PostPlayerUpdate(player)
     end
 
     if Input.IsActionTriggered(ButtonAction.ACTION_SHOOTDOWN, player.ControllerIndex) then
+        chirp()
         locked = not locked
         if tutorial == 1 then
             tutorial = 0
         end
     end
     if Input.IsActionTriggered(ButtonAction.ACTION_SHOOTUP, player.ControllerIndex) then
+        chirp()
         shuffle = not shuffle
         if tutorial == 1 then
             tutorial = 0

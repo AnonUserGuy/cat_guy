@@ -1,7 +1,7 @@
 <items gfxroot="gfx/items/" version="1">
     <passive id="1" name="Mom's Headphones" description="I'm listening" gfx="collectibles_momsheadphones.png" 
         quality="3" tags="summonable offensive mom" />
-    <passive name="Triplet Swing" description="Swingy triple shot" gfx="collectibles_triplet_swing.png"
+    <passive name="Triplet Swing" description="Swingy triple shot" gfx="collectibles_tripletswing.png"
         quality="2" tags="summonable offensive" achievement="-1" />
     <passive name="Forte" description="Intensity gives stats up" gfx="collectibles_forte.png"
         quality="3" tags="summonable offensive" achievement="-1" />
@@ -9,8 +9,8 @@
         quality="2" />
 
 	<trinket name="Toy Metronome" description="Tick tock!" gfx="trinket_toymetronome.png" achievement="-1" />
-	<trinket name="OGG Player" description="It only supports Vorbis" gfx="trinket_brokenheadphones.png" achievement="-1" />
-    <trinket name="Broken OGG Player" description="Stuck on shuffle" gfx="trinket_brokenheadphones.png" achievement="-1" />
+	<trinket name="OGG Player" description="It only supports Vorbis" gfx="trinket_oggplayer.png" achievement="-1" />
+    <trinket name="Broken OGG Player" description="Stuck on shuffle" gfx="trinket_brokenoggplayer.png" achievement="-1" />
 
     <null name="Percy Revive" customtags="revive" persistent="true" />
     <null name="Dead Cat Revive" customtags="revive" persistent="true" />

@@ -1,5 +1,5 @@
 <AnimatedActor>
-	<Info CreatedBy="robot" CreatedOn="8/31/2026 10:32:59 AM" Version="104" Fps="30"/>
+	<Info CreatedBy="DogLuggage" CreatedOn="8/31/2026 10:32:59 AM" Version="104" Fps="30"/>
 	<Content>
 		<Spritesheets>
 			<Spritesheet Path="costumes\costume_triplet_swing_annoyed.png" Id="0"/>
