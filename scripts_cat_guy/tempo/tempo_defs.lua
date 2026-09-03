@@ -101,7 +101,7 @@ local tempoDefs = {
 
 local MUSIC_DEATHMATCH = Music.MUSIC_DEATHMATCH or Isaac.GetMusicIdByName("Deathmatch")
 if MUSIC_DEATHMATCH then
-    tempoDefs[MUSIC_DEATHMATCH]                 = {}
+    tempoDefs[MUSIC_DEATHMATCH]                 = {name = "There Can Be Only One"}
 end
 
 

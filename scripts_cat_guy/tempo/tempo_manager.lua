@@ -4,6 +4,7 @@ local MILLISECONDS_PER_MINUTE = 60000
 local TWO_THIRDS = 2/3
 
 ---@class TempoManager
+---@field lastMusic Music?
 ---@field lastPitch number
 ---@field tempoDefs table<Music, TempoDef>
 ---@field tempoDef TempoDef?
@@ -47,6 +48,7 @@ function TempoManager:New(tempoDefs)
     instance.triplet = false
     instance.musicRestartBeat = nil
 
+    instance.lastMusic = nil
     instance.lastSysTime = Isaac.GetTime()
 
     instance.latencyTestEnabled = false
@@ -130,7 +132,12 @@ end
 
 ---@param music Music
 function TempoManager:PreMusicPlay(music)
-    local def = self.tempoDefs[music] ---@type TempoDef?
+    if not CatGuy:IsValidMusic(music) then
+        return
+    end
+
+    self.lastMusic = music
+    local def = self.tempoDefs[music] ---@type TempoDef
     if def and def.bpm and CatGuy.Config:GetTempoEnabled(music) ~= false then
         self.tempoDef = def
         self:PrepareTempoDef(def)
@@ -153,6 +160,7 @@ function TempoManager:PreMusicPlay(music)
         self.tempoDef = nil
         self.time = 0
     end
+    self.musicRestartBeat = nil
 end
 
 ---@param timeDelta integer time passed since last frame in milliseconds
@@ -190,9 +198,9 @@ function TempoManager:Update(timeDelta)
                 self.time = def.intro or 0
                 self.lastBpm = def.bpmIndices and def.bpms[def.bpmIndices[self.bpmIndex]] or def.bpm
                 local beatDelta = timeTilEnd * self.lastBpm / MILLISECONDS_PER_MINUTE
-                self.beat = self.beat + beatDelta
                 self.beatMusic = def.beatIntro or 0.0
-                
+                self.beat = ((self.beat + beatDelta + 0.5) // 1) + ((self.beatMusic + 0.5) % 1) - 0.5
+
                 if def.bpmIndices then
                     for i, time0 in ipairs(def.bpmIndices) do
                         if time0 > self.time then
@@ -236,18 +244,25 @@ function TempoManager:Update(timeDelta)
 end
 
 function TempoManager:PostRender()
-    local sysTime = Isaac.GetTime()
     local bpm = self.lastBpm
     local pitch = self.lastPitch
+
+    local music = MusicManager():GetCurrentMusicID()
+    if music ~= self.lastMusic then
+        print(music)
+        -- music update suppressed by early return on MC_PRE_MUSIC_PLAY
+        self:PreMusicPlay(music)
+    end
+    local sysTime = Isaac.GetTime()
     self:Update(sysTime - self.lastSysTime)
     self.lastSysTime = sysTime
+
     if self.lastBpm ~= bpm or self.lastPitch ~= pitch then
         Isaac.RunCallback(CatGuy.ModCallbacks.POST_BPM_CHANGE, self, self.lastBpm ~= bpm, self.lastPitch ~= pitch)
     end
 
     self:LatencyTest()
     if self.musicRestartBeat and self.beat > self.musicRestartBeat then
-        self.musicRestartBeat = nil
         self:RestartMusic()
     end
     

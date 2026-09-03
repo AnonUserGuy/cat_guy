@@ -24,7 +24,7 @@ function oggPlayer.PreAddTrinket_trinket(player)
 end
 
 function oggPlayer.PreMusicPlay(music)
-    if isRandomizing or music == MusicManager():GetCurrentMusicID() then
+    if not CatGuy:IsValidMusic(music) or isRandomizing or music == MusicManager():GetCurrentMusicID() then
         return
     end
 

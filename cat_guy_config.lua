@@ -36,6 +36,7 @@ local catGuyConfig = {
     ControlsRestartMusic = Keyboard.KEY_SLASH,
 
     -- Controller button for restarting the music, in case of desync.
+    -- Controller button names can be found here: https://github.com/AnonUserGuy/cat_guy/blob/main/scripts_cat_guy/compat/mcm_controller.lua
     -- Default: -1
     ControlsRestartMusicController = -1,
 
@@ -87,6 +88,7 @@ local catGuyConfig = {
     ControlsLatencyTestEnter = Keyboard.KEY_BACKSLASH,
 
     -- Controller button for entering/exiting "latency testing mode", where you can determine appropriate latency settings.
+    -- Controller button names can be found here: https://github.com/AnonUserGuy/cat_guy/blob/main/scripts_cat_guy/compat/mcm_controller.lua
     -- Default: -1
     ControlsLatencyTestEnterController = -1,
 
@@ -96,6 +98,7 @@ local catGuyConfig = {
     ControlsLatencyTest = Keyboard.KEY_B,
 
     -- Controller button used to test latency.
+    -- Controller button names can be found here: https://github.com/AnonUserGuy/cat_guy/blob/main/scripts_cat_guy/compat/mcm_controller.lua
     -- Default: -1
     ControlsLatencyTestController = -1,
 

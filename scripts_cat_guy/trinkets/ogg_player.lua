@@ -4,10 +4,8 @@ local ICON_SPACE_WIDTH = 6
 local ICON_SHUFFLE_WIDTH = 14
 local ICON_LOCKED_WIDTH = 11
 
----@return number
-local function s(n)
-    return 2 ^ (n / 12)
-end
+---@param n integer
+local function s(n) return 2 ^ (n / 12) end
 local NUMBER_PITCHES = {s(-1-5), s(0-5), s(2-5), s(4-5), s(5-5), s(7-5), s(9-5), s(11-5), s(12-5)}
 NUMBER_PITCHES[0] = s(14-5)
 
@@ -17,10 +15,10 @@ local TIMER_FADED = 60
 local SHUFFLE_LIST_MAX = 100
 
 local timer = 0
-local shuffle = false
+CatGuyShuffle = false
 local shuffleListIndex = 0
 local shuffleList = {} ---@type Music[]
-local locked = false
+CatGuyLocked = false
 local tutorial = 2
 local typing = 0
 
@@ -77,7 +75,7 @@ local function getText()
                 if mod then
                     artist = mod.directory
                 else
-                    artist = "base"
+                    artist = node.sourceid
                 end
             end
         end
@@ -92,16 +90,20 @@ oggPlayer.Priority = {}
 oggPlayer.Priority[CallbackPriority.IMPORTANT] = {}
 
 oggPlayer.Priority[CallbackPriority.IMPORTANT].PreMusicPlay = function(music)
+    if not CatGuy:IsValidMusic(music) then
+        return
+    end
+
     if Isaac.IsInGame() then
         if CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.OGG_PLAYER) end) then
-            if locked and music ~= MusicManager():GetCurrentMusicID() then
+            if CatGuyLocked and music ~= MusicManager():GetCurrentMusicID() then
                 return false
             end
             timer = TIMER_MAX
         end
     else
-        if locked then
-            locked = false
+        if CatGuyLocked then
+            CatGuyLocked = false
             return false
         end
     end
@@ -109,8 +111,8 @@ oggPlayer.Priority[CallbackPriority.IMPORTANT].PreMusicPlay = function(music)
 end
 
 function oggPlayer.PostGameStarted()
-    locked = false
-    shuffle = false
+    CatGuyLocked = false
+    CatGuyShuffle = false
 end
 
 ---@param pitch? number
@@ -119,17 +121,17 @@ local function chirp(pitch)
 end
 
 local function playMusic(music)
-    local realLocked = locked
-    locked = false
+    local realLocked = CatGuyLocked
+    CatGuyLocked = false
     MusicManager():Play(music, 0)
     MusicManager():UpdateVolume()
-    locked = realLocked
+    CatGuyLocked = realLocked
 end
 
 ---@param rng RNG
 local function nextSong(rng)
     local id = MusicManager():GetCurrentMusicID()
-    if shuffle then
+    if CatGuyShuffle then
         shuffleListIndex = (shuffleListIndex % SHUFFLE_LIST_MAX) + 1
         shuffleList[shuffleListIndex] = id
         id = CatGuy:RandomMusic(rng, function(newId) return newId ~= id end)
@@ -141,7 +143,7 @@ end
 
 local function previousSong()
     local id
-    if shuffle then
+    if CatGuyShuffle then
         id = shuffleList[shuffleListIndex]
         if id then
             shuffleList[shuffleListIndex] = nil
@@ -199,14 +201,14 @@ function oggPlayer.PostPlayerUpdate(player)
 
     if Input.IsActionTriggered(ButtonAction.ACTION_SHOOTDOWN, player.ControllerIndex) then
         chirp()
-        locked = not locked
+        CatGuyLocked = not CatGuyLocked
         if tutorial == 1 then
             tutorial = 0
         end
     end
     if Input.IsActionTriggered(ButtonAction.ACTION_SHOOTUP, player.ControllerIndex) then
         chirp()
-        shuffle = not shuffle
+        CatGuyShuffle = not CatGuyShuffle
         if tutorial == 1 then
             tutorial = 0
         end
@@ -267,23 +269,23 @@ function oggPlayer.PostHUDRender()
     local str = "Now playing: "..(typing > 0 and tostring(typing) or text)
     local width = font:GetStringWidth(str)
     local boxWidth = Isaac.GetScreenWidth()
-    if shuffle or locked then
+    if CatGuyShuffle or CatGuyLocked then
         icon.Color = Color(r, g, b, a)
         local iconsWidth = ICON_SPACE_WIDTH
         boxWidth = boxWidth - ICON_SPACE_WIDTH
-        if shuffle then
+        if CatGuyShuffle then
             boxWidth = boxWidth - ICON_SHUFFLE_WIDTH
         end
-        if locked then
+        if CatGuyLocked then
             boxWidth = boxWidth - ICON_LOCKED_WIDTH
         end
 
-        if shuffle then
+        if CatGuyShuffle then
             icon:Play("Shuffle")
             icon:Render(Vector(math.min((width + boxWidth) / 2, boxWidth) + iconsWidth, Isaac.GetScreenHeight() - 40))
             iconsWidth = iconsWidth + ICON_SHUFFLE_WIDTH
         end
-        if locked then
+        if CatGuyLocked then
             icon:Play("Locked")
             icon:Render(Vector(math.min((width + boxWidth) / 2, boxWidth) + iconsWidth, Isaac.GetScreenHeight() - 40))
         end
@@ -306,8 +308,8 @@ function oggPlayer.PostHUDRender()
 end
 
 function oggPlayer.PreGameExit()
-    if locked and not CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.OGG_PLAYER) end) then
-        locked = false
+    if CatGuyLocked and not CatGuy.PlayerUtils.AnyPlayer(function(player) return player:HasTrinket(CatGuy.TrinketType.OGG_PLAYER) end) then
+        CatGuyLocked = false
     end
 end
 

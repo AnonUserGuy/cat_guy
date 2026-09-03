@@ -1,3 +1,6 @@
+local TWO_THIRDS = 2/3
+local ONE_SIXTH = 1/6
+
 ---@type CollectibleCallbacks
 local triple = {}
 
@@ -9,7 +12,7 @@ local basePitch = nil ---@type number?
 
 ---@param x number
 local function getSwingRatio(x)
-    return 0.1667 * (x / HURT_TIME_MAX) + 0.5
+    return ONE_SIXTH * (x / HURT_TIME_MAX) + 0.5
 end
 
 local function anybodyHurt()
@@ -58,13 +61,21 @@ function triple.PostUpdate()
     end
 
     local tempoManager = CatGuy.TempoManager
-    if not tempoManager.tempoDef or tempoManager.triplet then
+    if not tempoManager.tempoDef then
         Game():GetRoom():SetBrokenWatchState(0)
     else
-        if (tempoManager.beat % 1) < 0.5 then
-            Game():GetRoom():SetBrokenWatchState(1)
+        if tempoManager.triplet then
+            if (tempoManager.beat % 1) < TWO_THIRDS then
+                Game():GetRoom():SetBrokenWatchState(2)
+            else
+                Game():GetRoom():SetBrokenWatchState(1)
+            end
         else
-            Game():GetRoom():SetBrokenWatchState(2)
+            if (tempoManager.beat % 1) < 0.5 then
+                Game():GetRoom():SetBrokenWatchState(1)
+            else
+                Game():GetRoom():SetBrokenWatchState(2)
+            end
         end
     end
 end
@@ -76,7 +87,7 @@ function triple.PreRender()
         return
     elseif hurtTime == 0 then
         local tempoManager = CatGuy.TempoManager
-        if tempoManager.tempoDef and not tempoManager.triplet then
+        if tempoManager.tempoDef then
             CatGuy.TempoManager:ScheduleRestartMusic()
             MusicManager():ResetPitch()
         end
@@ -93,14 +104,22 @@ function triple.PreRender()
 
     local pitch
     local tempoManager = CatGuy.TempoManager
-    if not tempoManager.tempoDef or tempoManager.triplet then
+    if not tempoManager.tempoDef then
         pitch = 1.0000001
     else
         local swingRatio = getSwingRatio(hurtTime)
-        if (tempoManager.beat % 1) < 0.5 then
-            pitch = 1 / (2 * swingRatio)
+        if tempoManager.triplet then
+            if (tempoManager.beat % 1) < TWO_THIRDS then
+                pitch = 1 / (2 * (1 - swingRatio))
+            else
+                pitch = 1 / (2 * swingRatio)
+            end
         else
-            pitch = 1 / (2 * (1 - swingRatio))
+            if (tempoManager.beat % 1) < 0.5 then
+                pitch = 1 / (2 * swingRatio)
+            else
+                pitch = 1 / (2 * (1 - swingRatio))
+            end
         end
     end
     MusicManager():SetCurrentPitch(pitch * (basePitch or 1.0))

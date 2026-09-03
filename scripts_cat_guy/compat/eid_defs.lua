@@ -190,9 +190,9 @@ EIDDefs.collectibles[CatGuy.CollectibleType.TRIPLET_SWING] = {
             "#{{Collectible"..CollectibleType.COLLECTIBLE_BROKEN_WATCH.."}} Getting hit makes music \"swung\" for 8 seconds"..
             "#{{Collectible"..CollectibleType.COLLECTIBLE_BROKEN_WATCH.."}} Swung music makes game speed rapidly alternate between fast and slow"
     },
-    synergies = {
+--[[     synergies = {
         [CollectibleType.COLLECTIBLE_INNER_EYE] = TRIPLET_SWING_DUPLICATE
-    },
+    }, ]]
     duplicate = TRIPLET_SWING_DUPLICATE,
 }
 

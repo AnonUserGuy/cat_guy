@@ -3,7 +3,7 @@ local MOD_NAME = "Percy: Musical Cat"
 ---@enum ConfigTab
 local configTab = {
     INFO = "Info",
-    GAMEPLAY = "Gameplay",
+    GENERAL = "General",
     INPUT_LATENCY = "Latency",
     --NUDGING = "Nudging",
     SONG_SPECIFIC_SETTINGS = "Songs"
@@ -25,15 +25,16 @@ function mcmCompat:Init(mcm, inputHelper, tempoDefs)
 
     mcm.AddSpace(MOD_NAME, configTab.INFO)
     mcm.AddText(MOD_NAME, configTab.INFO, function() return CatGuy.XML.name end)
+    mcm.AddText(MOD_NAME, configTab.INFO, function() return "AKA \"Cat Guy\"" end)
     mcm.AddSpace(MOD_NAME, configTab.INFO)
     mcm.AddText(MOD_NAME, configTab.INFO, function() return "Version " .. CatGuy.XML.version end)
 
-    self:AddBoolean(mcm, "MomsHeadphonesHaveMetronome", configTab.GAMEPLAY, "Mom's Headphones have Metronome", {"Whether or not Mom's Headphones make a metronome play, even without the Toy Metronome trinket.", "In case you don't want to waste a trinket slot."})
-    self:AddBoolean(mcm, "PercyBHasMomsHeadphones", configTab.GAMEPLAY, "Tainted Percy has Mom's Headphones", {"Whether or not Tainted Percy starts with Mom's Headphones.", "In case you want to try his gimmick without also having to play with regular Percy's gimmick."})
-    self:AddBoolean(mcm, "OGGPlayerTutorial", configTab.GAMEPLAY, "Display OGG Player tutorial", {"Whether or not to display OGG Player controls whenever it is picked up."})
-    mcm.AddSpace(MOD_NAME, configTab.GAMEPLAY)
-    self:AddKeybind(mcm, inputHelper, "ControlsRestartMusic", configTab.GAMEPLAY, "Restart Music (Keyboard)", {"Keybind for restarting the music, in case of desync."})
-    self:AddKeybind(mcm, inputHelper, "ControlsRestartMusicController", configTab.GAMEPLAY, "Restart Music (Controller)", {"Controller button for restarting the music, in case of desync."}, true)
+    self:AddBoolean(mcm, "MomsHeadphonesHaveMetronome", configTab.GENERAL, "Mom's Headphones have Metronome", {"Whether or not Mom's Headphones make a metronome play, even without the Toy Metronome trinket.", "In case you don't want to waste a trinket slot."})
+    self:AddBoolean(mcm, "PercyBHasMomsHeadphones", configTab.GENERAL, "Tainted Percy has Mom's Headphones", {"Whether or not Tainted Percy starts with Mom's Headphones.", "In case you want to try his gimmick without also having to play with regular Percy's gimmick."})
+    self:AddBoolean(mcm, "OGGPlayerTutorial", configTab.GENERAL, "Display OGG Player tutorial", {"Whether or not to display OGG Player controls whenever it is picked up."})
+    mcm.AddSpace(MOD_NAME, configTab.GENERAL)
+    self:AddKeybind(mcm, inputHelper, "ControlsRestartMusic", configTab.GENERAL, "Restart Music (Keyboard)", {"Keybind for restarting the music, in case of desync."})
+    self:AddKeybind(mcm, inputHelper, "ControlsRestartMusicController", configTab.GENERAL, "Restart Music (Controller)", {"Controller button for restarting the music, in case of desync."}, true)
 
     --[[mcm.AddSpace(MOD_NAME, configTab.GAMEPLAY)
     mcm.AddText(MOD_NAME, configTab.GAMEPLAY, function() return "The following only work on save file 1," end)
@@ -74,6 +75,8 @@ function mcmCompat:UpdateTempos(mcm, tempoDefs)
     mcm.AddText(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS, function() return "Enable rhythm-related features per song" end)
     mcm.AddText(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS, function() return "(for if a song gets replaced by another mod)" end)
 
+    mcm.AddSpace(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS)
+    mcm.AddText(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS, function() return "Currently Playing" end)
     local CurrentInfo = {"Enable/Disable for specifically the playing track."}
     mcm.AddSetting(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS, {
         Type = mcm.OptionType.BOOLEAN,
@@ -129,12 +132,19 @@ function mcmCompat:UpdateTempos(mcm, tempoDefs)
         Info = CurrentInfo
     })
 
+    local lastMod = nil ---@type string?
     for music, val in pairs(tempoDefs) do
         if val.bpm then
             local node = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
             if not node then
                 self:AddTempoEnabled(mcm, music, configTab.SONG_SPECIFIC_SETTINGS, music.." - Unknown Track")
             else
+                if lastMod ~= node.sourceid then
+                    lastMod = node.sourceid
+                    local name = XMLData.GetModById(node.sourceid) and XMLData.GetModById(node.sourceid).directory or node.sourceid
+                    mcm.AddSpace(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS)
+                    mcm.AddText(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS, function() return name end)
+                end
                 local j = {"Path: \""..node.path.."\""}
                 if node.intro then
                     table.insert(j, 1, "Intro: \""..node.intro.."\"")
@@ -267,13 +277,14 @@ function mcmCompat:AddIntegerWithDefault(mcm, configName, configNameDefault, tab
             end
             return "-- Reset "..attribute.." --"
         end,
-        OnChange = function(b)
+        OnChange = function()
             CatGuy.Config:Set(configName, nil)
         end,
         Info = {"Reset \""..attribute.."\" to match "..attributeDefault}
     })
 end
 
+--- largely adapted from https://github.com/wofsauge/External-Item-Descriptions/blob/master/features/eid_mcm.lua
 ---@param mcm any
 ---@param inputHelper any
 ---@param tab ConfigTab
@@ -317,12 +328,6 @@ function mcmCompat:AddKeybind(mcm, inputHelper, configName, tab, attribute, info
         end,
         Info = info or {}
     })
-end
-
----@param inputHelper any
----@param key Keyboard
-function mcmCompat:GetKeyName(inputHelper, key)
-    return inputHelper and inputHelper.KeyboardToString and inputHelper.KeyboardToString[key] or key
 end
 
 return mcmCompat

@@ -51,7 +51,7 @@ CatGuy.NullItemID = {
 
 ---Keyed by Player Type, Familiar Variant, and (optionally) Familiar SubType
 ---@type table<PlayerType, table<FamiliarVariant, number|table<integer, number>>>
-CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS = {
+CatGuy.FamiliarVariantDamageMultipliers = {
     [-1] = { -- default
         [FamiliarVariant.TWISTED_BABY] = 0.375, -- twisted pair
         [FamiliarVariant.BLOOD_BABY] = { -- sumptorium clot
@@ -66,13 +66,13 @@ CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS = {
         [FamiliarVariant.UMBILICAL_BABY] = 1.0 -- gello
     }
 }
-CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[PlayerType.PLAYER_LILITH_B] = CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[PlayerType.PLAYER_LILITH]
+CatGuy.FamiliarVariantDamageMultipliers[PlayerType.PLAYER_LILITH_B] = CatGuy.FamiliarVariantDamageMultipliers[PlayerType.PLAYER_LILITH]
 
 ---@param familiar EntityFamiliar
 function CatGuy:GetFamiliarVariantDamageMultiplier(familiar)
-    local multipliers = CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[familiar.Player:GetPlayerType()]
+    local multipliers = CatGuy.FamiliarVariantDamageMultipliers[familiar.Player:GetPlayerType()]
     local val = (multipliers and multipliers[familiar.Variant])
-        or CatGuy.FAMILIAR_VARIANT_DAMAGE_MULTIPLIERS[-1][familiar.Variant]
+        or CatGuy.FamiliarVariantDamageMultipliers[-1][familiar.Variant]
     if type(val) == "table" then
         val = val[familiar.SubType] or val[-1]
     end
@@ -156,6 +156,11 @@ function CatGuy:IncrementMusic(music, n)
         end
     end
     return music
+end
+
+---@param music? Music
+function CatGuy:IsValidMusic(music)
+    return music and XMLData.GetEntryById(XMLNode.MUSIC, music)
 end
 
 ---@param modId string
@@ -595,8 +600,11 @@ else
 end
 
 if Isaac.IsInGame() then
-    CatGuy.TempoManager:RestartMusic()
     CatGuy:PostGameStarted()
 end
 
 Isaac.RunCallback(CatGuy.ModCallbacks.POST_LOAD)
+
+if Isaac.IsInGame() then
+    CatGuy.TempoManager:RestartMusic()
+end
