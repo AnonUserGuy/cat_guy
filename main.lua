@@ -179,10 +179,10 @@ CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type Pl
 
 local tempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
 local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
-local tempoDefsAntibirth = include("scripts_cat_guy.tempo.tempo_defs_antibirth_plus") ---@type table<Music, TempoDef>
 CatGuy.TempoManager = tempoManager:New(tempoDefs)
 
 if CatGuy:HasMod(CatGuy.ModIDs.ANTIBIRTH_MUSIC_PLUS) then
+    local tempoDefsAntibirth = include("scripts_cat_guy.tempo.tempo_defs_antibirth_plus") ---@type table<Music, TempoDef>
     CatGuy.TempoManager:RegisterTempoDefs(tempoDefsAntibirth)
 end
 

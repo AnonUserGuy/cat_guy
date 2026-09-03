@@ -75,15 +75,18 @@ local tempoDefs = {
     [Music.MUSIC_SCARRED_WOMB]                  = {bpm = 100, timeSigs={[2]=4}},
     [Music.MUSIC_BLUE_WOMB]                     = {bpm = 75, offset=317},
     [Music.MUSIC_UTERO]                         = {bpm = 140, offset=107},
-    ----[Music.MUSIC_MOM_BOSS]                      = {}, -- has "true" version
-    ----[Music.MUSIC_MOMS_HEART_BOSS]               = {}, -- has "true" version
-    ----[Music.MUSIC_ISAAC_BOSS]                    = {}, -- has "true" version
+    [newMusic.MOM_BOSS_TRUE]                    = {bpm = 151, timeSigs={[2]=4}},
+    [Music.MUSIC_MOM_BOSS]                      = {bpm = 151},
+    [newMusic.MOMS_HEART_BOSS_TRUE]             = {bpm = 145, offset=120},
+    [Music.MUSIC_MOMS_HEART_BOSS]               = {bpm = 145},
+    [newMusic.ISAAC_BOSS_TRUE]                  = {bpm = 168, offset=55, timeSig=3},
+    [Music.MUSIC_ISAAC_BOSS]                    = {bpm = 168, timeSig=3},
     [Music.MUSIC_SATAN_BOSS]                    = {bpm = 100, triplet=true},
-    ----[Music.MUSIC_DARKROOM_BOSS]                 = {}, -- has "true" version
-    ----[Music.MUSIC_BLUEBABY_BOSS]                 = {}, -- has "true" version
+    [Music.MUSIC_DARKROOM_BOSS]                 = {bpm = 163},
+    [Music.MUSIC_BLUEBABY_BOSS]                 = {bpm = 140},
     [Music.MUSIC_BOSS2]                         = {bpm = 150, intro=2795, length=118400, timeSigs={[0]=7,[7]=6,[79]=7,[107]=6,[251]=7,[279]=6}},
     [Music.MUSIC_HUSH_BOSS]                     = {bpm = 169, intro=6391, length=177515, timeSigs={[2]=4,[18]=7,[46]=4,[138]=7,[166]=8,[174]=7,[202]=4,[394]=7,[422]=4}},
-    ----[Music.MUSIC_ULTRAGREED_BOSS]               = {}, -- has "true" version
+    [Music.MUSIC_ULTRAGREED_BOSS]               = {bpm = 139},
     [Music.MUSIC_LIBRARY_ROOM]                  = {bpm = 110, offset=7, intro=78, length=104704, bpms={[104189]=101.180}},
     [Music.MUSIC_SECRET_ROOM]                   = {bpm = 130, offset=78, timeSig=3},
     [Music.MUSIC_SECRET_ROOM2]                  = {bpm = 130, timeSig=3},
@@ -92,12 +95,14 @@ local tempoDefs = {
     [Music.MUSIC_SHOP_ROOM]                     = {bpm = 90, offset=212},
     [Music.MUSIC_ARCADE_ROOM]                   = {bpm = 120},
     [Music.MUSIC_BOSS_OVER]                     = {bpm = 60, offset=500, intro=4500, length=142000, timeSigs={[4]=4}},
+    [newMusic.CHALLENGE_FIGHT_FULL]             = {bpm = 138, triplet=true, timeSigs={[2]=4}},
     [Music.MUSIC_CHALLENGE_FIGHT]               = {bpm = 138, triplet=true},
     [Music.MUSIC_BOSS_RUSH]                     = {bpm = 138, offset=19, triplet=true},
     [Music.MUSIC_JINGLE_BOSS_RUSH_OUTRO]        = {},
     [Music.MUSIC_BOSS3]                         = {bpm = 150, intro=2795, length=118400, timeSigs={[0]=7,[7]=6,[151]=7,[179]=6,[275]=7}},
     [Music.MUSIC_JINGLE_BOSS_OVER3]             = {},
-    ----[Music.MUSIC_MOTHER_BOSS]                   = {}, -- has "true" version
+    [newMusic.MOTHER_BOSS_TRUE]                 = {bpm = 158, offset=382},
+    [Music.MUSIC_MOTHER_BOSS]                   = {bpm = 158},
     ----[Music.MUSIC_DOGMA_BOSS]                    = {}, -- same as vanilla
     ----[Music.MUSIC_BEAST_BOSS]                    = {}, -- same as vanilla
     [Music.MUSIC_JINGLE_MOTHER_OVER]            = {},
@@ -137,7 +142,7 @@ local tempoDefs = {
     ----[Music.MUSIC_INTRO_VOICEOVER]               = {},
     ----[Music.MUSIC_EPILOGUE_VOICEOVER]            = {},
     ----[Music.MUSIC_VOID]                          = {}, -- has "true" version
-    ----[Music.MUSIC_VOID_BOSS]                     = {}, -- has "true" version
+    [Music.MUSIC_VOID_BOSS]                     = {bpm = 153},
     [Music.MUSIC_DOWNPOUR]                      = {bpm = 170, offset=128},
     [Music.MUSIC_MINES]                         = {bpm = 140},
     [Music.MUSIC_MAUSOLEUM]                     = {bpm = 145, offset=100},
@@ -154,26 +159,9 @@ local tempoDefs = {
     ----[Music.MUSIC_MINESHAFT_ESCAPE]              = {}, -- same as vanilla
     ----[Music.MUSIC_REVERSE_GENESIS]               = {}, -- same as vanilla
 
-    [newMusic.CHALLENGE_FIGHT_FULL]             = {bpm = 138, triplet=true, timeSigs={[2]=4}},
-    [newMusic.MOM_BOSS_TRUE]                    = {},
-    [newMusic.MOM_BOSS]                         = {},
-    [newMusic.MOMS_HEART_BOSS_TRUE]             = {},
-    [newMusic.MOMS_HEART_BOSS]                  = {},
-    [newMusic.ISAAC_BOSS_TRUE]                  = {},
-    [newMusic.ISAAC_BOSS]                       = {},
-    [newMusic.MOTHER_BOSS_TRUE]                 = {},
-    [newMusic.MOTHER_BOSS]                      = {},
-    [newMusic.BLUEBABY_BOSS_TRUE]               = {},
-    [newMusic.BLUEBABY_BOSS]                    = {},
-    [newMusic.DARKROOM_BOSS_TRUE]               = {},
-    [newMusic.DARKROOM_BOSS]                    = {},
-    [newMusic.VOID_BOSS_TRUE]                   = {},
-    [newMusic.VOID_BOSS]                        = {},
-    [newMusic.ULTRAGREED_BOSS_TRUE]             = {},
-    [newMusic.ULTRAGREED_BOSS]                  = {},
-    [newMusic.MEGASATAN_BOSS]                   = {},
-    [newMusic.ARCADE_ALT]                       = {},
-    [newMusic.SHOP_ALT]                         = {},
+    [newMusic.MEGASATAN_BOSS]                   = {bpm = 140, offset=-360, triplet=true},
+    [newMusic.ARCADE_ALT]                       = {bpm = 166, offset=60},
+    [newMusic.SHOP_ALT]                         = {bpm = 184, triplet=true},
     [newMusic.VOID_0]                           = {},
     [newMusic.VOID_1]                           = {},
     [newMusic.VOID_2]                           = {},
@@ -216,15 +204,18 @@ local names = {
     [Music.MUSIC_SCARRED_WOMB]                  = "Lethe (Scarred Womb)",
     [Music.MUSIC_BLUE_WOMB]                     = "An Armistice (Blue Womb)",
     [Music.MUSIC_UTERO]                         = "Dystension (Womb)",
-    ----[Music.MUSIC_MOM_BOSS]                  = "The Turn (Mom fight)",
-    ----[Music.MUSIC_MOMS_HEART_BOSS]           = "Gloria Filio (Mom's Heart)",
-    ----[Music.MUSIC_ISAAC_BOSS]                = "Misericorde (Isaac Fight)",
+    [newMusic.MOM_BOSS_TRUE]                    = "The Turn (Mom fight)",
+    [Music.MUSIC_MOM_BOSS]                      = "The Turn (Mom fight)",
+    [newMusic.MOMS_HEART_BOSS_TRUE]             = "Gloria Filio (Mom's Heart)",
+    [Music.MUSIC_MOMS_HEART_BOSS]               = "Gloria Filio (Mom's Heart)",
+    [newMusic.ISAAC_BOSS_TRUE]                  = "Misericorde (Isaac Fight)",
+    [Music.MUSIC_ISAAC_BOSS]                    = "Misericorde (Isaac Fight)",
     [Music.MUSIC_SATAN_BOSS]                    = "Spectrum of Sin (Satan fight)",
-    ----[Music.MUSIC_DARKROOM_BOSS]             = "Fitnah (Lamb Fight)",
-    ----[Music.MUSIC_BLUEBABY_BOSS]             = "Rapturepunk (BB fight)",
+    [Music.MUSIC_DARKROOM_BOSS]                 = "Fitnah (Lamb Fight)",
+    [Music.MUSIC_BLUEBABY_BOSS]                 = "Rapturepunk (BB fight)",
     [Music.MUSIC_BOSS2]                         = "Tandava (Boss)",
     [Music.MUSIC_HUSH_BOSS]                     = "Howl (Hush Fight)",
-    ----[Music.MUSIC_ULTRAGREED_BOSS]           = "Non Funkible Token (Ultra Greed)",
+    [Music.MUSIC_ULTRAGREED_BOSS]               = "Non Funkible Token (Ultra Greed)",
     [Music.MUSIC_LIBRARY_ROOM]                  = "Lucidate (Library)",
     [Music.MUSIC_SECRET_ROOM]                   = "Forgotten Lullaby (Secret Room)",
     [Music.MUSIC_SECRET_ROOM2]                  = "Forgotten Lullaby (Secret Room)",
@@ -233,12 +224,14 @@ local names = {
     [Music.MUSIC_SHOP_ROOM]                     = "Depression Shop",
     [Music.MUSIC_ARCADE_ROOM]                   = "Esc (Arcade)",
     [Music.MUSIC_BOSS_OVER]                     = "Spinning Out of Orbit (Boss Beaten)",
+    [newMusic.CHALLENGE_FIGHT_FULL]             = "A Baleful Circus (Boss Rush)",
     [Music.MUSIC_CHALLENGE_FIGHT]               = "A Baleful Circus (Boss Rush)",
     [Music.MUSIC_BOSS_RUSH]                     = "A Baleful Circus (Boss Rush)",
     [Music.MUSIC_BOSS3]                         = "Tandava (Boss)",
-    ----[Music.MUSIC_MOTHER_BOSS]               = "",
+    [newMusic.MOTHER_BOSS_TRUE]                 = "Memento Mori",
+    [Music.MUSIC_MOTHER_BOSS]                   = "Memento Mori",
     [Music.MUSIC_PLANETARIUM]                   = "Journey from a Jar to the Sky",
-    [Music.MUSIC_SECRET_ROOM_ALT_ALT]           = "Forgotten Lullaby (with reverb)",
+    [Music.MUSIC_SECRET_ROOM_ALT_ALT]           = {"Forgotten Lullaby (with reverb)", "andboy"},
     [Music.MUSIC_BOSS_OVER_TWISTED]             = "Spinning Intensifies (Boss Beaten + ?)",
     [Music.MUSIC_CREDITS]                       = "Underscore (Credits)",
     [Music.MUSIC_TITLE_AFTERBIRTH]              = "Descent (Title)",
@@ -246,7 +239,7 @@ local names = {
     [Music.MUSIC_CREDITS_ALT]                   = "Take Me Back Home", -- https://twitter.com/htedum/status/1402159446336307200
     ----[Music.MUSIC_CREDITS_ALT_FINAL]         = "", -- idk
     ----[Music.MUSIC_VOID]                      = "Allnoise (The Void)",
-    ----[Music.MUSIC_VOID_BOSS]                 = "Terminal Lucidity (Delirium)",
+    [Music.MUSIC_VOID_BOSS]                     = "Terminal Lucidity (Delirium)",
     [Music.MUSIC_DOWNPOUR]                      = "Hallowed Ground",
     [Music.MUSIC_MINES]                         = "Fault Lines",
     [Music.MUSIC_MAUSOLEUM]                     = "Machine in the Walls",
@@ -257,8 +250,22 @@ local names = {
     [Music.MUSIC_MORTIS]                        = "[Unfinished area theme]",
     [Music.MUSIC_DROSS_REVERSE]                 = {nil, "Kwonunn"},
 
-
-
+    [newMusic.MEGASATAN_BOSS]                   = "The Flagbearer",
+    [newMusic.ARCADE_ALT]                       = {"$4cR1f1c14|_", "Danny Baranowsky"},
+    [newMusic.SHOP_ALT]                         = {"Greed", "Danny Baranowsky"},
+    --[newMusic.VOID_0]                           = "",
+    --[newMusic.VOID_1]                           = "",
+    --[newMusic.VOID_2]                           = "",
+    --[newMusic.VOID_3]                           = "",
+    --[newMusic.VOID_4]                           = "",
+    --[newMusic.VOID_5]                           = "",
+    --[newMusic.VOID_6]                           = "",
+    --[newMusic.VOID_7]                           = "",
+    --[newMusic.VOID_BOSS_1]                      = "",
+    --[newMusic.VOID_BOSS_2]                      = "",
+    --[newMusic.VOID_BOSS_3]                      = "",
+    --[newMusic.VOID_BOSS_4]                      = "",
+    --[newMusic.VOID_BOSS_5]                      = "",
     [newMusic.BLANK]                            = {"", ""},
     [newMusic.DROSS_OG]                         = {"Night Soil (Dross)", "Ridiculon"},
     [newMusic.DROSS_REVERSE_OG]                 = {nil, "Ridiculon"},
@@ -281,6 +288,18 @@ for music, def in pairs(tempoDefs) do
     end
 end
 
+tempoDefs[newMusic.MOM_BOSS]                         = tempoDefs[Music.MUSIC_MOM_BOSS]
+tempoDefs[newMusic.MOMS_HEART_BOSS]                  = tempoDefs[Music.MUSIC_MOMS_HEART_BOSS]
+tempoDefs[newMusic.ISAAC_BOSS]                       = tempoDefs[Music.MUSIC_ISAAC_BOSS]
+tempoDefs[newMusic.MOTHER_BOSS]                      = tempoDefs[Music.MUSIC_MOTHER_BOSS]
+tempoDefs[newMusic.BLUEBABY_BOSS_TRUE]               = tempoDefs[Music.MUSIC_BLUEBABY_BOSS]
+tempoDefs[newMusic.BLUEBABY_BOSS]                    = tempoDefs[Music.MUSIC_BLUEBABY_BOSS]
+tempoDefs[newMusic.DARKROOM_BOSS_TRUE]               = tempoDefs[Music.MUSIC_DARKROOM_BOSS]
+tempoDefs[newMusic.DARKROOM_BOSS]                    = tempoDefs[Music.MUSIC_DARKROOM_BOSS]
+tempoDefs[newMusic.VOID_BOSS_TRUE]                   = tempoDefs[Music.MUSIC_VOID_BOSS]
+tempoDefs[newMusic.VOID_BOSS]                        = tempoDefs[Music.MUSIC_VOID_BOSS]
+tempoDefs[newMusic.ULTRAGREED_BOSS_TRUE]             = tempoDefs[Music.MUSIC_ULTRAGREED_BOSS]
+tempoDefs[newMusic.ULTRAGREED_BOSS]                  = tempoDefs[Music.MUSIC_ULTRAGREED_BOSS]
 tempoDefs[newMusic.SATAN_BOSS]                       = tempoDefs[Music.MUSIC_SATAN_BOSS]
 tempoDefs[newMusic.BOSS_MMC]                         = tempoDefs[Music.MUSIC_BOSS]
 tempoDefs[newMusic.UTERO_MMC]                        = tempoDefs[Music.MUSIC_UTERO]
