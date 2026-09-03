@@ -170,13 +170,8 @@ local names = {
     [Music.MUSIC_ISAACS_HOUSE]                  = "Home"
 }
 
-for music, val in pairs(names) do
-    if tempoDefs[music] then
-        tempoDefs[music].name = val
-    end
-end
-
-for _, def in pairs(tempoDefs) do
+for music, def in pairs(tempoDefs) do
+    def.name = def.name or names[music]
     def.artist = def.artist or "Ridiculon"
 end
 

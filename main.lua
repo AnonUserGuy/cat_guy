@@ -13,6 +13,10 @@ CatGuy.ModCallbacks = {
     POST_LOAD           = "CAT_GUY_POST_LOAD"
 }
 
+CatGuy.ModIDs = {
+    ANTIBIRTH_MUSIC_PLUS    = "2837511713"
+}
+
 CatGuy.SoundEffect = {
     RIMSHOT                 = Isaac.GetSoundIdByName("Rimshot"),
     OGG_PLAYER_CHIRP        = Isaac.GetSoundIdByName("OGG Player Chirp")
@@ -154,6 +158,12 @@ function CatGuy:IncrementMusic(music, n)
     return music
 end
 
+---@param modId string
+---@return boolean
+function CatGuy:HasMod(modId)
+    local metadata = XMLData.GetModById(modId)
+    return metadata ~= nil and metadata.enabled
+end
 
 CatGuy.ID = "3790558949"
 CatGuy.XML = XMLData.GetModById(CatGuy.ID)
@@ -169,7 +179,12 @@ CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type Pl
 
 local tempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
 local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
+local tempoDefsAntibirth = include("scripts_cat_guy.tempo.tempo_defs_antibirth_plus") ---@type table<Music, TempoDef>
 CatGuy.TempoManager = tempoManager:New(tempoDefs)
+
+if CatGuy:HasMod(CatGuy.ModIDs.ANTIBIRTH_MUSIC_PLUS) then
+    CatGuy.TempoManager:RegisterTempoDefs(tempoDefsAntibirth)
+end
 
 CatGuy.PlayerCallbacks = { ---@type table<PlayerType, PlayerCallbacks>
     [CatGuy.PlayerType.PERCY]                   = include("scripts_cat_guy.players.percy"),
@@ -561,17 +576,10 @@ end)
 function CatGuy:PostGameStarted()
     self.Config:Load()
     if ModConfigMenu then
-        self.Compat.ModConfigMenu:Init(ModConfigMenu, InputHelper, tempoDefs)
+        self.Compat.ModConfigMenu:Init(ModConfigMenu, InputHelper, CatGuy.TempoManager.tempoDefs)
     end
 end
 CatGuy:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, CatGuy.PostGameStarted)
-
----@param modId string
----@return boolean
-function CatGuy:HasMod(modId)
-    local metadata = XMLData.GetModById(modId)
-    return metadata ~= nil and metadata.enabled
-end
 
 CatGuy.Compat = {}
 CatGuy.Compat.EID               = include("scripts_cat_guy.compat.eid") ---@type EIDCompat

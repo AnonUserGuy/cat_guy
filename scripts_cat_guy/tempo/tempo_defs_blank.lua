@@ -60,7 +60,7 @@ local tempoDefs = {
     ----[Music.MUSIC_MOTHERS_SHADOW_INTRO]          = {bpm = 0},
     ----[Music.MUSIC_DOGMA_INTRO]                   = {bpm = 0},
     ----[Music.MUSIC_STRANGE_DOOR_JINGLE]           = {bpm = 0},
-    ----[Music.MUSIC_DARK_CLOSET]                   = {bpm = 0},
+    --[Music.MUSIC_DARK_CLOSET]                   = {bpm = 0},
     ----[Music.MUSIC_CREDITS_ALT]                   = {bpm = 0},
     ----[Music.MUSIC_CREDITS_ALT_FINAL]             = {bpm = 0},
     ----[Music.MUSIC_JINGLE_BOSS]                   = {bpm = 0},
@@ -95,7 +95,7 @@ local tempoDefs = {
     ----[Music.MUSIC_FINAL_VOICEOVER]               = {bpm = 0},
     --[Music.MUSIC_DOWNPOUR_REVERSE]              = {bpm = 0},
     --[Music.MUSIC_DROSS_REVERSE]                 = {bpm = 0},
-    ----[Music.MUSIC_MINESHAFT_AMBIENT]             = {bpm = 0},
+    --[Music.MUSIC_MINESHAFT_AMBIENT]             = {bpm = 0},
     --[Music.MUSIC_MINESHAFT_ESCAPE]              = {bpm = 0},
     --[Music.MUSIC_REVERSE_GENESIS]               = {bpm = 0}
 }

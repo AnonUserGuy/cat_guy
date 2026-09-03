@@ -6,7 +6,7 @@ local TWO_THIRDS = 2/3
 ---@class TempoManager
 ---@field lastPitch number
 ---@field tempoDefs table<Music, TempoDef>
----@field tempoDef? TempoDef
+---@field tempoDef TempoDef?
 ---@field beat number strictly increasing beat number
 ---@field beatMusic number beat number relative to music
 ---@field measure integer
@@ -28,7 +28,6 @@ function TempoManager:New(tempoDefs)
 
     instance.tempoDefs = {}
     if tempoDefs then
-        tempoDefs = instance:ValidateTempoDefs(tempoDefs)
         instance:RegisterTempoDefs(tempoDefs)
     end
 
@@ -58,7 +57,7 @@ end
 ---@param music Music
 ---@param tempoDef TempoDef
 function TempoManager:RegisterTempoDef_internal(music, tempoDef)
-    if not self.tempoDefs[music] or (self.tempoDefs[music].priority or 0.0) <= (tempoDef.priority or 0.0) then
+    if music > 0 and (not self.tempoDefs[music] or (self.tempoDefs[music].priority or 0.0) <= (tempoDef.priority or 0.0)) then
         self.tempoDefs[music] = tempoDef
     end
 end
@@ -84,18 +83,43 @@ function TempoManager:UpdateConfig()
     end
 end
 
+--[[ ---@param music Music
+---@param source? string
+function TempoManager:IsSourceValid(music, source)
+    source = source or "BaseGame"
+    local musicXMLNode = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode?
+    print(musicXMLNode.sourceid)
+    if musicXMLNode and musicXMLNode.sourceid == source then
+        return true
+    end
+    return false
+end
+
+---@param tempoDefs table<Music, TempoDef>
+---@param source? string
+function TempoManager:RegisterTempoDefsIfValid(tempoDefs, source)
+    source = source or "BaseGame"
+    for music, tempoDef in pairs(tempoDefs) do
+        if self:IsSourceValid(music, source) then
+            self:RegisterTempoDef_internal(music, tempoDef)
+        end
+    end
+    self:UpdateConfig()
+end
+
 --- Creates a new tempoDefs table, does not modify original tempoDefs table
 ---@param tempoDefs table<Music, TempoDef>
-function TempoManager:ValidateTempoDefs(tempoDefs)
+---@param source? string
+function TempoManager:ValidateTempoDefs(tempoDefs, source)
+    source = source or "BaseGame"
     local out = {} ---@type table<Music, TempoDef>
     for music, tempoDef in pairs(tempoDefs) do
-        local musicXMLNode = XMLData.GetEntryById(XMLNode.MUSIC, music) ---@type MusicXMLNode
-        if musicXMLNode.sourceid == "BaseGame" then
+        if self:IsSourceValid(music, source) then
             out[music] = tempoDef
         end
     end
     return out
-end
+end ]]
 
 ---@param music? Music
 ---@return TempoDef?
