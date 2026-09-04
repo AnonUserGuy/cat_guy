@@ -1,3 +1,9 @@
+## Global variables
+This mod adds the following global variables:
+- `CatGuy` -- Most of this article is about this one.
+- `CatGuyShuffle` -- Shuffle option of OGG Player. Preserved whenever mod is reloaded.
+- `CatGuyLocked` -- Lock option of OGG Player. Preserved whenever mod is reloaded.
+
 ## Ensuring mod is loaded
 To test if the Cat Guy mod has been loaded, perform a nil check on the global `CatGuy` object:
 ```lua
@@ -18,19 +24,22 @@ To make a modded/replaced vanilla song work with the mod, you will have to add a
 
 ```lua
 ---@class TempoDef
----@field bpm number - initial tempo in BPM.
----@field bpms? table<integer, integer> - time indices (in milliseconds) of tempo changes (in BPM)
+---@field bpm? number initial tempo in BPM. Required unless def is only for giving OGG Player artist/name
+---@field bpms? table<integer, integer> time indices (in milliseconds) of tempo changes (in BPM)
 ---
----@field offset? integer - offset of first beat in milliseconds. Defaults to 0 ms.
----@field intro? integer - length of intro in milliseconds. Defaults to 0 ms. Only necessary if there's BPM/time signature changes in the looping section.
----@field length? integer - length of looping section in milliseconds. Only necessary if there's BPM/time signature changes in the looping section.
+---@field offset? integer offset of first beat in milliseconds. Defaults to 0 ms.
+---@field intro? integer length of intro in milliseconds. Defaults to 0 ms. Only necessary if there's BPM/time signature changes in the looping section.
+---@field length? integer length of looping section in milliseconds. Only necessary if there's BPM/time signature changes in the looping section.
 ---
----@field timeSig? integer - initial time signature in beats per bar. Defaults to 4. -1 disables time signature stuff.
----@field timeSigs? table<integer, integer> - beat indices of time signature changes (in beats per bar)
----@field triplet? boolean - true if song is initially in triplet time. Affects fire delay.
----@field triplets? table<integer, boolean> - beat indices of triplet time changes. 
-
----@field priority? number - Higher priority tempo defs override lower or equal priority tempo defs for the same music. Defaults to 0.
+---@field timeSig? integer initial time signature in beats per bar. Defaults to 4. -1 disables time signature stuff.
+---@field timeSigs? table<integer, integer> beat indices of time signature changes (in beats per bar)
+---@field triplet? boolean true if song is initially in triplet time. Affects fire delay.
+---@field triplets? table<integer, boolean> beat indices of triplet time changes. 
+---
+---@field artist? string Name of artist of song. Used by OGG Player.
+---@field name? string Name of song. Used by OGG Player.
+---
+---@field priority? number Higher priority tempo defs override lower or equal priority tempo defs for the same music. Defaults to 0.
 ```
 
 To add a `TempoDef`, call `CatGuy.TempoManager:RegisterTempoDef` as follows:
@@ -48,6 +57,6 @@ CatGuy.TempoManager:RegisterTempoDefs({
 
 The game's vanilla definitions can be found at [`./scripts_cat_guy/tempo/tempo_defs.lua`](https://github.com/AnonUserGuy/cat_guy/blob/main/scripts_cat_guy/tempo/tempo_defs.lua)
 
-## Relevant Issues
+## REPENTOGON issues relevant to development
 - https://github.com/TeamREPENTOGON/REPENTOGON/issues/910
 - https://github.com/TeamREPENTOGON/REPENTOGON/issues/364

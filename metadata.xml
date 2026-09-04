@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <metadata>
     <name>Percy: The Musical Cat! [WIP]</name>
     <directory>cat_guy</directory>
@@ -6,10 +6,10 @@
     <version>1.2</version>
 	  <description>[h3]This mod requires [b]REPENTOGON[/b] to work! Visit https://steamcommunity.com/sharedfiles/filedetails/?id=3127536138 for more information![/h3]
 
-[b][i]NOTE: This mod currently isn't compatible with any music mods, and only works with the game's vanilla music. Modded music compatibility to come![/i][/b]
+[b][i]NOTE: This mod currently isn't compatible with most music mods (see [i]Compatibility[/i] section below). Check for compatibility before playing with any music mods![/i][/b]
 
 [h1]Percy: The Musical Cat! [WIP][/h1]
-This mod's main attraction, Percy, is a character with stats similar to Cain (2 red hearts, higher speed, lower range) but lacking the high base damage and multiplier. Instead to deal damage, Percy has a starting item unique to the mod: Mom's Headphones!
+Percy (AKA Cat Guy) is a character with stats similar to Cain (2 red hearts, higher speed, lower range) but lacking the high base damage and multiplier. Instead to deal damage, Percy has a starting item unique to the mod: Mom's Headphones!
 
 [h2]Mom's Headphones[/h2]
 A passive item from treasure rooms, Mom's Headphones completely change tear shooting mechanics. Instead of being able to hold a fire button to shoot continuously, now the fire button must be pressed for each shot. The button can be mashed to shoot tons of tears, but they will do significantly less damage if you shoot faster than your tear rate would normally allow. So, instead of mashing you should...
@@ -17,8 +17,8 @@ A passive item from treasure rooms, Mom's Headphones completely change tear shoo
 [h3]Shoot to the Beat![/h3]
 With Mom's Headphones, if you shoot on-beat to the music, your tears will do more damage!
 [list]
-  [*]Tears shot [i]perfectly[/i] on-beat will do x2.0 damage!
-  [*]Tears shot [i]perfectly[/i] off-beat will do x0.75 damage.
+[*] Tears shot [i]perfectly[/i] on-beat will do x2.0 damage!
+[*] Tears shot [i]perfectly[/i] off-beat will do x0.75 damage.
 [/list]
 
 There's more bias towards decreasing your damage (only ~33% of shots do more than x1.0 damage), so you'll have to be precise if you want Mom's Headphones to be a damage up rather than a damage down.
@@ -28,12 +28,13 @@ Given these mechanics, its more beneficial to receive damage ups than tears ups.
 [h3]Synergies[/h3]
 Mom's Headphones have lots of synergies, including:
 [list]
-  [*][b]Soy Milk/Marked[/b] - Tears go back to being fired continually again. Damage up for on-beat tears still applies.
-  [*][b]Brimstone/Chocolate Milk/other charged shots[/b] - Damage up for releasing shots on-beat.
-  [*][b]Ludovico Technique[/b] - Damage varies with beat of music.
-  [*][b]C Section[/b] - Damage up for firing fetuses on-beat. First fetus takes 0.5/1/2 beats to fire depending on your tear rate.
-  [*][b]Tooth and Nail[/b] - Isaac turns to stone every 1/2/4 measures instead of every 6 seconds. 
+[*] [b]Soy Milk/Marked[/b] - Tears go back to being fired continually again. Damage up for on-beat tears still applies.
+[*] [b]Brimstone/Chocolate Milk/other charged shots[/b] - Damage up for releasing shots on-beat.
+[*] [b]Ludovico Technique[/b] - Damage varies with beat of music.
+[*] [b]C Section[/b] - Damage up for firing fetuses on-beat. First fetus takes 0.5/1/2 beats to fire depending on your tear rate.
+[*] [b]Tooth and Nail[/b] - Isaac turns to stone every 1/2/4 measures instead of every 6 seconds.
 [/list]
+
 
 [h1]Tainted Percy[/h1]
 Instead of leaning into musical mechanics, Tainted Percy more-so leans into cat themed mechanics. Tainted Percy is a ghost, like the Lost or Tainted Lost. They have no mantle, instead starting with 3 extra lives. When taking HP ups, they will gain extra lives proportional to the amount of red heart containers gained. They also start with a pocket active unique to the mod: Underhands.
@@ -41,31 +42,53 @@ Instead of leaning into musical mechanics, Tainted Percy more-so leans into cat 
 [h2]Underhands[/h2]
 The Underhands are a 6 charge active item found in devil and curse rooms that, upon first picking up, grants Isaac 3 extra lives. If Isaac dies and spends one of these lives, they will revive with only one heart container (assuming they have health).
 
-When used, Isaac receives a 3-second shield. For the remainder of the current room, dying will revive Isaac in that room rather than outside of it. While the Underhands are not too useful for most characters, they are a boon for the Lost or Tainted Percy. 
+When used, Isaac receives a 3-second shield. For the remainder of the current room, dying will revive Isaac in that room rather than outside of it. While the Underhands are not too useful for most characters, they are a boon for the Lost or Tainted Percy.
 
 [h1]Configuration[/h1]
-This mod supports configuration through [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3701683951]Mod Config Menu[/url]. 
+This mod supports configuration through [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3701683951]Mod Config Menu[/url].
 
-Alternatively, configuration can be changed by editing "cat_guy_config.lua".
+Alternatively, configuration can be changed by editing "[i]cat_guy_config.lua[/i]".
+
+You'll likely want to adjust input latency (default values are provided based on my own input latency and will probably not work great for you) and set a key to restart the game's music (defaults to "[i]/[/i]", useful if rhythm tracking desyncs with the music).
+
+[h1]Compatibility[/h1]
+This mod currently supports:
+[list]
+[*] Some music mods
+[list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1547034524]Antibirth Music++[/url]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2837511713]Antibirth Music+++[/url]
+[*] Unsupported mods that [i]directly replace[/i] the game's music [b]will likely cause issues[/b].
+[list]
+[*] EX: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3727170471]Sacrilege Soundtrack[/url]
+[/list]
+[*] Unsupported mods that add new music in addition to the vanilla music should be fine, rhythm mechanics will just be disabled while the modded music is playing.
+[list]
+[*] EX: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2575911103]Specialist Dance for Good Items[/url], [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2491006386]Soundtrack Menu[/url]
+[/list]
+[/list]
+[*] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=836319872]External Item Descriptions[/url]
+[*] [url=https://steamcommunity.com/workshop/filedetails/?id=3701683951]Mod Config Menu[/url]
+[/list]
 
 [h1]Todo[/h1]
 [list]
-  [*]Add support for important music mods. (Flash music, Antibirth music, [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1933285222]Soundtrack Menu[/url])
-  [*]Add animations for using, and being revived by, Underhands.
-  [*]Add more character costumes for Percy and Tainted Percy.
-  [*]Add unlock method for Percy and Tainted Percy.
-  [*]Add completion mark unlocks for Percy and Tainted Percy.
+[*] Add support for important music mods. (Flash music, [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1933285222]Soundtrack Menu[/url])
+[*] Add animations for using, and being revived by, Underhands.
+[*] Add more character costumes for Percy and Tainted Percy.
+[*] Add unlock method for Percy and Tainted Percy.
+[*] Add completion mark unlocks for Percy and Tainted Percy.
 [/list]
 
 [h1]Links[/h1]
 [list]
-  [*]Steam: https://steamcommunity.com/sharedfiles/filedetails/?id=3790558949
-  [*]GitHub: https://github.com/AnonUserGuy/cat_guy
+[*] Steam - https://steamcommunity.com/sharedfiles/filedetails/?id=3790558949
+[*] GitHub - https://github.com/AnonUserGuy/cat_guy
 [/list]</description>
-    <tag id="Lua"/>
-    <tag id="Items"/>
-    <tag id="Active Items"/>
-    <tag id="Trinkets"/>
-    <tag id="Player Characters"/>
-    <tag id="Music"/>
+    <tag id="Lua" />
+    <tag id="Items" />
+    <tag id="Active Items" />
+    <tag id="Trinkets" />
+    <tag id="Player Characters" />
+    <tag id="Music" />
 </metadata>

@@ -36,6 +36,10 @@ local tempoDefs = {
 
 }
 
+---https://steamcommunity.com/sharedfiles/filedetails/?id=2837511713#comment_587310798376975209
+---"@DogLuggage If you want you can add me as a friend and I'll compile and send you a list. But off 
+---the top of my head, Mudeth made all of the songs with the exception of the Void alternate boss themes, 
+---and I made the alt alt floor rearrangements." - Vivian [author]
 ---@type table<Music, string|string[]>
 local names = {
     [Music.MUSIC_UTERO]                         = "Dystension (Womb)",
