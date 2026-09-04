@@ -6,7 +6,7 @@ local TWO_THIRDS = 2/3
 ---@class TempoManager
 ---@field lastMusic Music?
 ---@field lastPitch number
----@field tempoDefs table<Music, TempoDef>
+---@field tempoDefs TempoDefs
 ---@field tempoDef TempoDef?
 ---@field beat number strictly increasing beat number
 ---@field beatMusic number beat number relative to music
@@ -21,7 +21,7 @@ local TWO_THIRDS = 2/3
 ---@field musicRestartBeat nil|number
 local TempoManager = {}
 
----@param tempoDefs? table<Music, TempoDef>
+---@param tempoDefs? TempoDefs
 ---@return TempoManager
 function TempoManager:New(tempoDefs)
     local instance = setmetatable({}, self)
@@ -71,7 +71,7 @@ function TempoManager:RegisterTempoDef(music, tempoDef)
     self:UpdateConfig()
 end
 
----@param tempoDefs table<Music, TempoDef>
+---@param tempoDefs TempoDefs
 function TempoManager:RegisterTempoDefs(tempoDefs)
     for music, tempoDef in pairs(tempoDefs) do
         self:RegisterTempoDef_internal(music, tempoDef)
@@ -97,7 +97,7 @@ function TempoManager:IsSourceValid(music, source)
     return false
 end
 
----@param tempoDefs table<Music, TempoDef>
+---@param tempoDefs TempoDefs
 ---@param source? string
 function TempoManager:RegisterTempoDefsIfValid(tempoDefs, source)
     source = source or "BaseGame"
@@ -110,11 +110,11 @@ function TempoManager:RegisterTempoDefsIfValid(tempoDefs, source)
 end
 
 --- Creates a new tempoDefs table, does not modify original tempoDefs table
----@param tempoDefs table<Music, TempoDef>
+---@param tempoDefs TempoDefs
 ---@param source? string
 function TempoManager:ValidateTempoDefs(tempoDefs, source)
     source = source or "BaseGame"
-    local out = {} ---@type table<Music, TempoDef>
+    local out = {} ---@type TempoDefs
     for music, tempoDef in pairs(tempoDefs) do
         if self:IsSourceValid(music, source) then
             out[music] = tempoDef

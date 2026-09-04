@@ -15,10 +15,10 @@ local TIMER_FADED = 60
 local SHUFFLE_LIST_MAX = 100
 
 local timer = 0
-CatGuyShuffle = false
+CatGuyShuffle = CatGuyShuffle or false
 local shuffleListIndex = 0
 local shuffleList = {} ---@type Music[]
-CatGuyLocked = false
+CatGuyLocked = CatGuyLocked or false
 local tutorial = 2
 local typing = 0
 

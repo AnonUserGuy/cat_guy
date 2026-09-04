@@ -15,7 +15,7 @@ mcmCompat.inited = false
 
 ---@param mcm any
 ---@param inputHelper any
----@param tempoDefs table<Music, TempoDef>
+---@param tempoDefs TempoDefs
 function mcmCompat:Init(mcm, inputHelper, tempoDefs)
     if mcmCompat.inited then
         return
@@ -69,7 +69,7 @@ function mcmCompat:Init(mcm, inputHelper, tempoDefs)
     self:UpdateTempos(mcm, tempoDefs)
 end
 
----@param tempoDefs table<Music, TempoDef>
+---@param tempoDefs TempoDefs
 function mcmCompat:UpdateTempos(mcm, tempoDefs)
     mcm.RemoveSubcategory(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS)
     mcm.AddText(MOD_NAME, configTab.SONG_SPECIFIC_SETTINGS, function() return "Enable rhythm-related features per song" end)

@@ -1,4 +1,4 @@
----@type table<Music, TempoDef>
+---@type TempoDefs
 local tempoDefs = {
     [Music.MUSIC_BASEMENT]                      = {bpm = 140},
     [Music.MUSIC_CAVES]                         = {bpm = 120, bpms = {[3853] = 131.578, [4309] = 120}, offset = 83},
@@ -89,7 +89,6 @@ local tempoDefs = {
     [Music.MUSIC_DROSS]                         = {bpm = 120, offset = 237},
     [Music.MUSIC_ASHPIT]                        = {bpm = 106, timeSigs = {[3] = 4}},
     [Music.MUSIC_GEHENNA]                       = {bpm = 110},
-    [Music.MUSIC_MORTIS]                        = {bpm = 90},
     [Music.MUSIC_ISAACS_HOUSE]                  = {bpm = 90, timeSig = 3},
     [Music.MUSIC_FINAL_VOICEOVER]               = {},
     [Music.MUSIC_DOWNPOUR_REVERSE]              = {bpm = 144},
@@ -166,13 +165,11 @@ local names = {
     [Music.MUSIC_DROSS]                         = "Night Soil (Dross)",
     [Music.MUSIC_ASHPIT]                        = "Absentia (Ashpit)",
     [Music.MUSIC_GEHENNA]                       = "Morning Star (Gehenna)",
-    [Music.MUSIC_MORTIS]                        = "[Unfinished area theme]",
     [Music.MUSIC_ISAACS_HOUSE]                  = "Home"
 }
 
-for music, def in pairs(tempoDefs) do
-    def.name = def.name or names[music]
-    def.artist = def.artist or "Ridiculon"
-end
+CatGuy:ApplyNameArtistToTempoDefs(tempoDefs, names, "Ridiculon")
+
+tempoDefs[Music.MUSIC_MORTIS]                   = tempoDefs[Music.MUSIC_WOMB_UTERO]
 
 return tempoDefs

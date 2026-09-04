@@ -18,3 +18,5 @@
 ---@field name? string Name of song. Used by OGG Player.
 ---
 ---@field priority? number Higher priority tempo defs override lower or equal priority tempo defs for the same music. Defaults to 0.
+
+---@alias TempoDefs table<Music, TempoDef>

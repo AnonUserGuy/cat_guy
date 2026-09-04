@@ -1,0 +1,12 @@
+---@class MusicXMLNode 
+---@field name string
+---@field intro? string
+---@field path? string
+---@field sourceid? string
+---@field id? string
+---@field loop? string
+---@field layer? string|MusicXMLLayer[] 
+
+---@class MusicXMLLayer
+---@field path? string
+---@field mul? string

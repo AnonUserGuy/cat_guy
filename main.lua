@@ -8,13 +8,15 @@ end
 include("scripts_cat_guy.compat.mcm_controller")
 
 CatGuy.ModCallbacks = {
-    TICK                = "CAT_GUY_TICK",
-    POST_BPM_CHANGE     = "CAT_GUY_POST_BPM_CHANGE",
-    POST_LOAD           = "CAT_GUY_POST_LOAD"
+    TICK                    = "CAT_GUY_TICK",
+    POST_BPM_CHANGE         = "CAT_GUY_POST_BPM_CHANGE",
+    POST_LOAD               = "CAT_GUY_POST_LOAD"
 }
 
 CatGuy.ModIDs = {
-    ANTIBIRTH_MUSIC_PLUS    = "2837511713"
+    CAT_GUY                 = "3790558949", -- https://steamcommunity.com/sharedfiles/filedetails/?id=3790558949
+    ANTIBIRTH_MUSIC_PP      = "1547034524", -- Antibirth Music++ -- https://steamcommunity.com/sharedfiles/filedetails/?id=1547034524
+    ANTIBIRTH_MUSIC_PPP     = "2837511713", -- Antibirth Music+++ -- https://steamcommunity.com/sharedfiles/filedetails/?id=2837511713
 }
 
 CatGuy.SoundEffect = {
@@ -163,15 +165,47 @@ function CatGuy:IsValidMusic(music)
     return music and XMLData.GetEntryById(XMLNode.MUSIC, music)
 end
 
+---@param ... string
+---@return Music
+function CatGuy.GetMusicIdByNames(...)
+    local args = {...}
+    for _, name in ipairs(args) do
+        local music = Isaac.GetMusicIdByName(name)
+        if music ~= -1 then
+            return music
+        end
+    end
+    return -1 ---@diagnostic disable-line: return-type-mismatch
+end
+
+---@param tempoDefs TempoDefs
+---@param names table<Music, string|string[]>
+---@param defaultArtist? string
+function CatGuy:ApplyNameArtistToTempoDefs(tempoDefs, names, defaultArtist)
+    for music, def in pairs(tempoDefs) do
+        local name = names[music]
+        if name then
+            if type(name) == "table" then
+                def.name = def.name or name[1] or nil
+                def.artist = def.artist or name[2] or defaultArtist
+            else
+                def.name = def.name or name or nil
+                def.artist = def.artist or defaultArtist
+            end
+        else
+            def.artist = def.artist or defaultArtist
+        end
+    end
+end
+
 ---@param modId string
 ---@return boolean
 function CatGuy:HasMod(modId)
     local metadata = XMLData.GetModById(modId)
-    return metadata ~= nil and metadata.enabled
+    return metadata ~= nil and metadata.enabled ~= "false"
 end
 
-CatGuy.ID = "3790558949"
-CatGuy.XML = XMLData.GetModById(CatGuy.ID)
+CatGuy.XML = XMLData.GetModById(CatGuy.ModIDs.CAT_GUY)
 
 local configManager = include("scripts_cat_guy.config.config_manager") ---@type ConfigManager
 local config = include("cat_guy_config") ---@type CatGuyConfig
@@ -183,12 +217,21 @@ CatGuy.Config:Load()
 CatGuy.PlayerUtils = include("scripts_cat_guy.players.player_utils") ---@type PlayerUtils
 
 local tempoManager = include("scripts_cat_guy.tempo.tempo_manager") ---@type TempoManager
-local tempoDefs = include("scripts_cat_guy.tempo.tempo_defs") ---@type table<Music, TempoDef>
-CatGuy.TempoManager = tempoManager:New(tempoDefs)
+CatGuy.TempoManager = tempoManager:New()
 
-if CatGuy:HasMod(CatGuy.ModIDs.ANTIBIRTH_MUSIC_PLUS) then
-    local tempoDefsAntibirth = include("scripts_cat_guy.tempo.tempo_defs_antibirth_plus") ---@type table<Music, TempoDef>
-    CatGuy.TempoManager:RegisterTempoDefs(tempoDefsAntibirth)
+CatGuy.TempoDefs = {}
+
+CatGuy.TempoDefs.Vanilla = include("scripts_cat_guy.tempo.tempo_defs") ---@type TempoDefs 
+CatGuy.TempoManager:RegisterTempoDefs(CatGuy.TempoDefs.Vanilla)
+
+if CatGuy:HasMod(CatGuy.ModIDs.ANTIBIRTH_MUSIC_PP) or CatGuy:HasMod(CatGuy.ModIDs.ANTIBIRTH_MUSIC_PPP) then
+    CatGuy.TempoDefs.AntibirthPP = include("scripts_cat_guy.tempo.tempo_defs_antibirth_pp") ---@type TempoDefs
+    CatGuy.TempoManager:RegisterTempoDefs(CatGuy.TempoDefs.AntibirthPP)
+
+    if CatGuy:HasMod(CatGuy.ModIDs.ANTIBIRTH_MUSIC_PPP) then
+        CatGuy.TempoDefs.AntibirthPPP = include("scripts_cat_guy.tempo.tempo_defs_antibirth_ppp") ---@type TempoDefs
+        CatGuy.TempoManager:RegisterTempoDefs(CatGuy.TempoDefs.AntibirthPPP)
+    end
 end
 
 CatGuy.PlayerCallbacks = { ---@type table<PlayerType, PlayerCallbacks>

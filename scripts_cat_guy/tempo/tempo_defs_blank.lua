@@ -1,5 +1,5 @@
 -- quadruple indented entries aren't very important
----@type table<Music, TempoDef>
+---@type TempoDefs
 local tempoDefs = {
     --[Music.MUSIC_BASEMENT]                      = {bpm = 0},
     --[Music.MUSIC_CAVES]                         = {bpm = 0},
