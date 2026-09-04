@@ -1,5 +1,5 @@
 <!-- This file is converted to the steam workshop description automatically. Be careful to not use elements that steam markup doesn't support. -->
-<!-- All headers are downgraded by 1, anchor links are removed, inline code blocks are replaced with quoted text, and html comments are removed. -->
+<!-- All headers are upgraded by 1, anchor links are removed, inline code blocks are replaced with quoted text, and html comments are removed. -->
 
 #### This mod requires **REPENTOGON** to work! Visit https://steamcommunity.com/sharedfiles/filedetails/?id=3127536138 for more information!
 

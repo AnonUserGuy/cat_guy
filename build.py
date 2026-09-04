@@ -18,19 +18,28 @@ def main():
         test_convert(readme_file)
         return
 
-    update_metadata(metadata_file, readme_file)
+    update_metadata(metadata_file, readme_file, out_dir)
 
     bad_dirs = [out_dir, ".\\.vscode", ".\\.git", ".\\resources\\gfx\\characters\\costumes_percy\\edit me"]
     bad_files = [".\\cat_guy_config_user.lua"]
-    extensions = [".lua", ".xml", ".ogg", ".wav", ".anm2", ".png", ".fs", ".vs", ".md"]
+    extensions = [".lua", ".xml", ".ogg", ".wav", ".anm2", ".png", ".fs", ".vs", ".md", ".txt"]
 
     if path.isdir(out_dir):
         shutil.rmtree(out_dir)
 
     copy(in_dir, out_dir, bad_dirs, bad_files, extensions)
 
-def update_metadata(metadata_file: str, readme_file: str):
+def update_metadata(metadata_file: str, readme_file: str, out_dir: str):
     metadata = ET.parse(metadata_file)
+
+    metadata_out_file = path.join(out_dir, metadata_file)
+    if path.isfile(metadata_out_file):
+        metadata_out = ET.parse(metadata_out_file)
+
+        version = metadata.find("version")
+        version_out = metadata_out.find("version")
+        if version != None and version_out != None:
+            version.text = version_out.text
 
     readme: str
     with open(readme_file) as f:
@@ -52,7 +61,7 @@ def test_convert(readme_file: str):
         readme = f.read()
     readme = convert(readme)
 
-    with open(readme_file + ".txt", "w") as f:
+    with open(readme_file + "_steam.text", "w") as f:
         f.write(readme)
 
 def convert(readme: str):
