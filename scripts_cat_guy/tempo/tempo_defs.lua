@@ -1,3 +1,6 @@
+-- todo: make seperate versions for rep and rep+
+-- I believe Isaac Boss and Corpse theme are different, that's it
+
 ---@type TempoDefs
 local tempoDefs = {
     [Music.MUSIC_BASEMENT]                      = {bpm = 140},
@@ -21,7 +24,7 @@ local tempoDefs = {
     [Music.MUSIC_UTERO]                         = {bpm = 90},
     [Music.MUSIC_MOM_BOSS]                      = {bpm = 160, timeSigs = {[3] = 4}},
     [Music.MUSIC_MOMS_HEART_BOSS]               = {bpm = 160},
-    [Music.MUSIC_ISAAC_BOSS]                    = {bpm = 120, offset = -253},
+    [Music.MUSIC_ISAAC_BOSS]                    = {bpm = 120, offset = 30},
     [Music.MUSIC_SATAN_BOSS]                    = {bpm = 165, timeSigs = {[2] = 4}, offset = 31},
     [Music.MUSIC_DARKROOM_BOSS]                 = {bpm = 170, offset = 205},
     [Music.MUSIC_BLUEBABY_BOSS]                 = {bpm = 110, timeSigs = {[2] = 4}},
